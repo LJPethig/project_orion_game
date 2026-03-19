@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Orion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
+</head>
+<body>
+
+    <div id="splash-screen">
+
+        <div id="splash-overlay"></div>
+
+        <div id="splash-content">
+
+            <h1 id="splash-title">PROJECT ORION</h1>
+
+            <div id="splash-intro">
+                <p>The year is 2276.</p>
+                <p>Humanity has spread across the solar system and beyond.</p>
+                <p>Corporations dominate, but out in the black,</p>
+                <p>independent traders still carve out a living.</p>
+                <p>&nbsp;</p>
+                <p>You are one of them — pilot, engineer, survivor.</p>
+                <p>Your ship is your home, your lifeline, your freedom.</p>
+            </div>
+
+            <div id="splash-prompt">Click anywhere to begin</div>
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/screens/splash.js') }}"></script>
+</body>
+</html>
