@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Orion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+</head>
+<body>
+
+    <div id="game-screen">
+
+        <!-- ── Main area (image + right panel) ─────────────── -->
+        <div id="main-area">
+
+            <!-- Left: Room image -->
+            <div id="room-image-panel">
+                <img id="room-image" src="" alt="" />
+                <div id="room-image-placeholder">[ NO SIGNAL ]</div>
+            </div>
+
+            <!-- Right: Three stacked panels -->
+            <div id="right-panel">
+
+                <!-- Description -->
+                <div id="description-panel" class="text-panel">
+                    <div id="description-content">
+                        <!-- Room name, objects, exits populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="panel-divider"></div>
+
+                <!-- Response -->
+                <div id="response-panel" class="text-panel">
+                    <div id="response-content">
+                        <!-- Command responses populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="panel-divider"></div>
+
+                <!-- Command input -->
+                <div id="input-panel">
+                    <span id="input-prompt">&gt;</span>
+                    <input
+                        type="text"
+                        id="command-input"
+                        autocomplete="off"
+                        spellcheck="false"
+                        placeholder="enter command..."
+                        disabled
+                    />
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ── Event strip (full width, fixed bottom) ───────── -->
+        <div id="event-strip">
+            <div id="event-left">
+                <!-- Events and alerts appear here -->
+            </div>
+            <div id="event-right">
+                <span id="ship-name-display"></span>
+                <span id="ship-time-display">--  --:--</span>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JS modules — order matters -->
+    <script src="{{ url_for('static', filename='js/core/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/core/loop.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/screens/game.js') }}"></script>
+
+</body>
+</html>

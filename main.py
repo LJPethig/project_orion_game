@@ -1,6 +1,7 @@
 # main.py
 # Flask entry point for Project Orion
 
+import webbrowser
 from flask import Flask, render_template
 from backend.api.game import game_bp
 
@@ -24,10 +25,11 @@ def splash():
 
 @app.route("/game")
 def game():
-    """Main game screen — placeholder until Phase 7."""
-    return "<h1 style='color:lime;background:#000;font-family:monospace;padding:40px'>Game screen coming in Phase 7</h1>"
+    """Main game screen."""
+    return render_template("game.html")
 
 
 if __name__ == "__main__":
     from config import DEBUG, PORT
+    webbrowser.open(f"http://localhost:{PORT}")
     app.run(debug=DEBUG, port=PORT)

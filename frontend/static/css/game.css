@@ -1,0 +1,277 @@
+/* game.css — Project Orion main game screen */
+
+/* ── Reset & base ───────────────────────────────────────────── */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Colours — matching Dark Star palette */
+    --col-bg:           #000000;
+    --col-bg-panel:     #050a05;
+    --col-border:       #1a3a1a;
+    --col-divider:      #0f2a0f;
+
+    --col-text:         #bababa;       /* Default text — Dark Star TEXT_COLOR */
+    --col-title:        #27e6ec;       /* Cyan — exits, fixed objects, titles */
+    --col-portable:     #bea5cd;       /* Purple — portable items */
+    --col-alert:        #ff8c00;       /* Orange — alerts */
+    --col-prompt:       #00ff00;       /* Green — command prompt */
+    --col-response:     #7e97ae;       /* Muted blue — player input echo */
+
+    /* Layout */
+    --left-panel-ratio: 45%;
+    --event-strip-height: 70px;
+    --input-panel-height: 48px;
+    --panel-padding: 16px;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--col-bg);
+    color: var(--col-text);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+}
+
+/* ── Outer game screen — flex column ───────────────────────── */
+
+#game-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ── Main area — flex row (image + right panel) ─────────────── */
+
+#main-area {
+    display: flex;
+    flex-direction: row;
+    flex: 1;                           /* Takes all space above event strip */
+    overflow: hidden;
+    border-bottom: 2px solid var(--col-border);
+}
+
+/* ── Left: Room image panel ─────────────────────────────────── */
+
+#room-image-panel {
+    width: var(--left-panel-ratio);
+    flex-shrink: 0;
+    position: relative;
+    background: #000;
+    border-right: 2px solid var(--col-border);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#room-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;                     /* Hidden until image is set */
+}
+
+#room-image-placeholder {
+    color: #1a3a1a;
+    font-size: 18px;
+    letter-spacing: 4px;
+}
+
+/* ── Right: Three stacked panels ────────────────────────────── */
+
+#right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--col-bg);
+}
+
+/* ── Text panels (description + response) ───────────────────── */
+
+.text-panel {
+    overflow-y: auto;
+    padding: var(--panel-padding);
+    min-height: 0;                     /* Critical — allows flex children to shrink */
+}
+
+/* Description gets more space than response (3:2 ratio) */
+#description-panel {
+    flex: 3;
+}
+
+#response-panel {
+    flex: 2;
+}
+
+/* Scrollbar styling — subtle green tint */
+.text-panel::-webkit-scrollbar {
+    width: 4px;
+}
+.text-panel::-webkit-scrollbar-track {
+    background: var(--col-bg);
+}
+.text-panel::-webkit-scrollbar-thumb {
+    background: var(--col-border);
+    border-radius: 2px;
+}
+
+/* ── Panel dividers ─────────────────────────────────────────── */
+
+.panel-divider {
+    height: 1px;
+    background: var(--col-divider);
+    flex-shrink: 0;
+    margin: 0 var(--panel-padding);
+}
+
+/* ── Input panel ────────────────────────────────────────────── */
+
+#input-panel {
+    height: var(--input-panel-height);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--panel-padding);
+    gap: 8px;
+    border-top: 1px solid var(--col-divider);
+    background: var(--col-bg-panel);
+}
+
+#input-prompt {
+    color: var(--col-prompt);
+    font-size: 16px;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+#command-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--col-prompt);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    caret-color: var(--col-prompt);
+}
+
+#command-input::placeholder {
+    color: #1a3a1a;
+}
+
+#command-input:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Event strip ────────────────────────────────────────────── */
+
+#event-strip {
+    height: var(--event-strip-height);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: var(--col-bg-panel);
+    border-top: 2px solid var(--col-border);
+}
+
+#event-left {
+    flex: 1;
+    color: var(--col-alert);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+#event-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+#ship-name-display {
+    font-size: 11px;
+    color: #3a6a3a;
+    letter-spacing: 2px;
+}
+
+#ship-time-display {
+    font-size: 14px;
+    color: var(--col-title);
+    letter-spacing: 3px;
+}
+
+/* ── Description content styling ────────────────────────────── */
+
+#description-content .room-title {
+    color: var(--col-title);
+    font-size: 15px;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+#description-content .room-desc {
+    color: var(--col-text);
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+#description-content .section-label {
+    color: #3a6a3a;
+    font-size: 11px;
+    letter-spacing: 2px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+/* Exits — cyan, will be clickable later */
+#description-content .exit-item {
+    color: var(--col-title);
+    padding: 2px 0;
+    cursor: pointer;
+}
+
+#description-content .exit-item:hover {
+    text-decoration: underline;
+}
+
+/* Fixed objects — cyan */
+#description-content .fixed-item {
+    color: var(--col-title);
+    padding: 2px 0;
+}
+
+/* Portable items — purple */
+#description-content .portable-item {
+    color: var(--col-portable);
+    padding: 2px 0;
+}
+
+/* ── Response content styling ───────────────────────────────── */
+
+#response-content .response-line {
+    color: var(--col-text);
+    line-height: 1.7;
+    margin-bottom: 4px;
+}
+
+#response-content .response-line.player-cmd {
+    color: var(--col-response);
+}
+
+#response-content .response-line.alert {
+    color: var(--col-alert);
+}

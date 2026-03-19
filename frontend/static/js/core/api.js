@@ -1,0 +1,19 @@
+// frontend/static/js/core/api.js
+// All fetch calls to the Flask backend.
+// One function per endpoint — nothing else lives here.
+
+const API = {
+
+    // ── Game state ───────────────────────────────────────────
+
+    async getState() {
+        const r = await fetch('/api/game/state');
+        return r.json();
+    },
+
+    async newGame() {
+        const r = await fetch('/api/game/new', { method: 'POST' });
+        return r.json();
+    },
+
+};
