@@ -31,3 +31,22 @@ def new_game():
         "ship_name": SHIP_NAME,
         "ship_time": game_manager.get_ship_time(),
     })
+
+
+@game_bp.route("/room", methods=["GET"])
+def get_room():
+    """Return current room data for the frontend."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    room = game_manager.get_current_room()
+    if not room:
+        return jsonify({"error": "No current room"}), 400
+
+    return jsonify({
+        "id":               room.id,
+        "name":             room.name,
+        "description":      room.description,
+        "background_image": room.background_image,
+        "exits":            list(room.exits.keys()),
+    })

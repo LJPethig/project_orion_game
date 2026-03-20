@@ -4,12 +4,21 @@
 # ── Ship & Player ────────────────────────────────────────────
 SHIP_NAME       = "Tempus Fugit"
 PLAYER_NAME     = "Jack Harrow"
-STARTING_ROOM   = "captains_quarters"
+STARTING_ROOM   = "recreation_room"
 
 # ── Game Clock ───────────────────────────────────────────────
 # Simple calendar: 30 days/month, 360 days/year — no leap years
 # Tuple: (year, month, day, hour, minute)
 START_DATE_TIME = (2276, 1, 1, 0, 0)
+
+# ── Room Temperature Presets (°C) ────────────────────────────
+ROOM_TEMP_PRESETS = {
+    "cold":   11.0,
+    "cool":   16.5,
+    "normal": 21.5,
+    "warm":   23.5,
+    "hot":    25.5,
+}
 
 # ── Timed Actions (real seconds → game minutes) ──────────────
 REPAIR_PANEL_REAL_SECONDS  = 8

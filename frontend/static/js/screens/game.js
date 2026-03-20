@@ -12,7 +12,6 @@ async function init() {
     const state = await API.getState();
 
     if (!state.initialised) {
-        // Not started via splash — redirect back
         window.location.href = '/';
         return;
     }
@@ -20,6 +19,9 @@ async function init() {
     // Update ship name and time immediately
     Loop.updateShipName(state.ship_name);
     Loop.updateShipTime(state.ship_time);
+
+    // Load and display the current room
+    await loadRoom();
 
     // Start the polling loop
     Loop.start();
@@ -30,14 +32,25 @@ async function init() {
         if (e.key === 'Enter') handleCommand();
     });
 
-    // Enable input and focus
     input.disabled = false;
     input.focus();
+}
 
-    // Placeholder description until Phase 7 (room loading)
+// ── Room loading ─────────────────────────────────────────────
+
+async function loadRoom() {
+    const room = await API.getRoom();
+    if (room.error) {
+        console.error('Room load error:', room.error);
+        return;
+    }
+
+    // Set room image — fall back to image_missing.png if not found
+    setRoomImage(`/static/${room.background_image}`);
+
+    // Show room name in description
     setDescription([
-        { type: 'title', text: "SHIP SYSTEMS ONLINE" },
-        { type: 'desc',  text: "Awaiting ship data..." },
+        { type: 'title', text: room.name },
     ]);
 }
 
@@ -121,11 +134,17 @@ function setRoomImage(imagePath) {
     const placeholder = document.getElementById('room-image-placeholder');
 
     if (imagePath) {
-        img.src          = imagePath;
+        img.src           = imagePath;
         img.style.display = 'block';
         placeholder.style.display = 'none';
+
+        // Fall back to image_missing.png if image fails to load
+        img.onerror = () => {
+            img.src     = '/static/images/image_missing.png';
+            img.onerror = null;   // Prevent infinite loop if fallback also missing
+        };
     } else {
-        img.style.display = 'none';
+        img.style.display         = 'none';
         placeholder.style.display = 'block';
     }
 }

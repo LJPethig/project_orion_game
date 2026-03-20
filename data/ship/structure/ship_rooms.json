@@ -1,0 +1,647 @@
+[
+  {
+    "id": "crew_cabin",
+    "name": "Crew Cabin",
+    "target_temperature": "normal",
+    "description": [
+      "The crew cabin",
+      "Currently empty. A door leads to *main corridor CH-1*."
+    ],
+    "dimensions_m": {
+      "length": 4.0,
+      "width": 3.5,
+      "height": 2.5
+    },
+    "exits": {
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/crew_cabin.png"
+  },
+  {
+    "id": "captains_quarters",
+    "name": "Captains Quarters",
+    "target_temperature": "normal",
+    "description": [
+      "Your personal quarters",
+      "The hum of life support fills the air. Dim lights flicker on automatically. The bunk is unmade. Personal effects are scattered \u2014 reminders of a life spent in the black.",
+      "A %personal locker% with twin sliding doors is built into the far wall. A hatch leads to *main corridor CH-1*."
+    ],
+    "dimensions_m": {
+      "length": 4.5,
+      "width": 4.0,
+      "height": 2.5
+    },
+    "exits": {
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "terminal_personal",
+      "captains_quarters_cabinet"
+    ],
+    "background_image": "images/rooms/captains_quarters.png"
+  },
+  {
+    "id": "head",
+    "name": "Bathroom",
+    "target_temperature": "warm",
+    "description": [
+      "A compact, utilitarian wet room.",
+      "The air is humid, carrying the faint tang of recycled water and sanitizer.",
+      "Sink, vacuum toilet, and a shower stall.",
+      "The single hatch leads back to *sub corridor CH-2*."
+    ],
+    "dimensions_m": {
+      "length": 3.5,
+      "width": 2.5,
+      "height": 2.5
+    },
+    "exits": {
+      "sub_corridor": {
+        "target": "sub_corridor",
+        "label": "Sub Corridor CH-2",
+        "shortcuts": [
+          "sub corridor",
+          "corridor",
+          "CH-2",
+          "corridor CH-2"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/head.png"
+  },
+  {
+    "id": "galley",
+    "name": "Galley",
+    "target_temperature": "normal",
+    "description": [
+      "A cramped kitchen area. Food synthesizer, water recycler, small table bolted to the floor.",
+      "Everything is functional, nothing is luxurious.",
+      "A hatch leads back to the *recreation room*."
+    ],
+    "dimensions_m": {
+      "length": 3.5,
+      "width": 3.0,
+      "height": 2.5
+    },
+    "exits": {
+      "recreation_room": {
+        "target": "recreation_room",
+        "label": "Recreation Room",
+        "shortcuts": [
+          "rec room",
+          "rec-room",
+          "rec"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/galley.png"
+  },
+  {
+    "id": "recreation_room",
+    "name": "Recreation Room",
+    "target_temperature": "normal",
+    "description": [
+      "The ship's central hub for relaxation and social interaction.",
+      "Soft lighting and warm colors create a welcoming atmosphere.",
+      "The *main corridor CH-1* leads back towards your quarters.",
+      "Forward access to the *cockpit* is via a solid door.",
+      "The *galley* entrance is on the right side wall, while a",
+      "small *storage room* and *med-bay* access are opposite."
+    ],
+    "dimensions_m": {
+      "length": 5.5,
+      "width": 4.0,
+      "height": 2.5
+    },
+    "exits": {
+      "galley": {
+        "target": "galley",
+        "label": "Galley",
+        "shortcuts": [
+          "kitchen"
+        ]
+      },
+      "cockpit": {
+        "target": "cockpit",
+        "label": "Cockpit",
+        "shortcuts": [
+          "bridge"
+        ]
+      },
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      },
+      "med_bay": {
+        "target": "med_bay",
+        "label": "Med-Bay",
+        "shortcuts": [
+          "medbay",
+          "med bay",
+          "medical"
+        ]
+      },
+      "storage_room": {
+        "target": "storage_room",
+        "label": "Storage Room",
+        "shortcuts": [
+          "storage"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/recreation.png"
+  },
+  {
+    "id": "cockpit",
+    "name": "Cockpit",
+    "target_temperature": "normal",
+    "description": [
+      "The command center of the ship.",
+      "Pilot's console, navigation charts, and sensor displays dominate the space.",
+      "The viewscreen shows the vastness of space ahead.",
+      "A solid door leads back to the *recreation room*."
+    ],
+    "dimensions_m": {
+      "length": 3.0,
+      "width": 2.5,
+      "height": 2.5
+    },
+    "exits": {
+      "recreation_room": {
+        "target": "recreation_room",
+        "label": "Recreation Room",
+        "shortcuts": [
+          "rec room",
+          "rec-room",
+          "rec"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "terminal_navigation"
+    ],
+    "background_image": "images/rooms/cockpit.png"
+  },
+  {
+    "id": "storage_room",
+    "name": "Storage Room",
+    "target_temperature": "cool",
+    "description": [
+      "The ships designated small storage room, a %large storage unit% is attached to the wall, and a %small cabinet% is mounted next to it.",
+      "The lighting here is harsh and functional. An automated storage facility is built into rear wall",
+      "A hatch leads back to the *recreation room*."
+    ],
+    "dimensions_m": {
+      "length": 3.5,
+      "width": 2.5,
+      "height": 2.5
+    },
+    "exits": {
+      "recreation_room": {
+        "target": "recreation_room",
+        "label": "Recreation Room",
+        "shortcuts": [
+          "rec room",
+          "rec-room",
+          "rec"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "terminal_storage",
+      "storage_room_small_cabinet",
+      "storage_room_large_storage_unit"
+    ],
+    "background_image": "images/rooms/storage.png"
+  },
+  {
+    "id": "hypersleep_chamber",
+    "name": "Hyper-sleep Chamber",
+    "target_temperature": "warm",
+    "description": [
+      "A cramped room with dual stasis pods and various life support equipment.",
+      "A vital system to survive the month long journeys between worlds.",
+      "An archway leads back to the *med-bay*."
+    ],
+    "dimensions_m": {
+      "length": 4.0,
+      "width": 3.0,
+      "height": 2.5
+    },
+    "exits": {
+      "med_bay": {
+        "target": "med_bay",
+        "label": "Med-Bay",
+        "shortcuts": [
+          "medbay",
+          "med bay",
+          "medical"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/hypersleep.png"
+  },
+  {
+    "id": "med_bay",
+    "name": "Med-Bay",
+    "target_temperature": "warm",
+    "description": [
+      "A small medical facility with diagnostic equipment and first aid supplies.",
+      "The auto-doc hums quietly in the corner.",
+      "Sterile surfaces reflect the overhead lights.",
+      "A hatch leads back to the *recreation room*.",
+      "On the left is an archway leading to the *stasis chamber*."
+    ],
+    "dimensions_m": {
+      "length": 4.0,
+      "width": 3.5,
+      "height": 2.5
+    },
+    "exits": {
+      "recreation_room": {
+        "target": "recreation_room",
+        "label": "Recreation Room",
+        "shortcuts": [
+          "rec room",
+          "rec-room",
+          "rec"
+        ]
+      },
+      "hypersleep_chamber": {
+        "target": "hypersleep_chamber",
+        "label": "Hyper-sleep Chamber",
+        "shortcuts": [
+          "stasis room",
+          "hypersleep chamber",
+          "stasis chamber"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "terminal_medical"
+    ],
+    "background_image": "images/rooms/med_bay.png"
+  },
+  {
+    "id": "main_corridor",
+    "name": "Main Corridor CH-1",
+    "target_temperature": "normal",
+    "description": [
+      "This passageway connects the main sections of the ship.",
+      "Overhead lights cast a steady glow on the metal deck plates.",
+      "The *recreation room* entrance leads forward towards the bridge.",
+      "Next to your *captains quarters* is the *crew cabin*.",
+      "On the opposite wall is a door labeled 'Restricted Access' *mainframe room*.",
+      "A *sub corridor CH-2* leads to the cargo hold while the *engineering* section is aft."
+    ],
+    "dimensions_m": {
+      "length": 10.0,
+      "width": 2.0,
+      "height": 2.5
+    },
+    "exits": {
+      "recreation_room": {
+        "target": "recreation_room",
+        "label": "Recreation Room",
+        "shortcuts": [
+          "rec room",
+          "rec-room",
+          "rec"
+        ]
+      },
+      "sub_corridor": {
+        "target": "sub_corridor",
+        "label": "Sub Corridor CH-2",
+        "shortcuts": [
+          "corridor CH-2",
+          "corridor",
+          "CH-2",
+          "sub corridor CH-2"
+        ]
+      },
+      "engineering": {
+        "target": "engineering",
+        "label": "Engineering",
+        "shortcuts": [
+          "eng"
+        ]
+      },
+      "captains_quarters": {
+        "target": "captains_quarters",
+        "label": "Captains Quarters",
+        "shortcuts": [
+          "quarters",
+          "captains"
+        ]
+      },
+      "crew_cabin": {
+        "target": "crew_cabin",
+        "label": "Crew Cabin",
+        "shortcuts": [
+          "cabin"
+        ]
+      },
+      "mainframe_room": {
+        "target": "mainframe_room",
+        "label": "Mainframe Room",
+        "shortcuts": [
+          "mainframe",
+          "computer room"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/main_corridor.png"
+  },
+  {
+    "id": "mainframe_room",
+    "name": "Mainframe Room",
+    "target_temperature": "cool",
+    "description": [
+      "The ship's mainframe room. The AI here is responsible for all ship systems.",
+      "A door leads back to the *main corridor CH-1*."
+    ],
+    "dimensions_m": {
+      "length": 3.5,
+      "width": 3.5,
+      "height": 2.5
+    },
+    "exits": {
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/mainframe_room.png"
+  },
+  {
+    "id": "sub_corridor",
+    "name": "Sub Corridor CH-2",
+    "target_temperature": "cool",
+    "description": [
+      "A secondary corridor that branches off *main corridor CH-1*.",
+      "Less trafficked, with fewer lights and occasional flickering panels.",
+      "One the left wall is a door to the *shower unit*",
+      "At the end a large door leads to the *cargo bay*"
+    ],
+    "dimensions_m": {
+      "length": 8.0,
+      "width": 2.0,
+      "height": 2.5
+    },
+    "exits": {
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      },
+      "cargo_bay": {
+        "target": "cargo_bay",
+        "label": "Cargo Bay",
+        "shortcuts": [
+          "cargo",
+          "hold",
+          "cargo hold"
+        ]
+      },
+      "head": {
+        "target": "head",
+        "label": "Bathroom",
+        "shortcuts": [
+          "shower",
+          "head",
+          "bathroom",
+          "toilet",
+          "shower unit"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/sub_corridor.png"
+  },
+  {
+    "id": "engineering",
+    "name": "Engineering",
+    "target_temperature": "hot",
+    "description": [
+      "The ship's engineering bay, filled with tools and diagnostic equipment.",
+      "The reactor core thrums with contained energy.",
+      "A %large parts storage unit% sits next to a workbench, ",
+      "opposite to this is a worn %tool storage cabinet%",
+      "A solid door leads back towards *main corridor CH-1*, ",
+      "A large door leads ahead to the *propulsion bay*,",
+      "on the left wall a small hatch is labelled *life support*"
+    ],
+    "dimensions_m": {
+      "length": 7.5,
+      "width": 6.0,
+      "height": 3.5
+    },
+    "exits": {
+      "main_corridor": {
+        "target": "main_corridor",
+        "label": "Main Corridor CH-1",
+        "shortcuts": [
+          "corridor CH-1",
+          "corridor",
+          "CH-1",
+          "main corridor CH-1"
+        ]
+      },
+      "life_support": {
+        "target": "life_support",
+        "label": "Life Support",
+        "shortcuts": [
+          "life support",
+          "ls"
+        ]
+      },
+      "propulsion_bay": {
+        "target": "propulsion_bay",
+        "label": "Propulsion Bay",
+        "shortcuts": [
+          "propulsion",
+          "engines",
+          "engine room"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "engineering_tool_storage_cabinet",
+      "engineering_large_parts_storage_unit"
+    ],
+    "background_image": "images/rooms/engineering.png"
+  },
+  {
+    "id": "propulsion_bay",
+    "name": "Propulsion Bay",
+    "target_temperature": "hot",
+    "description": [
+      "The propulsion bay houses the ship's main engines.",
+      "The sublight ion drives and FTL jump drive dominate the space.",
+      "A separate propulsion reactor provides the massive power required.",
+      "Heat radiators glow dull red. The hum of contained energy fills the air.",
+      "A hatch leads back to *engineering*."
+    ],
+    "dimensions_m": {
+      "length": 10.0,
+      "width": 8.0,
+      "height": 4.0
+    },
+    "exits": {
+      "engineering": {
+        "target": "engineering",
+        "label": "Engineering",
+        "shortcuts": [
+          "eng",
+          "engineering bay"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/propulsion_bay.png"
+  },
+  {
+    "id": "life_support",
+    "name": "Life Support",
+    "target_temperature": "normal",
+    "description": [
+      "The life support systems room, with air recyclers and water purifiers.",
+      "Gauges show oxygen levels and humidity controls.",
+      "The air is fresh and slightly humid.",
+      "A small hatch leads back to *engineering*."
+    ],
+    "dimensions_m": {
+      "length": 4.5,
+      "width": 3.5,
+      "height": 3.5
+    },
+    "exits": {
+      "engineering": {
+        "target": "engineering",
+        "label": "Engineering",
+        "shortcuts": [
+          "eng",
+          "engineering bay"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/life_support.png"
+  },
+  {
+    "id": "airlock",
+    "name": "Airlock",
+    "target_temperature": "cool",
+    "description": [
+      "The ship's airlock for spacewalks and docking.",
+      "EVA suits are racked along one wall.",
+      "The outer door seals tightly against the vacuum.",
+      "An inner hatch leads back to the *cargo bay*."
+    ],
+    "dimensions_m": {
+      "length": 3.5,
+      "width": 2.5,
+      "height": 2.5
+    },
+    "exits": {
+      "cargo_bay": {
+        "target": "cargo_bay",
+        "label": "Cargo Bay",
+        "shortcuts": [
+          "cargo",
+          "hold",
+          "cargo hold"
+        ]
+      }
+    },
+    "fixed_objects": [],
+    "background_image": "images/rooms/airlock.png"
+  },
+  {
+    "id": "cargo_bay",
+    "name": "Cargo Bay",
+    "target_temperature": "cool",
+    "description": [
+      "The main cargo storage area, stacked with containers and crates.",
+      "Loading ramps and cargo handlers stand idle.",
+      "The bay is spacious but dimly lit to save power.",
+      "On the left wall next to the *airlock* door is an %EVA equipment locker%.",
+      "On the opposite wall you see a %large cabinet%",
+      "A large door leads back to *sub corridor CH-2*,",
+      "At the opposite end of the bay is a hydraulically operated *external door*"
+    ],
+    "dimensions_m": {
+      "length": 10.0,
+      "width": 8.5,
+      "height": 4.5
+    },
+    "exits": {
+      "sub_corridor": {
+        "target": "sub_corridor",
+        "label": "Sub Corridor CH-2",
+        "shortcuts": [
+          "sub corridor",
+          "corridor",
+          "CH-2",
+          "corridor CH-2"
+        ]
+      },
+      "airlock": {
+        "target": "airlock",
+        "label": "Airlock",
+        "shortcuts": [
+          "airlock",
+          "air lock"
+        ]
+      }
+    },
+    "fixed_objects": [
+      "terminal_storage",
+      "cargo_bay_eva_equipment_locker",
+      "cargo_bay_large_cabinet"
+    ],
+    "background_image": "images/rooms/cargo_bay.png"
+  }
+]

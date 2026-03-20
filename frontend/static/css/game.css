@@ -76,7 +76,7 @@ html, body {
 #room-image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: none;                     /* Hidden until image is set */
 }
 

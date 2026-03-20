@@ -16,4 +16,9 @@ const API = {
         return r.json();
     },
 
+    async getRoom() {
+        const r = await fetch('/api/game/room');
+        return r.json();
+    },
+
 };
