@@ -37,4 +37,22 @@ const API = {
         return r.json();
     },
 
+    async completeSwipe(door_id, pending_move) {
+        const r = await fetch('/api/command/swipe', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ door_id, pending_move }),
+        });
+        return r.json();
+    },
+
+    async submitPin(door_id, pending_move, pin) {
+        const r = await fetch('/api/command/pin', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ door_id, pending_move, pin }),
+        });
+        return r.json();
+    },
+
 };

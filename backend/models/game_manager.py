@@ -7,7 +7,8 @@ Phase 7: adds ship loading and current room tracking.
 import os
 from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
-from config import SHIP_NAME, STARTING_ROOM, ROOMS_JSON_PATH
+from backend.models.door import SecurityLevel
+from config import SHIP_NAME, STARTING_ROOM, ROOMS_JSON_PATH, DEBUG_HAS_LOW_SEC_CARD, DEBUG_HAS_HIGH_SEC_CARD
 
 
 class GameManager:
@@ -25,10 +26,19 @@ class GameManager:
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
-        self.chronometer  = Chronometer()
-        self.ship         = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
-        self.current_room = self.ship.get_room(STARTING_ROOM)
-        self.initialised  = True
+        self.chronometer      = Chronometer()
+        self.ship             = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
+        self.current_room     = self.ship.get_room(STARTING_ROOM)
+        self.has_low_sec_card  = DEBUG_HAS_LOW_SEC_CARD
+        self.has_high_sec_card = DEBUG_HAS_HIGH_SEC_CARD
+        self.initialised      = True
+
+    def invalidate_card(self, security_level: int) -> None:
+        """Invalidate a card after 3 failed PIN attempts."""
+        if security_level == SecurityLevel.KEYCARD_HIGH_PIN.value:
+            self.has_high_sec_card = False
+        elif security_level == SecurityLevel.KEYCARD_LOW.value:
+            self.has_low_sec_card = False
 
     # ── Time ─────────────────────────────────────────────────
 

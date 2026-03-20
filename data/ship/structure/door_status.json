@@ -7,8 +7,8 @@
         "main_corridor"
       ],
       "door_open": false,
-      "door_locked": false,
-      "security_level": 1,
+      "door_locked": true,
+      "security_level": 2,
       "panel_ids": [
         {
           "id": "captains_quarters_main_corridor_panel_captains",
@@ -205,7 +205,7 @@
         "engineering"
       ],
       "door_open": false,
-      "door_locked": false,
+      "door_locked": true,
       "security_level": 2,
       "panel_ids": [
         {
@@ -228,7 +228,8 @@
       ],
       "door_open": false,
       "door_locked": false,
-      "security_level": 2,
+      "security_level": 3,
+      "pin": "3333",
       "panel_ids": [
         {
           "id": "main_corridor_mainframe_room_panel_main",
@@ -293,7 +294,7 @@
         "life_support"
       ],
       "door_open": false,
-      "door_locked": false,
+      "door_locked": true,
       "security_level": 3,
       "pin": "1111",
       "panel_ids": [
@@ -317,7 +318,8 @@
       ],
       "door_open": false,
       "door_locked": false,
-      "security_level": 2,
+      "security_level": 3,
+      "pin": "1111",
       "panel_ids": [
         {
           "id": "engineering_propulsion_bay_panel_eng",
@@ -338,7 +340,7 @@
         "airlock"
       ],
       "door_open": false,
-      "door_locked": false,
+      "door_locked": true,
       "security_level": 3,
       "pin": "2222",
       "panel_ids": [

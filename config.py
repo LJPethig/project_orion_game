@@ -23,8 +23,12 @@ ROOM_TEMP_PRESETS = {
 # ── Timed Actions (real seconds → game minutes) ──────────────
 REPAIR_PANEL_REAL_SECONDS  = 8
 REPAIR_PANEL_GAME_MINUTES  = 30
-CARD_SWIPE_REAL_SECONDS    = 3
+CARD_SWIPE_REAL_SECONDS    = 8    # Real-world wait during card swipe
 CARD_SWIPE_GAME_MINUTES    = 0
+
+# ── Debug flags (replaced by inventory checks when items are implemented) ──
+DEBUG_HAS_LOW_SEC_CARD  = True
+DEBUG_HAS_HIGH_SEC_CARD = True
 
 # ── Data file paths ──────────────────────────────────────────
 import os

@@ -75,6 +75,10 @@ class Door:
         # Per-side panels: room_id → SecurityPanel
         self.panels: dict[str, SecurityPanel] = {}
 
+        # PIN attempt counter — resets on success or card invalidation
+        self.pin_attempts: int = 0
+        self.PIN_MAX_ATTEMPTS: int = 3
+
     def get_other_room_id(self, current_room_id: str) -> Optional[str]:
         """Return the room ID on the other side of this door."""
         if current_room_id == self.room_ids[0]:

@@ -130,5 +130,12 @@ class Ship:
                 return door
         return None
 
+    def get_door_by_id(self, door_id: str) -> Optional[Door]:
+        """Return a door by its ID."""
+        for door in self.doors:
+            if door.id == door_id:
+                return door
+        return None
+
     def __repr__(self) -> str:
         return f"<Ship '{self.name}' rooms={len(self.rooms)} doors={len(self.doors)}>"
