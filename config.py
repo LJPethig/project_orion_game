@@ -26,6 +26,11 @@ REPAIR_PANEL_GAME_MINUTES  = 30
 CARD_SWIPE_REAL_SECONDS    = 3
 CARD_SWIPE_GAME_MINUTES    = 0
 
+# ── Data file paths ──────────────────────────────────────────
+import os
+ROOMS_JSON_PATH = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
+DOORS_JSON_PATH = os.path.join('data', 'ship', 'structure', 'door_status.json')
+
 # ── Flask ────────────────────────────────────────────────────
 DEBUG = True
 PORT  = 5001

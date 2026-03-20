@@ -270,3 +270,22 @@ html, body {
 #response-content .response-line.alert {
     color: var(--col-alert);
 }
+
+/* ── Exit door state tooltip ────────────────────────────────── */
+
+.exit-tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.92);
+    border: 1px solid var(--col-border);
+    padding: 6px 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 2000;
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.exit-tooltip.hidden {
+    display: none;
+}

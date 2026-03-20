@@ -28,12 +28,19 @@ def process_command():
     # If room changed, include updated room data in the response
     if result.get('room_changed'):
         room = game_manager.get_current_room()
+        exits = {}
+        for exit_key, exit_data in room.exits.items():
+            door = exit_data.get('door')
+            exits[exit_key] = {
+                'label':      exit_data.get('label', exit_key),
+                'door_state': door.get_state() if door else 'none',
+            }
         result['room'] = {
             'id':               room.id,
             'name':             room.name,
             'description':      room.description,
             'background_image': room.background_image,
-            'exits':            list(room.exits.keys()),
+            'exits':            exits,
             'portable_objects': [],
         }
 

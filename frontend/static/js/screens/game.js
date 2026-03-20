@@ -3,12 +3,14 @@
 // Wires up the input, starts the polling loop, handles command submission.
 // All fetch calls go through API. All state updates go through Loop.
 
+// Current room exit data — used for door state tooltips
+let currentExits = {};
+
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
 
 async function init() {
-    // Verify the game is initialised (in case someone navigates directly to /game)
     const state = await API.getState();
 
     if (!state.initialised) {
@@ -16,17 +18,13 @@ async function init() {
         return;
     }
 
-    // Update ship name and time immediately
     Loop.updateShipName(state.ship_name);
     Loop.updateShipTime(state.ship_time);
 
-    // Load and display the current room
     await loadRoom();
 
-    // Start the polling loop
     Loop.start();
 
-    // Wire up command input
     const input = document.getElementById('command-input');
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleCommand();
@@ -44,11 +42,14 @@ async function loadRoom() {
         console.error('Room load error:', room.error);
         return;
     }
+    updateRoom(room);
+}
 
-    // Set room image — falls back to image_missing.png on error
+function updateRoom(room) {
+    // Store exit data for tooltip use
+    currentExits = room.exits || {};
+
     setRoomImage(`/static/${room.background_image}`);
-
-    // Render full room description
     renderDescription(room);
 }
 
@@ -87,13 +88,12 @@ function renderDescription(room) {
             content.appendChild(el);
         });
     }
+
+    // Wire up exit hover tooltips after rendering
+    setupExitTooltips(content);
 }
 
 // ── Markup parser ────────────────────────────────────────────
-// Parses a description line containing:
-//   *text*  → cyan span with data-exit attribute (future hover/click)
-//   %text%  → cyan span with data-object attribute (future hover/click)
-// Returns a DocumentFragment ready to append.
 
 function parseMarkup(text) {
     const fragment = document.createDocumentFragment();
@@ -102,7 +102,6 @@ function parseMarkup(text) {
     let match;
 
     while ((match = regex.exec(text)) !== null) {
-        // Plain text before this match
         if (match.index > lastIndex) {
             fragment.appendChild(
                 document.createTextNode(text.slice(lastIndex, match.index))
@@ -110,14 +109,13 @@ function parseMarkup(text) {
         }
 
         const raw    = match[0];
-        const inner  = raw.slice(1, -1);              // Strip delimiters
+        const inner  = raw.slice(1, -1);
         const isExit = raw.startsWith('*');
         const span   = document.createElement('span');
 
         span.className   = 'markup-highlight';
         span.textContent = inner;
 
-        // Data attributes are hooks for future hover/click context menus
         if (isExit) {
             span.dataset.exit = inner.toLowerCase().replace(/\s+/g, '_');
         } else {
@@ -128,12 +126,75 @@ function parseMarkup(text) {
         lastIndex = regex.lastIndex;
     }
 
-    // Remaining plain text after last match
     if (lastIndex < text.length) {
         fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
     }
 
     return fragment;
+}
+
+// ── Exit hover tooltips ──────────────────────────────────────
+
+function setupExitTooltips(container) {
+    const tooltip = document.getElementById('exit-tooltip');
+    if (!tooltip) return;
+
+    container.querySelectorAll('.markup-highlight[data-exit]').forEach(span => {
+        span.addEventListener('mouseenter', (e) => {
+            const exitKey  = e.target.dataset.exit;
+            const exitData = findExitData(exitKey);
+            if (!exitData) return;
+
+            const state     = exitData.door_state || 'none';
+            const label     = exitData.label || exitKey;
+            const stateText = doorStateText(state);
+            const stateCol  = doorStateColour(state);
+
+            tooltip.innerHTML = `
+                <div style="color:var(--col-title)">${label}</div>
+                <div style="color:${stateCol};font-size:11px">${stateText}</div>
+            `;
+            tooltip.classList.remove('hidden');
+        });
+
+        span.addEventListener('mousemove', (e) => {
+            tooltip.style.left = (e.clientX + 14) + 'px';
+            tooltip.style.top  = (e.clientY + 14) + 'px';
+        });
+
+        span.addEventListener('mouseleave', () => {
+            tooltip.classList.add('hidden');
+        });
+    });
+}
+
+function findExitData(exitKey) {
+    // Direct key match
+    if (currentExits[exitKey]) return currentExits[exitKey];
+    // Fuzzy match — exitKey from span may differ slightly from room exit key
+    for (const [key, data] of Object.entries(currentExits)) {
+        if (key.toLowerCase() === exitKey.toLowerCase()) return data;
+        if ((data.label || '').toLowerCase().replace(/\s+/g, '_') === exitKey) return data;
+    }
+    return null;
+}
+
+function doorStateText(state) {
+    switch (state) {
+        case 'open':   return 'Door is open';
+        case 'closed': return 'Door is closed';
+        case 'locked': return 'Door is locked';
+        default:       return 'No door';
+    }
+}
+
+function doorStateColour(state) {
+    switch (state) {
+        case 'open':   return 'var(--col-prompt)';
+        case 'closed': return 'var(--col-text)';
+        case 'locked': return 'var(--col-alert)';
+        default:       return 'var(--col-text)';
+    }
 }
 
 // ── Command handling ─────────────────────────────────────────
@@ -147,29 +208,21 @@ async function handleCommand() {
 
     input.value = '';
 
-    // Clear response section
-    clearResponse()
-
-    // Echo the command in the response panel
+    clearResponse();
     appendResponse(`> ${cmd}`, 'player-cmd');
 
-    // Send to backend
     const result = await API.sendCommand(cmd);
 
-    // Show the response
     if (result.response) {
         appendResponse(result.response);
     }
 
-    // Update ship time
     if (result.ship_time) {
         Loop.updateShipTime(result.ship_time);
     }
 
-    // If room changed — update image and description
     if (result.room_changed && result.room) {
-        setRoomImage(`/static/${result.room.background_image}`);
-        renderDescription(result.room);
+        updateRoom(result.room);
     }
 }
 
@@ -181,8 +234,6 @@ function appendResponse(text, cssClass = 'response-line') {
     el.className   = `response-line ${cssClass}`;
     el.textContent = text;
     content.appendChild(el);
-
-    // Auto-scroll to latest response
     content.scrollTop = content.scrollHeight;
 }
 
@@ -201,7 +252,6 @@ function setRoomImage(imagePath) {
         img.style.display = 'block';
         placeholder.style.display = 'none';
 
-        // Fall back to image_missing.png if image fails to load
         img.onerror = () => {
             img.src     = '/static/images/image_missing.png';
             img.onerror = null;

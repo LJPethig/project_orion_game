@@ -43,11 +43,20 @@ def get_room():
     if not room:
         return jsonify({"error": "No current room"}), 400
 
+    # Build exit dict with door state for tooltip display
+    exits = {}
+    for exit_key, exit_data in room.exits.items():
+        door = exit_data.get('door')
+        exits[exit_key] = {
+            'label':      exit_data.get('label', exit_key),
+            'door_state': door.get_state() if door else 'none',
+        }
+
     return jsonify({
         "id":               room.id,
         "name":             room.name,
         "description":      room.description,
         "background_image": room.background_image,
-        "exits":            list(room.exits.keys()),
-        "portable_objects": [],   # Populated when items are added (Phase 10+)
+        "exits":            exits,
+        "portable_objects": [],
     })

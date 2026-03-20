@@ -7,11 +7,7 @@ Phase 7: adds ship loading and current room tracking.
 import os
 from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
-from config import SHIP_NAME, STARTING_ROOM
-
-
-# Path to ship_rooms.json — relative to project root
-ROOMS_JSON_PATH = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
+from config import SHIP_NAME, STARTING_ROOM, ROOMS_JSON_PATH
 
 
 class GameManager:
