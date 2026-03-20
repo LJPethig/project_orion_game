@@ -45,13 +45,95 @@ async function loadRoom() {
         return;
     }
 
-    // Set room image — fall back to image_missing.png if not found
+    // Set room image — falls back to image_missing.png on error
     setRoomImage(`/static/${room.background_image}`);
 
-    // Show room name in description
-    setDescription([
-        { type: 'title', text: room.name },
-    ]);
+    // Render full room description
+    renderDescription(room);
+}
+
+// ── Description rendering ────────────────────────────────────
+
+function renderDescription(room) {
+    const content = document.getElementById('description-content');
+    content.innerHTML = '';
+
+    // Room title
+    const title = document.createElement('div');
+    title.className = 'room-title';
+    title.textContent = room.name;
+    content.appendChild(title);
+
+    // Description lines — parse *exit* and %object% markup
+    room.description.forEach(line => {
+        const el = document.createElement('div');
+        el.className = 'room-desc';
+        el.appendChild(parseMarkup(line));
+        content.appendChild(el);
+    });
+
+    // Portable items — only shown when room has portables
+    if (room.portable_objects && room.portable_objects.length > 0) {
+        const label = document.createElement('div');
+        label.className = 'section-label';
+        label.textContent = 'YOU SEE';
+        content.appendChild(label);
+
+        room.portable_objects.forEach(obj => {
+            const el = document.createElement('div');
+            el.className = 'portable-item';
+            el.dataset.object = obj.id;
+            el.textContent = obj.name;
+            content.appendChild(el);
+        });
+    }
+}
+
+// ── Markup parser ────────────────────────────────────────────
+// Parses a description line containing:
+//   *text*  → cyan span with data-exit attribute (future hover/click)
+//   %text%  → cyan span with data-object attribute (future hover/click)
+// Returns a DocumentFragment ready to append.
+
+function parseMarkup(text) {
+    const fragment = document.createDocumentFragment();
+    const regex    = /(\*[^*]+\*|%[^%]+%)/g;
+    let lastIndex  = 0;
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+        // Plain text before this match
+        if (match.index > lastIndex) {
+            fragment.appendChild(
+                document.createTextNode(text.slice(lastIndex, match.index))
+            );
+        }
+
+        const raw    = match[0];
+        const inner  = raw.slice(1, -1);              // Strip delimiters
+        const isExit = raw.startsWith('*');
+        const span   = document.createElement('span');
+
+        span.className   = 'markup-highlight';
+        span.textContent = inner;
+
+        // Data attributes are hooks for future hover/click context menus
+        if (isExit) {
+            span.dataset.exit = inner.toLowerCase().replace(/\s+/g, '_');
+        } else {
+            span.dataset.object = inner.toLowerCase().replace(/\s+/g, '_');
+        }
+
+        fragment.appendChild(span);
+        lastIndex = regex.lastIndex;
+    }
+
+    // Remaining plain text after last match
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.slice(lastIndex)));
+    }
+
+    return fragment;
 }
 
 // ── Command handling ─────────────────────────────────────────
@@ -66,56 +148,18 @@ async function handleCommand() {
     input.value = '';
 
     // Echo the command in the response panel
-    appendResponse(cmd, 'player-cmd');
+    appendResponse(`> ${cmd}`, 'player-cmd');
 
-    // TODO Phase 8: send to POST /api/command and handle response
-    // For now just echo back
+    // TODO: send to POST /api/command and handle response
     appendResponse("Command system not yet implemented.", 'response-line');
-}
-
-// ── Description panel ────────────────────────────────────────
-
-function setDescription(lines) {
-    const content = document.getElementById('description-content');
-    content.innerHTML = '';
-
-    lines.forEach(line => {
-        const el = document.createElement('div');
-
-        switch (line.type) {
-            case 'title':
-                el.className = 'room-title';
-                break;
-            case 'desc':
-                el.className = 'room-desc';
-                break;
-            case 'label':
-                el.className = 'section-label';
-                break;
-            case 'exit':
-                el.className = 'exit-item';
-                break;
-            case 'fixed':
-                el.className = 'fixed-item';
-                break;
-            case 'portable':
-                el.className = 'portable-item';
-                break;
-            default:
-                el.className = 'room-desc';
-        }
-
-        el.textContent = line.text;
-        content.appendChild(el);
-    });
 }
 
 // ── Response panel ───────────────────────────────────────────
 
 function appendResponse(text, cssClass = 'response-line') {
-    const content = document.getElementById('response-content');
-    const el      = document.createElement('div');
-    el.className  = `response-line ${cssClass}`;
+    const content  = document.getElementById('response-content');
+    const el       = document.createElement('div');
+    el.className   = `response-line ${cssClass}`;
     el.textContent = text;
     content.appendChild(el);
 
@@ -141,7 +185,7 @@ function setRoomImage(imagePath) {
         // Fall back to image_missing.png if image fails to load
         img.onerror = () => {
             img.src     = '/static/images/image_missing.png';
-            img.onerror = null;   // Prevent infinite loop if fallback also missing
+            img.onerror = null;
         };
     } else {
         img.style.display         = 'none';

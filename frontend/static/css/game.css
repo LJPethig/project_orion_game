@@ -226,7 +226,7 @@ html, body {
 #description-content .room-desc {
     color: var(--col-text);
     line-height: 1.7;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 #description-content .section-label {
@@ -237,24 +237,19 @@ html, body {
     margin-bottom: 6px;
 }
 
-/* Exits — cyan, will be clickable later */
-#description-content .exit-item {
+/* Inline markup highlights — *exits* and %objects% in description text */
+.markup-highlight {
     color: var(--col-title);
-    padding: 2px 0;
+    font-weight: bold;
+    white-space: nowrap;              /* Never break highlighted text across lines */
     cursor: pointer;
 }
 
-#description-content .exit-item:hover {
+.markup-highlight:hover {
     text-decoration: underline;
 }
 
-/* Fixed objects — cyan */
-#description-content .fixed-item {
-    color: var(--col-title);
-    padding: 2px 0;
-}
-
-/* Portable items — purple */
+/* Portable items listed below description */
 #description-content .portable-item {
     color: var(--col-portable);
     padding: 2px 0;

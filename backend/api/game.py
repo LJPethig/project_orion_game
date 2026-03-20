@@ -49,4 +49,5 @@ def get_room():
         "description":      room.description,
         "background_image": room.background_image,
         "exits":            list(room.exits.keys()),
+        "portable_objects": [],   # Populated when items are added (Phase 10+)
     })
