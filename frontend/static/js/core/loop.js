@@ -5,8 +5,10 @@
 
 const Loop = (() => {
 
-    const POLL_INTERVAL_MS = 10000;   // 10 seconds
+    const POLL_INTERVAL_MS = 10000;   // 10 seconds — passive event checking
+    const TICK_INTERVAL_MS = 60000;   // 60 seconds — real-time clock advance
     let   pollTimer        = null;
+    let   tickTimer        = null;
     let   inputLocked      = false;
 
     // ── Ship time display ────────────────────────────────────
@@ -19,6 +21,19 @@ const Loop = (() => {
     function updateShipName(nameStr) {
         const el = document.getElementById('ship-name-display');
         if (el) el.textContent = nameStr;
+    }
+
+    // ── Real-time clock tick ─────────────────────────────────
+    // Advances ship time by 1 minute every 60 real seconds.
+    // Runs independently of the poll — time passes even when idle.
+
+    async function tick() {
+        try {
+            const data = await API.tick();
+            if (data.ship_time) updateShipTime(data.ship_time);
+        } catch (err) {
+            console.error('Tick error:', err);
+        }
     }
 
     // ── Polling ──────────────────────────────────────────────
@@ -34,15 +49,14 @@ const Loop = (() => {
     }
 
     function startPolling() {
-        poll();                                        // Immediate first poll
+        poll();                                              // Immediate first poll
         pollTimer = setInterval(poll, POLL_INTERVAL_MS);
+        tickTimer = setInterval(tick, TICK_INTERVAL_MS);    // Real-time clock
     }
 
     function stopPolling() {
-        if (pollTimer) {
-            clearInterval(pollTimer);
-            pollTimer = null;
-        }
+        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+        if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
     }
 
     // ── Input locking (for timed actions) ───────────────────

@@ -21,6 +21,11 @@ const API = {
         return r.json();
     },
 
+    async tick() {
+        const r = await fetch('/api/game/tick', { method: 'POST' });
+        return r.json();
+    },
+
     // ── Commands ─────────────────────────────────────────────
 
     async sendCommand(command) {

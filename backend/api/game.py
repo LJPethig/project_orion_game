@@ -33,6 +33,15 @@ def new_game():
     })
 
 
+@game_bp.route("/tick", methods=["POST"])
+def tick():
+    """Advance ship time by 1 minute. Called by frontend every 60 real seconds."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+    game_manager.advance_time(1)
+    return jsonify({"ship_time": game_manager.get_ship_time()})
+
+
 @game_bp.route("/room", methods=["GET"])
 def get_room():
     """Return current room data for the frontend."""
