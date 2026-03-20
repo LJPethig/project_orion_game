@@ -21,4 +21,15 @@ const API = {
         return r.json();
     },
 
+    // ── Commands ─────────────────────────────────────────────
+
+    async sendCommand(command) {
+        const r = await fetch('/api/command', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ command }),
+        });
+        return r.json();
+    },
+
 };

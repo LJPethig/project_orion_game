@@ -147,11 +147,30 @@ async function handleCommand() {
 
     input.value = '';
 
+    // Clear response section
+    clearResponse()
+
     // Echo the command in the response panel
     appendResponse(`> ${cmd}`, 'player-cmd');
 
-    // TODO: send to POST /api/command and handle response
-    appendResponse("Command system not yet implemented.", 'response-line');
+    // Send to backend
+    const result = await API.sendCommand(cmd);
+
+    // Show the response
+    if (result.response) {
+        appendResponse(result.response);
+    }
+
+    // Update ship time
+    if (result.ship_time) {
+        Loop.updateShipTime(result.ship_time);
+    }
+
+    // If room changed — update image and description
+    if (result.room_changed && result.room) {
+        setRoomImage(`/static/${result.room.background_image}`);
+        renderDescription(result.room);
+    }
 }
 
 // ── Response panel ───────────────────────────────────────────

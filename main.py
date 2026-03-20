@@ -1,9 +1,9 @@
 # main.py
 # Flask entry point for Project Orion
 
-import webbrowser
 from flask import Flask, render_template
 from backend.api.game import game_bp
+from backend.api.command import command_bp
 
 app = Flask(
     __name__,
@@ -12,7 +12,8 @@ app = Flask(
 )
 
 # Register blueprints
-app.register_blueprint(game_bp, url_prefix="/api/game")
+app.register_blueprint(game_bp,     url_prefix="/api/game")
+app.register_blueprint(command_bp,  url_prefix="/api/command")
 
 
 # ── Page routes ──────────────────────────────────────────────
@@ -30,6 +31,7 @@ def game():
 
 
 if __name__ == "__main__":
+    import webbrowser
     from config import DEBUG, PORT
     webbrowser.open(f"http://localhost:{PORT}")
     app.run(debug=DEBUG, port=PORT)
