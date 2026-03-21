@@ -92,13 +92,15 @@ def _complete_door_action(door, door_action: str, pending_move: str):
     """Complete an unlock or lock action after credentials are verified."""
     if door_action == 'lock':
         door.lock()
+        room = game_manager.get_current_room()
         return jsonify({
-            'response':     'Credentials verified. The door is now locked.',
-            'action_type':  'instant',
-            'lock_input':   False,
+            'response': 'Credentials verified. The door is now locked.',
+            'action_type': 'instant',
+            'lock_input': False,
             'room_changed': False,
             'swipe_complete': True,
-            'ship_time':    game_manager.get_ship_time(),
+            'exits': _build_room_data(room)['exits'],
+            'ship_time': game_manager.get_ship_time(),
         })
 
     # unlock — open door and move player through

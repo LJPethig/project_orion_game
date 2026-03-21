@@ -189,7 +189,7 @@ async function handleCommand() {
 
     // ── PIN mode — route input as PIN ─────────────────────
     if (pendingPin) {
-        appendResponse(`> ****`, 'player-cmd');
+        appendResponse(`> ****`, 'player-cmd');   // Mask PIN in response
         await submitPin(cmd);
         return;
     }
@@ -200,10 +200,6 @@ async function handleCommand() {
     handleResult(result);
 }
 
-function refreshExits() {
-    API.getRoom().then(room => { if (!room.error) currentExits = room.exits || {}; });
-}
-
 function handleResult(result) {
     if (result.response) appendResponse(result.response);
     if (result.ship_time) Loop.updateShipTime(result.ship_time);
@@ -211,11 +207,10 @@ function handleResult(result) {
     // ── Door locked — show closed hatch image ────────────
     if (result.action_type === 'door_locked') {
         setDoorImage('closed');
-        refreshExits();
         return;
     }
 
-    // ── Card swipe — show panel image, scanning animation, lock input ──
+    // ── Card swipe — show panel image, lock input, wait ──
     if (result.action_type === 'card_swipe') {
         setPanelImage(result.security_level);
         showScanAnimation();
@@ -247,29 +242,16 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Room changed after swipe — show open hatch then new room
+    // Room changed after swipe — show open hatch briefly then new room
     if (result.room_changed && result.room && result.swipe_complete) {
         setDoorImage('open');
-        setTimeout(() => updateRoom(result.room), 2000);
-        return;
-    }
-
-    // Lock completed — show closed hatch image
-    if (result.swipe_complete && !result.room_changed) {
-        setDoorImage('closed');
-        refreshExits();
+        setTimeout(() => updateRoom(result.room), 4000);
         return;
     }
 
     // Normal room change — just update room directly
     if (result.room_changed && result.room) {
         updateRoom(result.room);
-        return;
-    }
-
-    // Refresh exit states after any other instant action (close, etc.)
-    if (result.action_type === 'instant') {
-        refreshExits();
     }
 }
 
