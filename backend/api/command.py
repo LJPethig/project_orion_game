@@ -87,12 +87,13 @@ def complete_swipe():
     game_manager.set_current_room(data.get('pending_move'))
     new_room = game_manager.get_current_room()
     return jsonify({
-        'response':     f"Credentials verified. Access granted. You enter {new_room.name}.",
-        'action_type':  'instant',
-        'lock_input':   False,
-        'room_changed': True,
-        'room':         _build_room_data(new_room),
-        'ship_time':    game_manager.get_ship_time(),
+        'response':       f"Credentials verified. Access granted. You enter {new_room.name}.",
+        'action_type':    'instant',
+        'lock_input':     False,
+        'room_changed':   True,
+        'swipe_complete': True,
+        'room':           _build_room_data(new_room),
+        'ship_time':      game_manager.get_ship_time(),
     })
 
 
@@ -120,12 +121,13 @@ def submit_pin():
         game_manager.set_current_room(pending_move)
         new_room = game_manager.get_current_room()
         return jsonify({
-            'response':     f"PIN accepted. Access granted. You enter {new_room.name}.",
-            'action_type':  'instant',
-            'lock_input':   False,
-            'room_changed': True,
-            'room':         _build_room_data(new_room),
-            'ship_time':    game_manager.get_ship_time(),
+            'response':       f"PIN accepted. Access granted. You enter {new_room.name}.",
+            'action_type':    'instant',
+            'lock_input':     False,
+            'room_changed':   True,
+            'swipe_complete': True,
+            'room':           _build_room_data(new_room),
+            'ship_time':      game_manager.get_ship_time(),
         })
 
     # Wrong PIN

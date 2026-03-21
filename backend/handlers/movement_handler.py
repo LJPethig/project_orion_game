@@ -56,19 +56,20 @@ class MovementHandler:
             if not has_card:
                 return self._response(card_msg)
 
-            # Card accepted — trigger 8s swipe wait
-            # PIN required for level 3
-            needs_pin = door.security_level == SecurityLevel.KEYCARD_HIGH_PIN.value
+            target_room   = game_manager.ship.get_room(exit_data['target'])
+            target_name   = target_room.name if target_room else exit_data['target']
+            needs_pin     = door.security_level == SecurityLevel.KEYCARD_HIGH_PIN.value
 
             return {
-                'response':          "Swiping card...",
-                'action_type':       'card_swipe',
-                'lock_input':        True,
-                'real_seconds':      CARD_SWIPE_REAL_SECONDS,
-                'room_changed':      False,
-                'pending_move':      exit_data['target'],
-                'needs_pin':         needs_pin,
-                'door_id':           door.id,
+                'response':       f"The entrance to {target_name} is locked. You swipe the access panel.",
+                'action_type':    'card_swipe',
+                'lock_input':     True,
+                'real_seconds':   CARD_SWIPE_REAL_SECONDS,
+                'room_changed':   False,
+                'pending_move':   exit_data['target'],
+                'needs_pin':      needs_pin,
+                'door_id':        door.id,
+                'security_level': door.security_level,
             }
 
         # ── Closed unlocked door — open, move, close ──────────

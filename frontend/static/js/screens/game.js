@@ -203,10 +203,10 @@ async function handleCommand() {
 function handleResult(result) {
     if (result.response) appendResponse(result.response);
     if (result.ship_time) Loop.updateShipTime(result.ship_time);
-    if (result.room_changed && result.room) updateRoom(result.room);
 
-    // ── Card swipe — lock input, wait, then call /swipe ───
+    // ── Card swipe — show panel image, lock input, wait ──
     if (result.action_type === 'card_swipe') {
+        setPanelImage(result.security_level);
         Loop.lockInput(result.real_seconds, async () => {
             const swipeResult = await API.completeSwipe(
                 result.door_id,
@@ -228,9 +228,21 @@ function handleResult(result) {
         return;
     }
 
-    // ── Back to normal mode ───────────────────────────────
+    // ── Always clear PIN mode before processing result ────
     pendingPin = null;
     setInputMode('normal');
+
+    // Room changed after swipe — show open hatch briefly then new room
+    if (result.room_changed && result.room && result.swipe_complete) {
+        setDoorImage('open');
+        setTimeout(() => updateRoom(result.room), 800);
+        return;
+    }
+
+    // Normal room change — just update room directly
+    if (result.room_changed && result.room) {
+        updateRoom(result.room);
+    }
 }
 
 async function submitPin(pin) {
@@ -288,4 +300,24 @@ function setRoomImage(imagePath) {
         img.style.display         = 'none';
         placeholder.style.display = 'block';
     }
+}
+
+// ── Door / panel images ──────────────────────────────────────
+
+const PANEL_IMAGES = {
+    1: '/static/images/doors/panel_level1_swipe.png',
+    2: '/static/images/doors/panel_level2_swipe.png',
+    3: '/static/images/doors/panel_level3_swipe_pin.png',
+};
+
+function setPanelImage(securityLevel) {
+    const path = PANEL_IMAGES[securityLevel] || PANEL_IMAGES[1];
+    setRoomImage(path);
+}
+
+function setDoorImage(state) {
+    const path = state === 'open'
+        ? '/static/images/doors/open_hatch.png'
+        : '/static/images/doors/closed_hatch.png';
+    setRoomImage(path);
 }
