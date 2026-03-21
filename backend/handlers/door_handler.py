@@ -26,11 +26,11 @@ class DoorHandler(BaseHandler):
         if not door:
             return self._instant("There is no door there.")
 
-        if door.door_open:
-            return self._instant("The door is already open.")
-
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
+
+        if door.door_open:
+            return self._instant(f"The {target_name} door is already open.")
 
         # Locked — requires card swipe
         if door.door_locked:
@@ -59,18 +59,18 @@ class DoorHandler(BaseHandler):
         if not door:
             return self._instant("There is no door there.")
 
+        target_room = game_manager.ship.get_room(exit_data['target'])
+        target_name = target_room.name if target_room else exit_data['target']
+
         if door.door_open:
-            return self._instant("The door is already open.")
+            return self._instant(f"The {target_name} door is already open.")
 
         if not door.door_locked:
-            return self._instant("The door is not locked.")
+            return self._instant(f"The {target_name} door is not locked.")
 
         has_card, card_msg = self._check_card(door)
         if not has_card:
             return self._instant(card_msg)
-
-        target_room = game_manager.ship.get_room(exit_data['target'])
-        target_name = target_room.name if target_room else exit_data['target']
 
         result = self._card_swipe_response(door, action='unlock', pending_move=None)
         result['response'] = f"You swipe the access panel to {target_name}."
@@ -88,15 +88,15 @@ class DoorHandler(BaseHandler):
         if not door:
             return self._instant("There is no door there.")
 
+        target_room = game_manager.ship.get_room(exit_data['target'])
+        target_name = target_room.name if target_room else exit_data['target']
+
         if door.door_locked:
-            return self._instant("The door is already locked.")
+            return self._instant(f"The {target_name} door is already locked.")
 
         has_card, card_msg = self._check_card(door)
         if not has_card:
             return self._instant(card_msg)
-
-        target_room = game_manager.ship.get_room(exit_data['target'])
-        target_name = target_room.name if target_room else exit_data['target']
 
         result = self._card_swipe_response(door, action='lock', pending_move=None)
         result['response'] = f"You swipe the access panel to {target_name}."
@@ -114,15 +114,16 @@ class DoorHandler(BaseHandler):
         if not door:
             return self._instant("There is no door there.")
 
-        if door.door_locked:
-            return self._instant("The door is locked — it is already closed.")
-
-        if not door.door_open:
-            return self._instant("The door is already closed.")
-
-        door.close()
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
+
+        if door.door_locked:
+            return self._instant(f"The {target_name} door is locked — it is already closed.")
+
+        if not door.door_open:
+            return self._instant(f"The {target_name} door is already closed.")
+
+        door.close()
         result = self._instant(f"You close the door to {target_name}.")
         result['door_image'] = 'closed'
         return result

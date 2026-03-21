@@ -27,7 +27,7 @@ CARD_SWIPE_REAL_SECONDS    = 5    # Real-world wait during card swipe
 CARD_SWIPE_GAME_MINUTES    = 0
 
 # ── Debug flags (replaced by inventory checks when items are implemented) ──
-DEBUG_HAS_LOW_SEC_CARD  = True
+DEBUG_HAS_LOW_SEC_CARD  = False
 DEBUG_HAS_HIGH_SEC_CARD = True
 
 # ── Data file paths ──────────────────────────────────────────

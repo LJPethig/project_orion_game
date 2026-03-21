@@ -90,11 +90,15 @@ def complete_swipe():
 
 def _complete_door_action(door, door_action: str):
     """Complete an open, unlock, or lock action after credentials are verified."""
+    current_room  = game_manager.get_current_room()
+    other_room_id = door.get_other_room_id(current_room.id)
+    other_room    = game_manager.ship.get_room(other_room_id)
+    target_name   = other_room.name if other_room else "the door"
 
     if door_action == 'lock':
         door.lock()
         return jsonify({
-            'response':      'Credentials verified. The door is now locked.',
+            'response':      f"Credentials verified. The {target_name} door is now locked.",
             'action_type':   'instant',
             'lock_input':    False,
             'room_changed':  False,
@@ -107,7 +111,7 @@ def _complete_door_action(door, door_action: str):
     door.unlock()
     door.open()
     return jsonify({
-        'response':      'Credentials verified. The door is now open.',
+        'response':      f"Credentials verified. The {target_name} door is now open.",
         'action_type':   'instant',
         'lock_input':    False,
         'room_changed':  False,
@@ -153,6 +157,7 @@ def submit_pin():
             'action_type':  'instant',
             'lock_input':   False,
             'room_changed': False,
+            'card_invalidated': True,
             'ship_time':    game_manager.get_ship_time(),
         })
 

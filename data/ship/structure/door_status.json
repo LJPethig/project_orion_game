@@ -8,12 +8,12 @@
       ],
       "door_open": false,
       "door_locked": true,
-      "security_level": 2,
+      "security_level": 1,
       "panel_ids": [
         {
           "id": "captains_quarters_main_corridor_panel_captains",
           "side": "captains_quarters",
-          "damaged": true
+          "damaged": false
         },
         {
           "id": "captains_quarters_main_corridor_panel_main",

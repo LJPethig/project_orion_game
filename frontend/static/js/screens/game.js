@@ -135,11 +135,29 @@ function setupExitTooltips(container) {
                 <div style="color:${doorStateColour(state)};font-size:11px">${doorStateText(state)}</div>
             `;
             tooltip.classList.remove('hidden');
+
+            // Position will be set on mousemove
         });
 
         span.addEventListener('mousemove', (e) => {
-            tooltip.style.left = (e.clientX + 14) + 'px';
-            tooltip.style.top  = (e.clientY + 14) + 'px';
+            const tt   = document.getElementById('exit-tooltip');
+            const tw   = tt.offsetWidth;
+            const th   = tt.offsetHeight;
+            const margin = 14;
+            let left = e.clientX + margin;
+            let top  = e.clientY + margin;
+
+            // Flip left if tooltip would go off right edge
+            if (left + tw > window.innerWidth) {
+                left = e.clientX - tw - margin;
+            }
+            // Flip up if tooltip would go off bottom edge
+            if (top + th > window.innerHeight) {
+                top = e.clientY - th - margin;
+            }
+
+            tt.style.left = left + 'px';
+            tt.style.top  = top  + 'px';
         });
 
         span.addEventListener('mouseleave', () => {
@@ -208,7 +226,7 @@ function handleResult(result) {
     if (result.response) appendResponse(result.response);
     if (result.ship_time) Loop.updateShipTime(result.ship_time);
 
-    // ── Door locked — show closed hatch image ────────────
+    // ── Door locked — show closed hatch image, stay on it ────
     if (result.action_type === 'door_locked') {
         setDoorImage('closed');
         refreshExits();
@@ -246,7 +264,7 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Swipe completed — show open or closed hatch based on action
+    // Swipe completed — show open or closed hatch then restore room
     if (result.swipe_complete) {
         const imgState = result.swipe_action === 'lock' ? 'closed' : 'open';
         setDoorImage(imgState);
@@ -269,12 +287,13 @@ function handleResult(result) {
         return;
     }
 
-    // Refresh exit states after any other instant action
-    if (result.action_type === 'instant') {
-        refreshExits();
+    // Card invalidated — restore room image immediately
+    if (result.card_invalidated) {
+        loadRoom();
+        return;
     }
 
-    // Refresh exit states after any other instant action (close, open, etc.)
+    // Refresh exit states after any other instant action
     if (result.action_type === 'instant') {
         refreshExits();
     }
