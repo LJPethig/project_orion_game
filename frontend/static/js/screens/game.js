@@ -204,13 +204,20 @@ function handleResult(result) {
     if (result.response) appendResponse(result.response);
     if (result.ship_time) Loop.updateShipTime(result.ship_time);
 
+    // ── Door locked — show closed hatch image ────────────
+    if (result.action_type === 'door_locked') {
+        setDoorImage('closed');
+        return;
+    }
+
     // ── Card swipe — show panel image, lock input, wait ──
     if (result.action_type === 'card_swipe') {
         setPanelImage(result.security_level);
         Loop.lockInput(result.real_seconds, async () => {
             const swipeResult = await API.completeSwipe(
                 result.door_id,
-                result.pending_move
+                result.pending_move,
+                result.door_action
             );
             clearResponse();
             handleResult(swipeResult);
@@ -223,6 +230,7 @@ function handleResult(result) {
         pendingPin = {
             door_id:      result.door_id,
             pending_move: result.pending_move,
+            door_action:  result.door_action,
         };
         setInputMode('pin');
         return;
@@ -232,10 +240,16 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Room changed after swipe — show open hatch briefly then new room
+    // Room changed after swipe — show open hatch then new room
     if (result.room_changed && result.room && result.swipe_complete) {
         setDoorImage('open');
-        setTimeout(() => updateRoom(result.room), 800);
+        setTimeout(() => updateRoom(result.room), 2000);
+        return;
+    }
+
+    // Lock completed — show closed hatch image
+    if (result.swipe_complete && !result.room_changed) {
+        setDoorImage('closed');
         return;
     }
 
@@ -249,7 +263,8 @@ async function submitPin(pin) {
     const result = await API.submitPin(
         pendingPin.door_id,
         pendingPin.pending_move,
-        pin
+        pin,
+        pendingPin.door_action
     );
     handleResult(result);
 }

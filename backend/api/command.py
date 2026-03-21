@@ -56,35 +56,55 @@ def process_command():
 def complete_swipe():
     """
     Called by frontend after the 8s card swipe wait completes.
-    Unlocks the door and either moves the player (level 1/2)
-    or prompts for PIN (level 3).
+    door_action: 'unlock' — unlock door, move player through
+    door_action: 'lock'   — lock door, player stays
+    Level 3 doors prompt for PIN before completing the action.
     """
     if not game_manager.initialised:
         return jsonify({'error': 'Game not initialised'}), 400
 
-    data    = request.get_json()
-    door_id = data.get('door_id')
-    door    = game_manager.ship.get_door_by_id(door_id)
+    data        = request.get_json()
+    door_id     = data.get('door_id')
+    door_action = data.get('door_action', 'unlock')
+    door        = game_manager.ship.get_door_by_id(door_id)
 
     if not door:
         return jsonify({'error': 'Door not found'}), 400
 
-    door.unlock()
-
-    # Level 3 — prompt for PIN
+    # Level 3 — prompt for PIN before acting
     if door.security_level == SecurityLevel.KEYCARD_HIGH_PIN.value:
         return jsonify({
-            'response':    'Credentials verified. Enter PIN:',
-            'action_type': 'pin_required',
-            'lock_input':  False,
+            'response':     'Credentials verified. Enter PIN:',
+            'action_type':  'pin_required',
+            'lock_input':   False,
             'room_changed': False,
-            'door_id':     door_id,
+            'door_id':      door_id,
+            'door_action':  door_action,
             'pending_move': data.get('pending_move'),
-            'ship_time':   game_manager.get_ship_time(),
+            'ship_time':    game_manager.get_ship_time(),
         })
 
-    # Level 1/2 — move straight through
-    game_manager.set_current_room(data.get('pending_move'))
+    # Level 1/2 — complete the action immediately
+    return _complete_door_action(door, door_action, data.get('pending_move'))
+
+
+def _complete_door_action(door, door_action: str, pending_move: str):
+    """Complete an unlock or lock action after credentials are verified."""
+    if door_action == 'lock':
+        door.lock()
+        return jsonify({
+            'response':     'Credentials verified. The door is now locked.',
+            'action_type':  'instant',
+            'lock_input':   False,
+            'room_changed': False,
+            'swipe_complete': True,
+            'ship_time':    game_manager.get_ship_time(),
+        })
+
+    # unlock — open door and move player through
+    door.unlock()
+    door.open()
+    game_manager.set_current_room(pending_move)
     new_room = game_manager.get_current_room()
     return jsonify({
         'response':       f"Credentials verified. Access granted. You enter {new_room.name}.",
@@ -110,32 +130,22 @@ def submit_pin():
     door_id      = data.get('door_id')
     pin_input    = data.get('pin', '').strip()
     pending_move = data.get('pending_move')
+    door_action  = data.get('door_action', 'unlock')
 
     door = game_manager.ship.get_door_by_id(door_id)
     if not door:
         return jsonify({'error': 'Door not found'}), 400
 
-    # Check PIN
+    # Correct PIN — complete the action
     if pin_input == door.pin:
         door.pin_attempts = 0
-        game_manager.set_current_room(pending_move)
-        new_room = game_manager.get_current_room()
-        return jsonify({
-            'response':       f"PIN accepted. Access granted. You enter {new_room.name}.",
-            'action_type':    'instant',
-            'lock_input':     False,
-            'room_changed':   True,
-            'swipe_complete': True,
-            'room':           _build_room_data(new_room),
-            'ship_time':      game_manager.get_ship_time(),
-        })
+        return _complete_door_action(door, door_action, pending_move)
 
     # Wrong PIN
     door.pin_attempts += 1
     remaining = door.PIN_MAX_ATTEMPTS - door.pin_attempts
 
     if remaining <= 0:
-        # Invalidate card — re-lock door
         door.lock()
         door.pin_attempts = 0
         game_manager.invalidate_card(door.security_level)
@@ -153,6 +163,7 @@ def submit_pin():
         'lock_input':   False,
         'room_changed': False,
         'door_id':      door_id,
+        'door_action':  door_action,
         'pending_move': pending_move,
         'ship_time':    game_manager.get_ship_time(),
     })

@@ -3,37 +3,36 @@
 CommandHandler — central verb registry.
 Routes player commands to the appropriate sub-handler.
 Uses longest-match on verbs (same pattern as Dark Star).
-Grows as new commands are added — each new handler registers its verbs here.
 """
 
 from backend.handlers.movement_handler import MovementHandler
+from backend.handlers.door_handler import DoorHandler
 
 
 class CommandHandler:
 
     def __init__(self):
-        # Verb registry — longest match wins
-        # Format: 'verb' → (handler_instance, method_name)
         self._movement = MovementHandler()
+        self._door     = DoorHandler()
 
         self.commands = {
-            'enter': self._movement.handle,
-            'go':    self._movement.handle,
-            'move':  self._movement.handle,
+            # Movement
+            'enter':  self._movement.handle,
+            'go':     self._movement.handle,
+            'move':   self._movement.handle,
+            # Door control
+            'unlock': self._door.handle_unlock,
+            'lock':   self._door.handle_lock,
+            'close':  self._door.handle_close,
         }
 
     def process(self, raw: str) -> dict:
-        """
-        Process a raw command string from the player.
-        Returns a standard response dict.
-        """
         cmd = raw.strip().lower()
         if not cmd:
             return self._unknown('')
 
         words = cmd.split()
 
-        # Longest-match: try from full string down to first word
         for i in range(len(words), 0, -1):
             verb = ' '.join(words[:i])
             if verb in self.commands:
