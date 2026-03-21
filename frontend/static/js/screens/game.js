@@ -5,7 +5,7 @@
 let currentExits = {};
 
 // PIN mode state
-let pendingPin = null;   // null or { door_id, pending_move }
+let pendingPin = null;   // null or { door_id, door_action }
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
@@ -235,9 +235,8 @@ function handleResult(result) {
     // ── PIN required — switch input to PIN mode ───────────
     if (result.action_type === 'pin_required') {
         pendingPin = {
-            door_id:      result.door_id,
-            pending_move: result.pending_move,
-            door_action:  result.door_action,
+            door_id:     result.door_id,
+            door_action: result.door_action,
         };
         setInputMode('pin');
         return;
@@ -247,17 +246,12 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Room changed after swipe — show open hatch then new room
-    if (result.room_changed && result.room && result.swipe_complete) {
-        setDoorImage('open');
-        setTimeout(() => updateRoom(result.room), 2000);
-        return;
-    }
-
-    // Lock completed — show closed hatch image
-    if (result.swipe_complete && !result.room_changed) {
-        setDoorImage('closed');
+    // Swipe completed — show open or closed hatch based on action
+    if (result.swipe_complete) {
+        const imgState = result.swipe_action === 'lock' ? 'closed' : 'open';
+        setDoorImage(imgState);
         refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         return;
     }
 
@@ -267,7 +261,20 @@ function handleResult(result) {
         return;
     }
 
-    // Refresh exit states after any other instant action (close, etc.)
+    // Instant door image — open or close without card swipe
+    if (result.door_image) {
+        setDoorImage(result.door_image);
+        refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        return;
+    }
+
+    // Refresh exit states after any other instant action
+    if (result.action_type === 'instant') {
+        refreshExits();
+    }
+
+    // Refresh exit states after any other instant action (close, open, etc.)
     if (result.action_type === 'instant') {
         refreshExits();
     }
@@ -276,7 +283,7 @@ function handleResult(result) {
 async function submitPin(pin) {
     const result = await API.submitPin(
         pendingPin.door_id,
-        pendingPin.pending_move,
+        null,
         pin,
         pendingPin.door_action
     );

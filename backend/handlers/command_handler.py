@@ -21,6 +21,7 @@ class CommandHandler:
             'go':     self._movement.handle,
             'move':   self._movement.handle,
             # Door control
+            'open':   self._door.handle_open,
             'unlock': self._door.handle_unlock,
             'lock':   self._door.handle_lock,
             'close':  self._door.handle_close,
