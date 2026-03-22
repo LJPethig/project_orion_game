@@ -1,0 +1,26 @@
+{
+  "rooms": [
+  ],
+  "containers": [
+    {
+      "container_id": "captains_quarters_cabinet",
+      "items": ["id_card_low_sec", "flight_coveralls", "mag_boots", "pilot_jacket"]
+    },
+    {
+      "container_id": "engineering_tool_storage_cabinet",
+      "items": ["scan_tool", "wrench", "powered_bit_driver", "laser_solderer"]
+    },
+    {
+      "container_id": "engineering_large_parts_storage_unit",
+      "items": ["electrical_service_kit", "wire_low_voltage", "wire_optical"]
+    },
+    {
+      "container_id": "cargo_bay_eva_equipment_locker",
+      "items": ["eva_suit", "eva_helmet", "eva_boots"]
+    },
+    {
+      "container_id": "storage_room_large_storage_unit",
+      "items": ["socket_set"]
+    }
+  ]
+}

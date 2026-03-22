@@ -1,0 +1,82 @@
+[
+  {
+    "id": "terminal_personal",
+    "name": "Personal Terminal",
+    "description": "Your personal computer terminal. A scratched screen glows softly.",
+    "keywords": ["terminal", "personal terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_navigation",
+    "name": "Navigation Terminal",
+    "description": "The ship's navigation terminal. Charts, waypoints and flight data.",
+    "keywords": ["terminal", "navigation terminal", "nav terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_storage",
+    "name": "Storage Terminal",
+    "description": "An inventory management terminal for tracking ship cargo and stores.",
+    "keywords": ["terminal", "storage terminal", "inventory terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_medical",
+    "name": "Medical Terminal",
+    "description": "Medical records, diagnostics and treatment logs.",
+    "keywords": ["terminal", "medical terminal", "computer", "console"]
+  },
+  {
+    "id": "captains_quarters_cabinet",
+    "name": "Personal Locker",
+    "description": "Your personal locker with twin sliding doors, built into the far wall.",
+    "keywords": ["locker", "cabinet", "closet", "personal locker", "personal cabinet"],
+    "capacity_mass": 120.0,
+    "open_description": "The cabinet doors slide open smoothly, revealing racks for clothing and several shelves."
+  },
+  {
+    "id": "storage_room_small_cabinet",
+    "name": "Small Cabinet",
+    "description": "A compact wall-mounted cabinet.",
+    "keywords": ["cabinet", "small cabinet", "wall cabinet"],
+    "capacity_mass": 80.0,
+    "open_description": "The door swings open to reveal several shelves."
+  },
+  {
+    "id": "storage_room_large_storage_unit",
+    "name": "Large Storage Unit",
+    "description": "A large wall-mounted storage unit with heavy-duty shelving.",
+    "keywords": ["storage unit", "large storage unit", "large cabinet", "storage"],
+    "capacity_mass": 200.0,
+    "open_description": "The door swings open to reveal several shelves and parts bins."
+  },
+  {
+    "id": "engineering_tool_storage_cabinet",
+    "name": "Tool Storage Cabinet",
+    "description": "A professional-grade cabinet for organising hand tools and diagnostic equipment.",
+    "keywords": ["tool cabinet", "tool storage", "tool chest", "cabinet"],
+    "capacity_mass": 120.0,
+    "open_description": "Drawers slide out smoothly on ball-bearing runners, displaying precision-cut foam inserts."
+  },
+  {
+    "id": "engineering_large_parts_storage_unit",
+    "name": "Large Parts Storage Unit",
+    "description": "A large wall-mounted parts storage cabinet for spare components and hardware.",
+    "keywords": ["parts storage", "parts cabinet", "large parts cabinet", "storage unit", "large cabinet"],
+    "capacity_mass": 200.0,
+    "open_description": "The door swings open to reveal several shelves and parts bins."
+  },
+  {
+    "id": "cargo_bay_eva_equipment_locker",
+    "name": "EVA Equipment Locker",
+    "description": "Dedicated storage for EVA gear with padded hangers and accessory bins.",
+    "keywords": ["eva locker", "eva equipment locker", "equipment locker", "locker"],
+    "capacity_mass": 150.0,
+    "open_description": "The tall door opens to reveal a full-length suit rack and accessory bins."
+  },
+  {
+    "id": "cargo_bay_large_cabinet",
+    "name": "Large Cabinet",
+    "description": "A large wall-mounted cabinet for general cargo storage.",
+    "keywords": ["cabinet", "large cabinet"],
+    "capacity_mass": 150.0,
+    "open_description": "The door swings open to reveal several shelves."
+  }
+]

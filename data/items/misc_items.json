@@ -1,0 +1,23 @@
+[
+  {
+    "id": "id_card_high_sec",
+    "name": "High Security ID Card",
+    "description": "A chipped security card granting access to high security areas.",
+    "keywords": ["id card", "security card", "card", "id", "high security card"],
+    "mass": 0.0
+  },
+  {
+    "id": "id_card_low_sec",
+    "name": "Low Security ID Card",
+    "description": "A chipped security card granting access to low security areas.",
+    "keywords": ["id card", "security card", "card", "id", "low security card"],
+    "mass": 0.0
+  },
+  {
+    "id": "id_card_high_sec_damaged",
+    "name": "High Security ID Card (Damaged)",
+    "description": "A high security card that appears to have been burnt out. It is unlikely to work.",
+    "keywords": ["id card", "security card", "card", "id", "damaged card"],
+    "mass": 0.0
+  }
+]

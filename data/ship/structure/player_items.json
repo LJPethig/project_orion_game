@@ -1,0 +1,10 @@
+{
+  "inventory": [
+    "id_card_high_sec",
+    "personal_atm_monitor"
+  ],
+  "equipped": {
+    "body":  "stasis_garment",
+    "waist": "utility_belt"
+  }
+}
