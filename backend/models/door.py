@@ -30,15 +30,13 @@ class SecurityPanel:
         door_id:        str,
         side:           str,
         security_level: int,
-        pin:            Optional[str] = None,
-        damaged:        bool = False,
     ):
         self.panel_id       = panel_id
         self.door_id        = door_id
         self.side           = side
         self.security_level = SecurityLevel(security_level)
-        self.pin            = pin
-        self.is_broken      = damaged
+        self.pin            = None    # Set by _apply_initial_state if level 3
+        self.is_broken      = False   # Set by _apply_initial_state if damaged
         self.repair_progress = 0.0    # Runtime state only — not in JSON
 
     def get_state_label(self) -> str:
@@ -63,14 +61,13 @@ class Door:
         door_open:      bool,
         door_locked:    bool,
         security_level: int,
-        pin:            Optional[str] = None,
     ):
         self.id             = door_id
         self.room_ids       = (room_a_id, room_b_id)
         self.door_open      = door_open
         self.door_locked    = door_locked
         self.security_level = security_level
-        self.pin            = pin
+        self.pin            = None    # Set by _apply_initial_state if level 3
 
         # Per-side panels: room_id → SecurityPanel
         self.panels: dict[str, SecurityPanel] = {}

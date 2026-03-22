@@ -6,19 +6,17 @@
         "captains_quarters",
         "main_corridor"
       ],
-      "door_open": false,
-      "door_locked": true,
-      "security_level": 1,
+      "door_open": true,
+      "door_locked": false,
+      "security_level": 2,
       "panel_ids": [
         {
           "id": "captains_quarters_main_corridor_panel_captains",
-          "side": "captains_quarters",
-          "damaged": true
+          "side": "captains_quarters"
         },
         {
           "id": "captains_quarters_main_corridor_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         }
       ]
     },
@@ -28,19 +26,17 @@
         "crew_cabin",
         "main_corridor"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 1,
       "panel_ids": [
         {
           "id": "crew_cabin_main_corridor_panel_crew",
-          "side": "crew_cabin",
-          "damaged": false
+          "side": "crew_cabin"
         },
         {
           "id": "crew_cabin_main_corridor_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         }
       ]
     },
@@ -56,13 +52,11 @@
       "panel_ids": [
         {
           "id": "recreation_room_galley_panel_rec",
-          "side": "recreation_room",
-          "damaged": false
+          "side": "recreation_room"
         },
         {
           "id": "recreation_room_galley_panel_galley",
-          "side": "galley",
-          "damaged": false
+          "side": "galley"
         }
       ]
     },
@@ -72,19 +66,17 @@
         "recreation_room",
         "cockpit"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 2,
       "panel_ids": [
         {
           "id": "recreation_room_cockpit_panel_rec",
-          "side": "recreation_room",
-          "damaged": false
+          "side": "recreation_room"
         },
         {
           "id": "recreation_room_cockpit_panel_cockpit",
-          "side": "cockpit",
-          "damaged": false
+          "side": "cockpit"
         }
       ]
     },
@@ -100,13 +92,11 @@
       "panel_ids": [
         {
           "id": "recreation_room_main_corridor_panel_rec",
-          "side": "recreation_room",
-          "damaged": false
+          "side": "recreation_room"
         },
         {
           "id": "recreation_room_main_corridor_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         }
       ]
     },
@@ -116,19 +106,17 @@
         "recreation_room",
         "med_bay"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 1,
       "panel_ids": [
         {
           "id": "recreation_room_med_bay_panel_rec",
-          "side": "recreation_room",
-          "damaged": false
+          "side": "recreation_room"
         },
         {
           "id": "recreation_room_med_bay_panel_medbay",
-          "side": "med_bay",
-          "damaged": false
+          "side": "med_bay"
         }
       ]
     },
@@ -144,13 +132,11 @@
       "panel_ids": [
         {
           "id": "recreation_room_storage_room_panel_rec",
-          "side": "recreation_room",
-          "damaged": false
+          "side": "recreation_room"
         },
         {
           "id": "recreation_room_storage_room_panel_storage",
-          "side": "storage_room",
-          "damaged": false
+          "side": "storage_room"
         }
       ]
     },
@@ -160,19 +146,17 @@
         "med_bay",
         "hypersleep_chamber"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 1,
       "panel_ids": [
         {
           "id": "med_bay_hypersleep_chamber_panel_medbay",
-          "side": "med_bay",
-          "damaged": false
+          "side": "med_bay"
         },
         {
           "id": "med_bay_hypersleep_chamber_panel_stasis",
-          "side": "hypersleep_chamber",
-          "damaged": false
+          "side": "hypersleep_chamber"
         }
       ]
     },
@@ -188,13 +172,11 @@
       "panel_ids": [
         {
           "id": "main_corridor_sub_corridor_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         },
         {
           "id": "main_corridor_sub_corridor_panel_sub",
-          "side": "sub_corridor",
-          "damaged": false
+          "side": "sub_corridor"
         }
       ]
     },
@@ -204,19 +186,17 @@
         "main_corridor",
         "engineering"
       ],
-      "door_open": false,
-      "door_locked": true,
+      "door_open": true,
+      "door_locked": false,
       "security_level": 2,
       "panel_ids": [
         {
           "id": "main_corridor_engineering_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         },
         {
           "id": "main_corridor_engineering_panel_eng",
-          "side": "engineering",
-          "damaged": false
+          "side": "engineering"
         }
       ]
     },
@@ -226,20 +206,17 @@
         "main_corridor",
         "mainframe_room"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 3,
-      "pin": "3333",
       "panel_ids": [
         {
           "id": "main_corridor_mainframe_room_panel_main",
-          "side": "main_corridor",
-          "damaged": false
+          "side": "main_corridor"
         },
         {
           "id": "main_corridor_mainframe_room_panel_mainframe",
-          "side": "mainframe_room",
-          "damaged": false
+          "side": "mainframe_room"
         }
       ]
     },
@@ -249,19 +226,17 @@
         "sub_corridor",
         "cargo_bay"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 1,
       "panel_ids": [
         {
           "id": "sub_corridor_cargo_bay_panel_sub",
-          "side": "sub_corridor",
-          "damaged": false
+          "side": "sub_corridor"
         },
         {
           "id": "sub_corridor_cargo_bay_panel_cargo",
-          "side": "cargo_bay",
-          "damaged": false
+          "side": "cargo_bay"
         }
       ]
     },
@@ -277,13 +252,11 @@
       "panel_ids": [
         {
           "id": "sub_corridor_head_panel_sub",
-          "side": "sub_corridor",
-          "damaged": false
+          "side": "sub_corridor"
         },
         {
           "id": "sub_corridor_head_panel_head",
-          "side": "head",
-          "damaged": false
+          "side": "head"
         }
       ]
     },
@@ -293,20 +266,17 @@
         "engineering",
         "life_support"
       ],
-      "door_open": false,
-      "door_locked": true,
+      "door_open": true,
+      "door_locked": false,
       "security_level": 3,
-      "pin": "1111",
       "panel_ids": [
         {
           "id": "engineering_life_support_panel_eng",
-          "side": "engineering",
-          "damaged": false
+          "side": "engineering"
         },
         {
           "id": "engineering_life_support_panel_ls",
-          "side": "life_support",
-          "damaged": false
+          "side": "life_support"
         }
       ]
     },
@@ -316,20 +286,17 @@
         "engineering",
         "propulsion_bay"
       ],
-      "door_open": false,
+      "door_open": true,
       "door_locked": false,
       "security_level": 3,
-      "pin": "1111",
       "panel_ids": [
         {
           "id": "engineering_propulsion_bay_panel_eng",
-          "side": "engineering",
-          "damaged": false
+          "side": "engineering"
         },
         {
           "id": "engineering_propulsion_bay_panel_prop",
-          "side": "propulsion_bay",
-          "damaged": false
+          "side": "propulsion_bay"
         }
       ]
     },
@@ -339,20 +306,17 @@
         "cargo_bay",
         "airlock"
       ],
-      "door_open": false,
-      "door_locked": true,
+      "door_open": true,
+      "door_locked": false,
       "security_level": 3,
-      "pin": "2222",
       "panel_ids": [
         {
           "id": "cargo_bay_airlock_panel_cargo",
-          "side": "cargo_bay",
-          "damaged": false
+          "side": "cargo_bay"
         },
         {
           "id": "cargo_bay_airlock_panel_airlock",
-          "side": "airlock",
-          "damaged": false
+          "side": "airlock"
         }
       ]
     }

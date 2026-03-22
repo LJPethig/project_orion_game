@@ -1,0 +1,25 @@
+{
+  "doors": [
+    { "id": "captains_quarters_main_corridor",   "door_open": false, "door_locked": true  },
+    { "id": "recreation_room_cockpit",            "door_open": false, "door_locked": false },
+    { "id": "recreation_room_med_bay",            "door_open": false, "door_locked": false },
+    { "id": "main_corridor_sub_corridor",         "door_open": false, "door_locked": false },
+    { "id": "main_corridor_engineering",          "door_open": false, "door_locked": true  },
+    { "id": "main_corridor_mainframe_room",       "door_open": false, "door_locked": true  },
+    { "id": "sub_corridor_cargo_bay",             "door_open": false, "door_locked": false },
+    { "id": "med_bay_hypersleep_chamber",         "door_open": false, "door_locked": false },
+    { "id": "engineering_life_support",           "door_open": false, "door_locked": true  },
+    { "id": "engineering_propulsion_bay",         "door_open": false, "door_locked": true  },
+    { "id": "cargo_bay_airlock",                  "door_open": false, "door_locked": true  }
+  ],
+  "panels": [
+    { "id": "sub_corridor_cargo_bay_panel_sub",         "damaged": true },
+    { "id": "main_corridor_engineering_panel_main",     "damaged": true }
+  ],
+  "pins": [
+    { "door_id": "main_corridor_mainframe_room",  "pin": "1111" },
+    { "door_id": "engineering_life_support",      "pin": "1111" },
+    { "door_id": "engineering_propulsion_bay",    "pin": "1111" },
+    { "door_id": "cargo_bay_airlock",             "pin": "1111" }
+  ]
+}

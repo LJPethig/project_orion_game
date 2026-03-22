@@ -33,8 +33,9 @@ DEBUG_HAS_REPAIR_TOOL   = True   # Phase 12: replace with real tool inventory ch
 
 # ── Data file paths ──────────────────────────────────────────
 import os
-ROOMS_JSON_PATH = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
-DOORS_JSON_PATH = os.path.join('data', 'ship', 'structure', 'door_status.json')
+ROOMS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
+DOORS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'door_status.json')
+INITIAL_STATE_JSON_PATH = os.path.join('data', 'ship', 'structure', 'initial_ship_state.json')
 
 # ── Flask ────────────────────────────────────────────────────
 DEBUG = True

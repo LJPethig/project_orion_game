@@ -8,7 +8,7 @@ import json
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
-from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH
+from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH
 
 
 class Ship:
@@ -25,12 +25,13 @@ class Ship:
     @classmethod
     def load_from_json(cls, name: str, rooms_path: str) -> 'Ship':
         """
-        Load ship rooms and doors from JSON files.
+        Load ship rooms and doors from JSON files, then apply initial state overlay.
         Returns a fully initialised Ship instance.
         """
         ship = cls(name)
         ship._load_rooms(rooms_path)
         ship._load_doors()
+        ship._apply_initial_state()
         return ship
 
     def _load_rooms(self, rooms_path: str) -> None:
@@ -82,7 +83,6 @@ class Ship:
                 door_open=conn.get('door_open', False),
                 door_locked=conn.get('door_locked', False),
                 security_level=conn.get('security_level', 1),
-                pin=conn.get('pin'),
             )
 
             # Create panels and attach to door and room
@@ -92,8 +92,6 @@ class Ship:
                     door_id=door.id,
                     side=panel_data['side'],
                     security_level=conn.get('security_level', 1),
-                    pin=conn.get('pin'),
-                    damaged=panel_data.get('damaged', False),
                 )
                 door.panels[panel_data['side']] = panel
 
@@ -117,6 +115,60 @@ class Ship:
             if exit_data.get('target') == room_a_id:
                 exit_data['door'] = door
                 break
+
+    def _apply_initial_state(self) -> None:
+        """
+        Apply initial_ship_state.json on top of the pristine ship.
+        Overrides door states, panel damage, and PINs.
+        Missing file is silently skipped — pristine ship is valid on its own.
+        """
+        try:
+            with open(INITIAL_STATE_JSON_PATH, 'r', encoding='utf-8') as f:
+                state = json.load(f)
+        except FileNotFoundError:
+            return
+        except Exception as e:
+            print(f"Warning: Could not load initial_ship_state.json: {e}")
+            return
+
+        # ── Door states ───────────────────────────────────────
+        for entry in state.get('doors', []):
+            door = self.get_door_by_id(entry['id'])
+            if not door:
+                print(f"Warning: initial_ship_state references unknown door '{entry['id']}'")
+                continue
+            if 'door_open' in entry:
+                door.door_open = entry['door_open']
+            if 'door_locked' in entry:
+                door.door_locked = entry['door_locked']
+
+        # ── Panel damage ──────────────────────────────────────
+        panel_index = self._build_panel_index()
+        for entry in state.get('panels', []):
+            panel = panel_index.get(entry['id'])
+            if not panel:
+                print(f"Warning: initial_ship_state references unknown panel '{entry['id']}'")
+                continue
+            if 'damaged' in entry:
+                panel.is_broken = entry['damaged']
+
+        # ── PINs ──────────────────────────────────────────────
+        for entry in state.get('pins', []):
+            door = self.get_door_by_id(entry['door_id'])
+            if not door:
+                print(f"Warning: initial_ship_state references unknown door '{entry['door_id']}' for PIN")
+                continue
+            door.pin = entry['pin']
+            for panel in door.panels.values():
+                panel.pin = entry['pin']
+
+    def _build_panel_index(self) -> dict:
+        """Return a flat dict of panel_id → SecurityPanel across all doors."""
+        index = {}
+        for door in self.doors:
+            for panel in door.panels.values():
+                index[panel.panel_id] = panel
+        return index
 
     # ── Query helpers ────────────────────────────────────────
 
