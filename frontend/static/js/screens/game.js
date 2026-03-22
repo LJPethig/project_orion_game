@@ -325,9 +325,13 @@ if (result.action_type === 'repair_complete') {
         return;
     }
 
-    // Refresh exit states after any other instant action
+    // Instant action — reload room if contents changed (take/drop), otherwise just refresh exits
     if (result.action_type === 'instant') {
-        refreshExits();
+        if (result.room_contents_changed) {
+            loadRoom();
+        } else {
+            refreshExits();
+        }
     }
 }
 

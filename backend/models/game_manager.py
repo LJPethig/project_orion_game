@@ -1,66 +1,121 @@
 # backend/models/game_manager.py
 """
 GameManager — central coordinator for all game state.
-Phase 7: adds ship loading and current room tracking.
+Single source of truth. One instance lives for the lifetime of the Flask app.
 """
 
-import os
+import json
 from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
-from backend.models.door import SecurityLevel
-from config import SHIP_NAME, STARTING_ROOM, ROOMS_JSON_PATH, DEBUG_HAS_LOW_SEC_CARD, DEBUG_HAS_HIGH_SEC_CARD
+from backend.models.player import Player
+from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
+                   PLAYER_ITEMS_JSON_PATH
 
 
 class GameManager:
-    """
-    Single source of truth for game state.
-    One instance lives for the lifetime of the Flask app.
-    """
 
     def __init__(self):
-        self.initialised    = False
-        self.ship_name      = SHIP_NAME
-        self.chronometer    = None
-        self.ship           = None
-        self.current_room   = None
+        self.initialised  = False
+        self.ship_name    = SHIP_NAME
+        self.chronometer  = None
+        self.ship         = None
+        self.player       = None
+        self.current_room = None
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
-        self.chronometer      = Chronometer()
-        self.ship             = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
-        self.current_room     = self.ship.get_room(STARTING_ROOM)
-        self.has_low_sec_card  = DEBUG_HAS_LOW_SEC_CARD
-        self.has_high_sec_card = DEBUG_HAS_HIGH_SEC_CARD
-        self.initialised      = True
+        self.chronometer  = Chronometer()
+        self.ship         = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
+        self.player       = Player(PLAYER_NAME)
+        self.current_room = self.ship.get_room(STARTING_ROOM)
+        self._load_player_items()
+        self.initialised  = True
+
+    def _load_player_items(self) -> None:
+        """
+        Load player starting inventory and equipped slots from player_items.json.
+        Uses the same item registry as the ship loader.
+        """
+        from backend.loaders.item_loader import load_item_registry
+
+        try:
+            with open(PLAYER_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load player_items.json: {e}")
+            return
+
+        registry = load_item_registry()
+
+        for item_id in data.get('inventory', []):
+            item = registry.get(item_id)
+            if not item:
+                print(f"Warning: player_items.json references unknown item '{item_id}'")
+                continue
+            success, msg = self.player.add_to_inventory(item)
+            if not success:
+                print(f"Warning: Could not add '{item_id}' to player inventory: {msg}")
+
+        for slot, item_id in data.get('equipped', {}).items():
+            item = registry.get(item_id)
+            if not item:
+                print(f"Warning: player_items.json references unknown item '{item_id}'")
+                continue
+            # Force item into slot directly — no inventory step needed for starting equipment
+            slot_attr = f"{slot}_slot"
+            if hasattr(self.player, slot_attr):
+                setattr(self.player, slot_attr, item)
+            else:
+                print(f"Warning: player_items.json references unknown slot '{slot}'")
+
+    # ── Card access (real inventory checks) ──────────────────
+
+    @property
+    def has_low_sec_card(self) -> bool:
+        return self.player.has_card_for_level(1) if self.player else False
+
+    @property
+    def has_high_sec_card(self) -> bool:
+        return self.player.has_card_for_level(2) if self.player else False
 
     def invalidate_card(self, security_level: int) -> None:
-        """Invalidate a card after 3 failed PIN attempts."""
-        if security_level == SecurityLevel.KEYCARD_HIGH_PIN.value:
-            self.has_high_sec_card = False
-        elif security_level == SecurityLevel.KEYCARD_LOW.value:
-            self.has_low_sec_card = False
+        """
+        Invalidate a card after 3 failed PIN attempts.
+        The card is not removed — it is swapped for a damaged version.
+        The player keeps the physical card but it no longer grants access.
+        """
+        from backend.models.door import SecurityLevel as SL
+        from backend.loaders.item_loader import load_item_registry
+
+        if not self.player:
+            return
+
+        if security_level == SL.KEYCARD_HIGH_PIN.value:
+            card = self.player.find_in_inventory('id_card_high_sec')
+            if card:
+                registry = load_item_registry()
+                damaged  = registry.get('id_card_high_sec_damaged')
+                if damaged:
+                    self.player.remove_from_inventory(card)
+                    self.player.add_to_inventory(damaged)
 
     # ── Time ─────────────────────────────────────────────────
 
     def get_ship_time(self) -> str:
-        """Return formatted ship time, or dashes if not initialised."""
         if not self.initialised or not self.chronometer:
             return "--  --:--"
         return self.chronometer.get_formatted()
 
     def advance_time(self, minutes: int) -> None:
-        """Advance ship time. Called by timed actions (repairs, waits, etc.)"""
         if self.initialised and self.chronometer:
             self.chronometer.advance(minutes)
 
     # ── Room ─────────────────────────────────────────────────
 
     def get_current_room(self):
-        """Return the current Room instance."""
         return self.current_room
 
     def set_current_room(self, room_id: str) -> bool:
-        """Move player to a new room by ID. Returns False if room not found."""
         room = self.ship.get_room(room_id)
         if not room:
             return False
@@ -68,5 +123,5 @@ class GameManager:
         return True
 
 
-# Single shared instance — imported by all API routes
+# Single shared instance — imported by all API routes and handlers
 game_manager = GameManager()

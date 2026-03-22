@@ -8,7 +8,9 @@ import json
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
-from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH
+from backend.models.interactable import PortableItem, FixedObject, StorageUnit
+from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH, \
+                   FIXED_OBJECTS_JSON_PATH, SHIP_ITEMS_JSON_PATH
 
 
 class Ship:
@@ -25,12 +27,15 @@ class Ship:
     @classmethod
     def load_from_json(cls, name: str, rooms_path: str) -> 'Ship':
         """
-        Load ship rooms and doors from JSON files, then apply initial state overlay.
+        Load ship rooms, doors, fixed objects and placed items from JSON files.
+        Apply initial state overlay last.
         Returns a fully initialised Ship instance.
         """
         ship = cls(name)
         ship._load_rooms(rooms_path)
         ship._load_doors()
+        ship._load_fixed_objects()
+        ship._load_ship_items()
         ship._apply_initial_state()
         return ship
 
@@ -53,6 +58,7 @@ class Ship:
                 dimensions_m=room_data['dimensions_m'],
                 target_temperature=target_temp,
             )
+            room.fixed_object_ids = room_data.get('fixed_objects', [])
             self.rooms[room_id] = room
 
     def _load_doors(self) -> None:
@@ -115,6 +121,93 @@ class Ship:
             if exit_data.get('target') == room_a_id:
                 exit_data['door'] = door
                 break
+
+    def _load_fixed_objects(self) -> None:
+        """
+        Instantiate fixed objects from fixed_objects.json and place them
+        into the rooms that reference their IDs in ship_rooms.json.
+        """
+        try:
+            with open(FIXED_OBJECTS_JSON_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load fixed_objects.json: {e}")
+            return
+
+        # Build definition registry: id → data dict
+        definitions = {obj['id']: obj for obj in data}
+
+        # Re-read room fixed_object ID lists from rooms (stored during _load_rooms)
+        for room in self.rooms.values():
+            for obj_id in room.fixed_object_ids:
+                defn = definitions.get(obj_id)
+                if not defn:
+                    print(f"Warning: No definition for fixed object '{obj_id}' in room '{room.id}'")
+                    continue
+                kwargs = {k: v for k, v in defn.items()}
+                if 'capacity_mass' in defn:
+                    obj = StorageUnit(**kwargs)
+                else:
+                    obj = FixedObject(**kwargs)
+                room.add_object(obj)
+
+    def _load_ship_items(self) -> None:
+        """
+        Place portable items into the world from ship_items.json.
+        Items land on room floors or inside storage containers.
+        Requires item registry from ItemLoader — loaded fresh here to avoid
+        circular imports with GameManager.
+        """
+        from backend.loaders.item_loader import load_item_registry
+
+        try:
+            with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load ship_items.json: {e}")
+            return
+
+        registry = load_item_registry()
+
+        # ── Loose items on room floors ────────────────────────
+        for entry in data.get('rooms', []):
+            room = self.rooms.get(entry['room_id'])
+            if not room:
+                print(f"Warning: ship_items.json references unknown room '{entry['room_id']}'")
+                continue
+            for item_id in entry.get('items', []):
+                item = self._make_item(item_id, registry)
+                if item:
+                    room.add_object(item)
+
+        # ── Items inside containers ───────────────────────────
+        container_index = self._build_container_index()
+        for entry in data.get('containers', []):
+            container = container_index.get(entry['container_id'])
+            if not container:
+                print(f"Warning: ship_items.json references unknown container '{entry['container_id']}'")
+                continue
+            for item_id in entry.get('items', []):
+                item = self._make_item(item_id, registry)
+                if item:
+                    if not container.add_item(item):
+                        print(f"Warning: '{item_id}' could not fit in '{entry['container_id']}' — over capacity")
+
+    def _make_item(self, item_id: str, registry: dict) -> PortableItem | None:
+        """Look up an item in the registry and return a fresh instance, or None."""
+        item = registry.get(item_id)
+        if not item:
+            print(f"Warning: ship_items.json references unknown item '{item_id}'")
+        return item
+
+    def _build_container_index(self) -> dict:
+        """Return a flat dict of container_id → StorageUnit across all rooms."""
+        index = {}
+        for room in self.rooms.values():
+            for obj in room.objects:
+                if isinstance(obj, StorageUnit):
+                    index[obj.id] = obj
+        return index
 
     def _apply_initial_state(self) -> None:
         """

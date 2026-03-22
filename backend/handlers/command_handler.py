@@ -8,6 +8,7 @@ Uses longest-match on verbs (same pattern as Dark Star).
 from backend.handlers.movement_handler import MovementHandler
 from backend.handlers.door_handler import DoorHandler
 from backend.handlers.repair_handler import RepairHandler
+from backend.handlers.item_handler import ItemHandler
 
 
 class CommandHandler:
@@ -16,20 +17,27 @@ class CommandHandler:
         self._movement = MovementHandler()
         self._door     = DoorHandler()
         self._repair   = RepairHandler()
+        self._item     = ItemHandler()
 
         self.commands = {
             # Movement
-            'enter':         self._movement.handle,
-            'go':            self._movement.handle,
-            'move':          self._movement.handle,
+            'enter':             self._movement.handle,
+            'go':                self._movement.handle,
+            'move':              self._movement.handle,
             # Door control
-            'open':          self._door.handle_open,
-            'unlock':        self._door.handle_unlock,
-            'lock':          self._door.handle_lock,
-            'close':         self._door.handle_close,
+            'open':              self._door.handle_open,
+            'unlock':            self._door.handle_unlock,
+            'lock':              self._door.handle_lock,
+            'close':             self._door.handle_close,
             # Repair
-            'repair panel':  self._repair.handle,
-            'repair':        self._repair.handle,
+            'repair panel':      self._repair.handle,
+            'repair':            self._repair.handle,
+            # Items
+            'take':              self._item.handle_take,
+            'get':               self._item.handle_take,
+            'pick up':           self._item.handle_take,
+            'drop':              self._item.handle_drop,
+            'debug_inventory':   self._item.handle_debug_inventory,
         }
 
     def process(self, raw: str) -> dict:

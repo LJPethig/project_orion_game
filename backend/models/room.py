@@ -34,8 +34,9 @@ class Room:
         )
 
         # Objects and panels added later
-        self.objects: List[Any] = []
-        self.panels:  Dict[str, Any] = {}
+        self.fixed_object_ids: List[str]  = []   # IDs from JSON — resolved in ship._load_fixed_objects
+        self.objects:          List[Any]  = []
+        self.panels:           Dict[str, Any] = {}
 
         # Temperature — target set from JSON preset, current starts at target
         self.target_temperature  = target_temperature

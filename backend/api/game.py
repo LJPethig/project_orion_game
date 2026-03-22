@@ -7,6 +7,7 @@ Game API routes.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
+from backend.models.interactable import PortableItem, StorageUnit
 from config import SHIP_NAME
 
 game_bp = Blueprint("game", __name__)
@@ -61,11 +62,19 @@ def get_room():
             'door_state': door.get_state() if door else 'none',
         }
 
+    portable_objects = [
+        {'id': obj.id, 'name': obj.name}
+        for obj in room.objects
+        if isinstance(obj, PortableItem)
+           and not isinstance(obj, StorageUnit)
+           and obj.takeable
+    ]
+
     return jsonify({
         "id":               room.id,
         "name":             room.name,
         "description":      room.description,
         "background_image": room.background_image,
         "exits":            exits,
-        "portable_objects": [],
+        "portable_objects": portable_objects,
     })

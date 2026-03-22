@@ -26,9 +26,7 @@ REPAIR_PANEL_GAME_MINUTES  = 30
 CARD_SWIPE_REAL_SECONDS    = 5    # Real-world wait during card swipe
 CARD_SWIPE_GAME_MINUTES    = 0
 
-# ── Debug flags (replaced by inventory checks when items are implemented) ──
-DEBUG_HAS_LOW_SEC_CARD  = False
-DEBUG_HAS_HIGH_SEC_CARD = True
+# ── Debug flags ──────────────────────────────────────────────
 DEBUG_HAS_REPAIR_TOOL   = True   # Phase 12: replace with real tool inventory check
 
 # ── Data file paths ──────────────────────────────────────────
@@ -36,6 +34,16 @@ import os
 ROOMS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
 DOORS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'door_status.json')
 INITIAL_STATE_JSON_PATH = os.path.join('data', 'ship', 'structure', 'initial_ship_state.json')
+SHIP_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'ship_items.json')
+PLAYER_ITEMS_JSON_PATH  = os.path.join('data', 'ship', 'structure', 'player_items.json')
+
+ITEM_FILES = [
+    os.path.join('data', 'items', 'tools.json'),
+    os.path.join('data', 'items', 'wearables.json'),
+    os.path.join('data', 'items', 'misc_items.json'),
+    os.path.join('data', 'items', 'consumables.json'),
+]
+FIXED_OBJECTS_JSON_PATH = os.path.join('data', 'items', 'fixed_objects.json')
 
 # ── Flask ────────────────────────────────────────────────────
 DEBUG = True

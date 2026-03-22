@@ -10,13 +10,14 @@ from flask import Blueprint, jsonify, request
 from backend.handlers.command_handler import command_handler
 from backend.models.game_manager import game_manager
 from backend.models.door import SecurityLevel
+from backend.models.interactable import PortableItem, StorageUnit
 from config import REPAIR_PANEL_GAME_MINUTES
 
 command_bp = Blueprint('command', __name__)
 
 
 def _build_room_data(room) -> dict:
-    """Helper — build room dict for frontend including door states."""
+    """Helper — build room dict for frontend including door states and portable items."""
     exits = {}
     for exit_key, exit_data in room.exits.items():
         door = exit_data.get('door')
@@ -24,13 +25,23 @@ def _build_room_data(room) -> dict:
             'label':      exit_data.get('label', exit_key),
             'door_state': door.get_state() if door else 'none',
         }
+
+    # Portable items on the room floor (not inside containers)
+    portable_objects = [
+        {'id': obj.id, 'name': obj.name}
+        for obj in room.objects
+        if isinstance(obj, PortableItem)
+        and not isinstance(obj, StorageUnit)
+        and obj.takeable
+    ]
+
     return {
         'id':               room.id,
         'name':             room.name,
         'description':      room.description,
         'background_image': room.background_image,
         'exits':            exits,
-        'portable_objects': [],
+        'portable_objects': portable_objects,
     }
 
 
