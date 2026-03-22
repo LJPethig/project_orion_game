@@ -69,6 +69,19 @@ class BaseHandler:
             'pending_move':   pending_move,
         }
 
+    def _panel_damaged_response(self, door, target_name: str) -> dict:
+        """
+        Return the panel_damaged response — shows damaged panel image persistently,
+        same pattern as door_locked. No hint about how to fix it.
+        """
+        return {
+            'response':       f"The {target_name} door access panel is damaged and will not respond.",
+            'action_type':    'panel_damaged',
+            'lock_input':     False,
+            'room_changed':   False,
+            'security_level': door.security_level,
+        }
+
     @staticmethod
     def _instant(message: str, room_changed: bool = False) -> dict:
         return {

@@ -29,6 +29,7 @@ CARD_SWIPE_GAME_MINUTES    = 0
 # ── Debug flags (replaced by inventory checks when items are implemented) ──
 DEBUG_HAS_LOW_SEC_CARD  = False
 DEBUG_HAS_HIGH_SEC_CARD = True
+DEBUG_HAS_REPAIR_TOOL   = True   # Phase 12: replace with real tool inventory check
 
 # ── Data file paths ──────────────────────────────────────────
 import os

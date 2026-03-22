@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from backend.handlers.command_handler import command_handler
 from backend.models.game_manager import game_manager
 from backend.models.door import SecurityLevel
+from config import REPAIR_PANEL_GAME_MINUTES
 
 command_bp = Blueprint('command', __name__)
 
@@ -118,6 +119,47 @@ def _complete_door_action(door, door_action: str):
         'swipe_complete': True,
         'swipe_action':  'open',
         'ship_time':     game_manager.get_ship_time(),
+    })
+
+
+@command_bp.route('/repair_complete', methods=['POST'])
+def complete_repair():
+    """
+    Called by frontend after the repair wait completes.
+    Marks the panel as repaired, advances ship time.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data     = request.get_json()
+    panel_id = data.get('panel_id')
+    door_id  = data.get('door_id')
+
+    door = game_manager.ship.get_door_by_id(door_id)
+    if not door:
+        return jsonify({'error': 'Door not found'}), 400
+
+    # Find the panel by ID across both sides
+    panel = next(
+        (p for p in door.panels.values() if p.panel_id == panel_id),
+        None
+    )
+    if not panel:
+        return jsonify({'error': 'Panel not found'}), 400
+
+    panel.is_broken      = False
+    panel.repair_progress = 1.0
+    game_manager.advance_time(REPAIR_PANEL_GAME_MINUTES)
+
+    exit_label = data.get('exit_label', 'the door')
+    return jsonify({
+        'response':        f"You repair the door access panel to {exit_label}. It is now operational.",
+        'action_type':     'repair_complete',
+        'lock_input':      False,
+        'room_changed':    False,
+        'security_level': door.security_level,
+        'door_id':         door_id,
+        'ship_time':       game_manager.get_ship_time(),
     })
 
 

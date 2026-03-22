@@ -35,13 +35,28 @@ class MovementHandler(BaseHandler):
                 room_changed=True
             )
 
-        # ── Open door — move freely ───────────────────────────
+        # ── Open door — broken panel? Still pass (frozen open) ──
         if door.door_open:
+            panel = door.get_panel_for_room(current_room.id)
+            if panel and panel.is_broken:
+                game_manager.set_current_room(exit_data['target'])
+                new_room = game_manager.get_current_room()
+                return self._instant(
+                    f"You pass through the open door into {new_room.name}.",
+                    room_changed=True
+                )
             game_manager.set_current_room(exit_data['target'])
             return self._instant(
                 f"You enter {game_manager.get_current_room().name}.",
                 room_changed=True
             )
+
+        # ── Closed/locked door with broken panel — show damaged panel image ──
+        panel = door.get_panel_for_room(current_room.id)
+        if panel and panel.is_broken:
+            target_room = game_manager.ship.get_room(exit_data['target'])
+            target_name = target_room.name if target_room else exit_data['target']
+            return self._panel_damaged_response(door, target_name)
 
         # ── Locked door — show locked image, tell player ──────
         if door.door_locked:

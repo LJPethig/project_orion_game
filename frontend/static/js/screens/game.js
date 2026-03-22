@@ -233,6 +233,30 @@ function handleResult(result) {
         return;
     }
 
+    // ── Panel damaged — show damaged panel image, stay on it ─
+    if (result.action_type === 'panel_damaged') {
+        setDamagedPanelImage(result.security_level);
+        refreshExits();
+        return;
+    }
+
+    // ── Repair panel — show damaged image, lock input, wait, complete ──
+    if (result.action_type === 'repair_panel') {
+        setDamagedPanelImage(result.security_level);
+        showRepairAnimation();
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const repairResult = await API.completeRepair(
+                result.panel_id,
+                result.door_id,
+                result.exit_label
+            );
+            clearResponse();
+            handleResult(repairResult);
+        });
+        return;
+    }
+
     // ── Card swipe — show panel image, scanning animation, lock input ──
     if (result.action_type === 'card_swipe') {
         setPanelImage(result.security_level);
@@ -263,6 +287,14 @@ function handleResult(result) {
     // ── Always clear PIN mode before processing result ────
     pendingPin = null;
     setInputMode('normal');
+
+    // Repair complete — show repaired panel image, then restore room
+if (result.action_type === 'repair_complete') {
+    setPanelImage(result.security_level);   // ← add this line
+    refreshExits();
+    setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+    return;
+}
 
     // Swipe completed — show open or closed hatch then restore room
     if (result.swipe_complete) {
@@ -358,6 +390,27 @@ function hideScanAnimation() {
     if (el) el.remove();
 }
 
+// ── Repair animation ─────────────────────────────────────────
+
+function showRepairAnimation() {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'repair-animation';
+    el.className  = 'scan-animation';   // reuse existing scan-animation CSS
+    el.innerHTML  = `
+        <span>REPAIRING ACCESS PANEL</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    `;
+    content.appendChild(el);
+}
+
+function hideRepairAnimation() {
+    const el = document.getElementById('repair-animation');
+    if (el) el.remove();
+}
+
 // ── Room image ───────────────────────────────────────────────
 
 function setRoomImage(imagePath) {
@@ -386,8 +439,19 @@ const PANEL_IMAGES = {
     3: '/static/images/doors/panel_level3_swipe_pin.png',
 };
 
+const DAMAGED_PANEL_IMAGES = {
+    1: '/static/images/doors/panel_level1_swipe_damaged.png',
+    2: '/static/images/doors/panel_level2_swipe_damaged.png',
+    3: '/static/images/doors/panel_level3_swipe_damaged.png',
+};
+
 function setPanelImage(securityLevel) {
     const path = PANEL_IMAGES[securityLevel] || PANEL_IMAGES[1];
+    setRoomImage(path);
+}
+
+function setDamagedPanelImage(securityLevel) {
+    const path = DAMAGED_PANEL_IMAGES[securityLevel] || DAMAGED_PANEL_IMAGES[1];
     setRoomImage(path);
 }
 

@@ -137,5 +137,29 @@ class Ship:
                 return door
         return None
 
+
+    def get_broken_panels_in_room(self, room_id: str) -> list:
+        """
+        Return all broken panels reachable from room_id.
+        Each entry is (panel, door, exit_label) — enough for RepairHandler
+        to act without further lookups.
+        """
+        room = self.rooms.get(room_id)
+        if not room:
+            return []
+
+        results = []
+        for exit_data in room.exits.values():
+            door = exit_data.get('door')
+            if not door:
+                continue
+            panel = door.get_panel_for_room(room_id)
+            if panel and panel.is_broken:
+                other_id = door.get_other_room_id(room_id)
+                other_room = self.rooms.get(other_id)
+                exit_label = exit_data.get('label') or (other_room.name if other_room else other_id)
+                results.append((panel, door, exit_label))
+        return results
+
     def __repr__(self) -> str:
         return f"<Ship '{self.name}' rooms={len(self.rooms)} doors={len(self.doors)}>"

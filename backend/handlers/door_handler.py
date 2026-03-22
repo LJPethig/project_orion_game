@@ -29,6 +29,10 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        panel_response = self._check_panel(door, target_name)
+        if panel_response:
+            return panel_response
+
         if door.door_open:
             return self._instant(f"The {target_name} door is already open.")
 
@@ -62,6 +66,10 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        panel_response = self._check_panel(door, target_name)
+        if panel_response:
+            return panel_response
+
         if door.door_open:
             return self._instant(f"The {target_name} door is already open.")
 
@@ -91,6 +99,10 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        panel_response = self._check_panel(door, target_name)
+        if panel_response:
+            return panel_response
+
         if door.door_locked:
             return self._instant(f"The {target_name} door is already locked.")
 
@@ -117,6 +129,10 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        panel_response = self._check_panel(door, target_name)
+        if panel_response:
+            return panel_response
+
         if door.door_locked:
             return self._instant(f"The {target_name} door is locked — it is already closed.")
 
@@ -127,6 +143,17 @@ class DoorHandler(BaseHandler):
         result = self._instant(f"You close the door to {target_name}.")
         result['door_image'] = 'closed'
         return result
+
+    def _check_panel(self, door, target_name: str) -> dict | None:
+        """
+        Return a panel_damaged response dict if the panel on the player's side
+        is broken. Returns None if operational (or absent).
+        """
+        current_room = game_manager.get_current_room()
+        panel = door.get_panel_for_room(current_room.id)
+        if panel and panel.is_broken:
+            return self._panel_damaged_response(door, target_name)
+        return None
 
     def _get_door(self, target: str):
         """

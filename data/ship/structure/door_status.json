@@ -13,7 +13,7 @@
         {
           "id": "captains_quarters_main_corridor_panel_captains",
           "side": "captains_quarters",
-          "damaged": false
+          "damaged": true
         },
         {
           "id": "captains_quarters_main_corridor_panel_main",
@@ -79,7 +79,7 @@
         {
           "id": "recreation_room_cockpit_panel_rec",
           "side": "recreation_room",
-          "damaged": true
+          "damaged": false
         },
         {
           "id": "recreation_room_cockpit_panel_cockpit",
@@ -123,7 +123,7 @@
         {
           "id": "recreation_room_med_bay_panel_rec",
           "side": "recreation_room",
-          "damaged": true
+          "damaged": false
         },
         {
           "id": "recreation_room_med_bay_panel_medbay",

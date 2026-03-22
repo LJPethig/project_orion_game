@@ -55,4 +55,13 @@ const API = {
         return r.json();
     },
 
+    async completeRepair(panel_id, door_id, exit_label) {
+        const r = await fetch('/api/command/repair_complete', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ panel_id, door_id, exit_label }),
+        });
+        return r.json();
+    },
+
 };
