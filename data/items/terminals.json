@@ -1,0 +1,32 @@
+[
+  {
+    "id": "terminal_personal",
+    "name": "Personal Terminal",
+    "description": "Your personal computer terminal. A scratched screen glows softly.",
+    "keywords": ["terminal", "personal terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_mainframe",
+    "name": "Mainframe Terminal",
+    "description": "The firewalled high security access terminal for the ships mainframe.",
+    "keywords": ["terminal", "mainframe terminal", "mainframe access terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_navigation",
+    "name": "Navigation Terminal",
+    "description": "The ship's navigation terminal. Charts, waypoints and flight data.",
+    "keywords": ["terminal", "navigation terminal", "nav terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_storage",
+    "name": "Storage Terminal",
+    "description": "An inventory management terminal for tracking ship cargo and stores.",
+    "keywords": ["terminal", "storage terminal", "inventory terminal", "storage facility terminal", "storage inventory terminal", "computer", "console"]
+  },
+  {
+    "id": "terminal_medical",
+    "name": "Medical Terminal",
+    "description": "Medical records, diagnostics and treatment logs.",
+    "keywords": ["terminal", "medical terminal", "computer", "console"]
+  }
+]

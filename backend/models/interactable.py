@@ -7,7 +7,9 @@ Ported from Project Dark Star — Arcade dependencies removed.
     ├── PortableItem      — takeable, carriable, equippable
     │   └── UtilityBelt   — wearable belt, accepts clipped attachments (PAM etc.)
     └── FixedObject       — permanently attached to a room, cannot be taken
-        └── StorageUnit   — fixed container that holds PortableItems
+        ├── StorageUnit   — fixed container with open/close state, holds PortableItems
+        ├── Surface       — always-open surface (shelf, bench, table), holds PortableItems
+        └── Terminal      — computer terminal (future: login, commands, access levels)
 """
 
 from typing import List, Optional, Any
@@ -125,3 +127,53 @@ class StorageUnit(FixedObject):
         if len(names) == 2:
             return f"{names[0]} and {names[1]}"
         return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
+class Surface(FixedObject):
+    """
+    An always-open fixed surface — shelf, bench, table, rack.
+    No open/close state. Items dropped in the room land here.
+    Empty: grey bold. Has items: purple bold.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.contents:     List[PortableItem] = []
+        self.current_mass: float              = 0.0
+
+    @property
+    def has_items(self) -> bool:
+        return len(self.contents) > 0
+
+    def add_item(self, item: PortableItem) -> bool:
+        self.contents.append(item)
+        self.current_mass += item.mass
+        return True
+
+    def remove_item(self, item: PortableItem) -> bool:
+        if item in self.contents:
+            self.contents.remove(item)
+            self.current_mass -= item.mass
+            return True
+        return False
+
+    def contents_str(self) -> str:
+        if not self.contents:
+            return "It is empty."
+        names = [item.name for item in self.contents]
+        if len(names) == 1:
+            return names[0]
+        if len(names) == 2:
+            return f"{names[0]} and {names[1]}"
+        return ", ".join(names[:-1]) + f", and {names[-1]}"
+
+
+class Terminal(FixedObject):
+    """
+    A fixed computer terminal.
+    Future: login state, commands, access levels, power state.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.powered: bool = True   # Future: tied to electrical system

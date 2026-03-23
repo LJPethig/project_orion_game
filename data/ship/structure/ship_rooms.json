@@ -4,7 +4,7 @@
     "name": "Crew Cabin",
     "target_temperature": "normal",
     "description": [
-      "The crew cabin, it is currently empty. A door leads to *main corridor CH-1*."
+      "The crew cabin, there is a basic double bunk on the far wall next to a %storage locker% and a #small desk#. A door leads to *main corridor CH-1*."
     ],
     "dimensions_m": {
       "length": 4.0,
@@ -23,7 +23,10 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "crew_cabin_locker",
+      "crew_cabin_desk"
+    ],
     "background_image": "images/rooms/crew_cabin.png"
   },
   {
@@ -33,7 +36,8 @@
     "description": [
       "Your personal quarters. The hum from the HVAC vent fills the air. Dim lights flicker on automatically.",
       "The bunk is unmade and your personal effects are scattered, reminders of a life spent in the black.",
-      "A %personal locker% with twin sliding doors is built into the far wall. A hatch leads to *main corridor CH-1*."
+      "A #metal desk# is bolted to the floor beside your bunk, on top of it sits your !personal terminal!",
+      "A %personal locker% with twin sliding doors is built into the far wall beside a #long shelf#. A hatch leads to *main corridor CH-1*."
     ],
     "dimensions_m": {
       "length": 4.5,
@@ -54,7 +58,9 @@
     },
     "fixed_objects": [
       "terminal_personal",
-      "captains_quarters_cabinet"
+      "captains_quarters_cabinet",
+      "captains_quarters_desk",
+      "captains_quarters_shelf"
     ],
     "background_image": "images/rooms/captains_quarters.png"
   },
@@ -64,7 +70,7 @@
     "target_temperature": "warm",
     "description": [
       "A compact, utilitarian wet room. The air is humid, carrying the faint tang of recycled water and sanitizer.",
-      "There is a sink, vacuum toilet, and steam shower, all the function with none of the luxury.",
+      "There is a sink atop a %small cabinet%, vacuum toilet, and steam shower, all the function with none of the luxury.",
       "The single hatch leads back to *sub corridor CH-2*."
     ],
     "dimensions_m": {
@@ -84,7 +90,9 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "head_cabinet"
+    ],
     "background_image": "images/rooms/head.png"
   },
   {
@@ -92,7 +100,7 @@
     "name": "Galley",
     "target_temperature": "normal",
     "description": [
-      "A cramped kitchen area. Food rehydrator, turbo oven and water recycler, a small table is bolted to the floor.",
+      "A cramped kitchen area. Food rehydrator, turbo oven and water recycler, a #small table# is bolted to the floor.",
       "Everything you need to prepare a bland and unexciting meal.",
       "A hatch leads back to the *recreation room*."
     ],
@@ -112,7 +120,9 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "galley_table"
+    ],
     "background_image": "images/rooms/galley.png"
   },
   {
@@ -122,7 +132,7 @@
     "description": [
       "The ship's central hub for relaxation and social interaction, with soft lighting and warm colors to create a welcoming atmosphere.",
       "The *main corridor CH-1* leads back towards your quarters. Forward access to the *cockpit* is via a solid door.",
-      "The *galley* entrance is on the right side wall, while separate doors to a small *storage room* and *med-bay* are opposite."
+      "The *galley* entrance is on the right side wall next to a #shelving unit#, while separate doors to a small *storage room* and *med-bay* are opposite."
     ],
     "dimensions_m": {
       "length": 5.5,
@@ -171,7 +181,9 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "recreation_room_shelving_unit"
+    ],
     "background_image": "images/rooms/recreation.png"
   },
   {
@@ -179,7 +191,7 @@
     "name": "Cockpit",
     "target_temperature": "normal",
     "description": [
-      "The command center of the ship. The pilot's console, navigation charts, and sensor displays dominate the space.",
+      "The command center of the ship. The pilot's console, !navigation terminal!, and sensor displays dominate the space.",
       "Two well worn but quite comfortable synth-leather seats are securely attached to the floor, the viewscreen ahead frames the vastness of space. A solid door leads back to the *recreation room*."
     ],
     "dimensions_m": {
@@ -209,7 +221,7 @@
     "target_temperature": "cool",
     "description": [
       "The ships designated small storage room, a %large storage unit% is attached to the wall, and a %small cabinet% is mounted next to it.",
-      "The lighting here is harsh and functional. An automated storage facility is built into rear wall. A hatch leads back to the *recreation room*."
+      "The lighting here is harsh and functional. An automated !storage facility terminal! is built into rear wall next to a #metal bench#. A hatch leads back to the *recreation room*."
     ],
     "dimensions_m": {
       "length": 3.5,
@@ -230,7 +242,8 @@
     "fixed_objects": [
       "terminal_storage",
       "storage_room_small_cabinet",
-      "storage_room_large_storage_unit"
+      "storage_room_large_storage_unit",
+      "storage_room_bench"
     ],
     "background_image": "images/rooms/storage.png"
   },
@@ -267,8 +280,8 @@
     "name": "Med-Bay",
     "target_temperature": "warm",
     "description": [
-      "A small medical facility with diagnostic equipment and first aid supplies.",
-      "An auto-doc hums quietly in the corner while sterile surfaces reflect the overhead lights.",
+      "A small medical facility with diagnostic equipment, a %large medical cabinet% and a #small shelf#.",
+      "An auto-doc hums quietly in the corner while sterile surfaces and a !medical terminal! reflect the overhead lights.",
       "A door leads back to the *recreation room*. On the opposite wall a hatch leads to the *stasis chamber*."
     ],
     "dimensions_m": {
@@ -297,7 +310,9 @@
       }
     },
     "fixed_objects": [
-      "terminal_medical"
+      "terminal_medical",
+      "med_bay_cabinet",
+      "med_bay_small_shelf"
     ],
     "background_image": "images/rooms/med_bay.png"
   },
@@ -374,7 +389,7 @@
     "name": "Mainframe Room",
     "target_temperature": "cool",
     "description": [
-      "The ship's mainframe room. The AI here is responsible for all ship systems.",
+      "The ship's mainframe, responsible for all ship systems, the !mainframe access terminal! can only be accessed by high security clearance personal.",
       "A door leads back to the *main corridor CH-1*."
     ],
     "dimensions_m": {
@@ -394,7 +409,9 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "terminal_mainframe"
+    ],
     "background_image": "images/rooms/mainframe_room.png"
   },
   {
@@ -454,7 +471,7 @@
     "description": [
       "The ship's engineering bay, filled with tools and diagnostic equipment.",
       "The reactor core thrums with contained energy.",
-      "A %large parts storage unit% sits next to a workbench, opposite to this is a worn %tool storage cabinet%",
+      "A %large parts storage unit% sits next to a long #workbench#, opposite to this is a worn %tool storage cabinet%",
       "A solid door leads back towards *main corridor CH-1*, a large door leads ahead to the *propulsion bay*, while on the left wall a small hatch is labelled *life support*"
     ],
     "dimensions_m": {
@@ -493,7 +510,8 @@
     },
     "fixed_objects": [
       "engineering_tool_storage_cabinet",
-      "engineering_large_parts_storage_unit"
+      "engineering_large_parts_storage_unit",
+      "engineering_workbench"
     ],
     "background_image": "images/rooms/engineering.png"
   },
@@ -585,7 +603,7 @@
     "description": [
       "The main cargo storage area, stacked with containers and crates.",
       "Loading ramps and cargo handlers stand idle. The bay is spacious but dimly lit to save power.",
-      "On the left wall next to the *airlock* door is an %EVA equipment locker%. On the opposite wall you see a %large cabinet%",
+      "On the left wall next to the *airlock* door is an %EVA equipment locker%. On the opposite wall you see a %large cabinet%, a #shelving unit# and the !storage inventory terminal!",
       "A large door leads back to *sub corridor CH-2*. At the opposite end of the bay is a hydraulically operated *external door*"
     ],
     "dimensions_m": {
@@ -616,7 +634,8 @@
     "fixed_objects": [
       "terminal_storage",
       "cargo_bay_eva_equipment_locker",
-      "cargo_bay_large_cabinet"
+      "cargo_bay_large_cabinet",
+      "cargo_bay_shelving_unit"
     ],
     "background_image": "images/rooms/cargo_bay.png"
   }

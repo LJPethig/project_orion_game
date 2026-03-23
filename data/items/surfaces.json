@@ -1,0 +1,56 @@
+[
+  {
+    "id": "captains_quarters_desk",
+    "name": "Metal Desk",
+    "description": "A sturdy metal desk bolted to the floor beside your bunk.",
+    "keywords": ["desk", "metal desk"]
+  },
+  {
+    "id": "captains_quarters_shelf",
+    "name": "Long Shelf",
+    "description": "A long metal shelf mounted to the wall above the desk.",
+    "keywords": ["shelf", "long shelf"]
+  },
+  {
+    "id": "crew_cabin_desk",
+    "name": "Small Desk",
+    "description": "A basic small desk attached to the wall beside the bunk.",
+    "keywords": ["desk", "small desk"]
+  },
+  {
+    "id": "galley_table",
+    "name": "Small Table",
+    "description": "A small table bolted to the galley floor.",
+    "keywords": ["table", "small table"]
+  },
+  {
+    "id": "recreation_room_shelving_unit",
+    "name": "Shelving Unit",
+    "description": "A wall-mounted shelving unit beside the galley entrance.",
+    "keywords": ["shelf", "shelving", "shelving unit"]
+  },
+  {
+    "id": "storage_room_bench",
+    "name": "Metal Bench",
+    "description": "A heavy metal bench fixed to the wall of the storage room.",
+    "keywords": ["bench", "metal bench"]
+  },
+  {
+    "id": "med_bay_small_shelf",
+    "name": "Small Shelf",
+    "description": "A narrow shelf mounted above the medical cabinet.",
+    "keywords": ["shelf", "small shelf"]
+  },
+  {
+    "id": "engineering_workbench",
+    "name": "Workbench",
+    "description": "A long, heavy-duty workbench running along the engineering bay wall.",
+    "keywords": ["bench", "workbench", "work bench"]
+  },
+  {
+    "id": "cargo_bay_shelving_unit",
+    "name": "Shelving Unit",
+    "description": "A large wall-mounted shelving unit on the cargo bay wall.",
+    "keywords": ["shelf", "shelving", "shelving unit"]
+  }
+]

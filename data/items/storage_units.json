@@ -1,35 +1,35 @@
 [
   {
-    "id": "terminal_personal",
-    "name": "Personal Terminal",
-    "description": "Your personal computer terminal. A scratched screen glows softly.",
-    "keywords": ["terminal", "personal terminal", "computer", "console"]
-  },
-  {
-    "id": "terminal_navigation",
-    "name": "Navigation Terminal",
-    "description": "The ship's navigation terminal. Charts, waypoints and flight data.",
-    "keywords": ["terminal", "navigation terminal", "nav terminal", "computer", "console"]
-  },
-  {
-    "id": "terminal_storage",
-    "name": "Storage Terminal",
-    "description": "An inventory management terminal for tracking ship cargo and stores.",
-    "keywords": ["terminal", "storage terminal", "inventory terminal", "computer", "console"]
-  },
-  {
-    "id": "terminal_medical",
-    "name": "Medical Terminal",
-    "description": "Medical records, diagnostics and treatment logs.",
-    "keywords": ["terminal", "medical terminal", "computer", "console"]
-  },
-  {
     "id": "captains_quarters_cabinet",
     "name": "Personal Locker",
     "description": "Your personal locker with twin sliding doors, built into the far wall.",
     "keywords": ["locker", "cabinet", "closet", "personal locker", "personal cabinet"],
     "capacity_mass": 120.0,
     "open_description": "The cabinet doors slide open smoothly, revealing racks for clothing and several shelves."
+  },
+  {
+    "id": "crew_cabin_locker",
+    "name": "Storage Locker",
+    "description": "A medium sized locker with metal doors, attached to the wall.",
+    "keywords": ["locker", "cabinet", "closet", "storage locker"],
+    "capacity_mass": 120.0,
+    "open_description": "The locker doors swing open, revealing clothing racks and several shelves."
+  },
+  {
+    "id": "head_cabinet",
+    "name": "Small Cabinet",
+    "description": "A small cabinet with a single door underneath the sink.",
+    "keywords": ["cabinet"],
+    "capacity_mass": 20.0,
+    "open_description": "The cabinet door swings open, revealing two small shelves."
+  },
+  {
+    "id": "med_bay_cabinet",
+    "name": "Large Medical Cabinet",
+    "description": "A large cabinet for the storage of medical equipment and first aid supplies.",
+    "keywords": ["cabinet", "large medical cabinet"],
+    "capacity_mass": 100.0,
+    "open_description": "The cabinet doors slide open, revealing long shelves."
   },
   {
     "id": "storage_room_small_cabinet",
@@ -51,7 +51,7 @@
     "id": "engineering_tool_storage_cabinet",
     "name": "Tool Storage Cabinet",
     "description": "A professional-grade cabinet for organising hand tools and diagnostic equipment.",
-    "keywords": ["tool cabinet", "tool storage", "tool chest", "cabinet"],
+    "keywords": ["tool cabinet", "tool storage", "tool chest", "cabinet", "tool storage cabinet"],
     "capacity_mass": 120.0,
     "open_description": "Drawers slide out smoothly on ball-bearing runners, displaying precision-cut foam inserts."
   },
@@ -59,7 +59,7 @@
     "id": "engineering_large_parts_storage_unit",
     "name": "Large Parts Storage Unit",
     "description": "A large wall-mounted parts storage cabinet for spare components and hardware.",
-    "keywords": ["parts storage", "parts cabinet", "large parts cabinet", "storage unit", "large cabinet"],
+    "keywords": ["parts storage", "parts cabinet", "large parts cabinet", "storage unit", "large cabinet", "large parts storage unit"],
     "capacity_mass": 200.0,
     "open_description": "The door swings open to reveal several shelves and parts bins."
   },

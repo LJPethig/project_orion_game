@@ -43,7 +43,9 @@ ITEM_FILES = [
     os.path.join('data', 'items', 'misc_items.json'),
     os.path.join('data', 'items', 'consumables.json'),
 ]
-FIXED_OBJECTS_JSON_PATH = os.path.join('data', 'items', 'fixed_objects.json')
+TERMINALS_JSON_PATH     = os.path.join('data', 'items', 'terminals.json')
+STORAGE_UNITS_JSON_PATH = os.path.join('data', 'items', 'storage_units.json')
+SURFACES_JSON_PATH      = os.path.join('data', 'items', 'surfaces.json')
 
 # ── Flask ────────────────────────────────────────────────────
 DEBUG = True

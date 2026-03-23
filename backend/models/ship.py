@@ -8,9 +8,10 @@ import json
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
-from backend.models.interactable import PortableItem, FixedObject, StorageUnit
+from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal
 from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH, \
-                   FIXED_OBJECTS_JSON_PATH, SHIP_ITEMS_JSON_PATH
+                   TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, SURFACES_JSON_PATH, \
+                   SHIP_ITEMS_JSON_PATH
 
 
 class Ship:
@@ -124,32 +125,38 @@ class Ship:
 
     def _load_fixed_objects(self) -> None:
         """
-        Instantiate fixed objects from fixed_objects.json and place them
-        into the rooms that reference their IDs in ship_rooms.json.
+        Load fixed objects from terminals.json, storage_units.json and surfaces.json.
+        Instantiate the correct class based on which file the definition comes from.
+        Place objects into rooms that reference their IDs in fixed_objects arrays.
         """
-        try:
-            with open(FIXED_OBJECTS_JSON_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load fixed_objects.json: {e}")
-            return
+        definitions = {}   # id → (data_dict, class)
 
-        # Build definition registry: id → data dict
-        definitions = {obj['id']: obj for obj in data}
+        file_class_map = [
+            (TERMINALS_JSON_PATH,     Terminal),
+            (STORAGE_UNITS_JSON_PATH, StorageUnit),
+            (SURFACES_JSON_PATH,      Surface),
+        ]
 
-        # Re-read room fixed_object ID lists from rooms (stored during _load_rooms)
+        for path, cls in file_class_map:
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except Exception as e:
+                print(f"Warning: Could not load '{path}': {e}")
+                continue
+            for obj in data:
+                obj_id = obj.get('id')
+                if obj_id:
+                    definitions[obj_id] = (obj, cls)
+
         for room in self.rooms.values():
             for obj_id in room.fixed_object_ids:
-                defn = definitions.get(obj_id)
-                if not defn:
+                if obj_id not in definitions:
                     print(f"Warning: No definition for fixed object '{obj_id}' in room '{room.id}'")
                     continue
-                kwargs = {k: v for k, v in defn.items()}
-                if 'capacity_mass' in defn:
-                    obj = StorageUnit(**kwargs)
-                else:
-                    obj = FixedObject(**kwargs)
-                room.add_object(obj)
+                data, cls = definitions[obj_id]
+                kwargs = {k: v for k, v in data.items()}
+                room.add_object(cls(**kwargs))
 
     def _load_ship_items(self) -> None:
         """
