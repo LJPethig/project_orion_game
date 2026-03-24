@@ -24,8 +24,8 @@
       }
     },
     "fixed_objects": [
-      "crew_cabin_locker",
-      "crew_cabin_desk"
+      "crew_cabin_storage_locker",
+      "crew_cabin_small_desk"
     ],
     "background_image": "images/rooms/crew_cabin.png"
   },
@@ -37,7 +37,7 @@
       "Your personal quarters. The hum from the HVAC vent fills the air. Dim lights flicker on automatically.",
       "The bunk is unmade and your personal effects are scattered, reminders of a life spent in the black.",
       "A #metal desk# is bolted to the floor beside your bunk, on top of it sits your !personal terminal!",
-      "A %personal locker% with twin sliding doors is built into the far wall beside a #long shelf#. A hatch leads to *main corridor CH-1*."
+      "A %locker% with twin sliding doors is built into the far wall beside a #long shelf#. A hatch leads to *main corridor CH-1*."
     ],
     "dimensions_m": {
       "length": 4.5,
@@ -57,10 +57,10 @@
       }
     },
     "fixed_objects": [
-      "terminal_personal",
-      "captains_quarters_cabinet",
-      "captains_quarters_desk",
-      "captains_quarters_shelf"
+      "captains_quarters_personal_terminal",
+      "captains_quarters_locker",
+      "captains_quarters_metal_desk",
+      "captains_quarters_long_shelf"
     ],
     "background_image": "images/rooms/captains_quarters.png"
   },
@@ -91,7 +91,7 @@
       }
     },
     "fixed_objects": [
-      "head_cabinet"
+      "head_small_cabinet"
     ],
     "background_image": "images/rooms/head.png"
   },
@@ -121,7 +121,7 @@
       }
     },
     "fixed_objects": [
-      "galley_table"
+      "galley_small_table"
     ],
     "background_image": "images/rooms/galley.png"
   },
@@ -211,7 +211,7 @@
       }
     },
     "fixed_objects": [
-      "terminal_navigation"
+      "cockpit_navigation_terminal"
     ],
     "background_image": "images/rooms/cockpit.png"
   },
@@ -221,7 +221,7 @@
     "target_temperature": "cool",
     "description": [
       "The ships designated small storage room, a %large storage unit% is attached to the wall, and a %small cabinet% is mounted next to it.",
-      "The lighting here is harsh and functional. An automated !storage facility terminal! is built into rear wall next to a #metal bench#. A hatch leads back to the *recreation room*."
+      "The lighting here is harsh and functional. An automated !storage inventory terminal! is built into rear wall next to a #metal bench#. A hatch leads back to the *recreation room*."
     ],
     "dimensions_m": {
       "length": 3.5,
@@ -240,10 +240,10 @@
       }
     },
     "fixed_objects": [
-      "terminal_storage",
+      "storage_room_storage_inventory_terminal",
       "storage_room_small_cabinet",
       "storage_room_large_storage_unit",
-      "storage_room_bench"
+      "storage_room_metal_bench"
     ],
     "background_image": "images/rooms/storage.png"
   },
@@ -310,8 +310,8 @@
       }
     },
     "fixed_objects": [
-      "terminal_medical",
-      "med_bay_cabinet",
+      "med_bay_medical_terminal",
+      "med_bay_large_medical_cabinet",
       "med_bay_small_shelf"
     ],
     "background_image": "images/rooms/med_bay.png"
@@ -410,7 +410,7 @@
       }
     },
     "fixed_objects": [
-      "terminal_mainframe"
+      "mainframe_access_terminal"
     ],
     "background_image": "images/rooms/mainframe_room.png"
   },
@@ -632,7 +632,7 @@
       }
     },
     "fixed_objects": [
-      "terminal_storage",
+      "cargo_bay_storage_inventory_terminal",
       "cargo_bay_eva_equipment_locker",
       "cargo_bay_large_cabinet",
       "cargo_bay_shelving_unit"

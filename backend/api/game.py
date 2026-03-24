@@ -7,7 +7,7 @@ Game API routes.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
-from backend.models.interactable import PortableItem, StorageUnit
+from backend.models.interactable import PortableItem, StorageUnit, Surface
 from config import SHIP_NAME
 
 game_bp = Blueprint("game", __name__)
@@ -53,7 +53,11 @@ def get_room():
     if not room:
         return jsonify({"error": "No current room"}), 400
 
-    # Build exit dict with door state for tooltip display
+    return jsonify(_build_room_data(room))
+
+
+def _build_room_data(room) -> dict:
+    """Build room dict for frontend — exits, portable items, object states."""
     exits = {}
     for exit_key, exit_data in room.exits.items():
         door = exit_data.get('door')
@@ -62,19 +66,37 @@ def get_room():
             'door_state': door.get_state() if door else 'none',
         }
 
+    # Portable items on the room floor (safety net — surfaces are primary)
     portable_objects = [
         {'id': obj.id, 'name': obj.name}
         for obj in room.objects
         if isinstance(obj, PortableItem)
-           and not isinstance(obj, StorageUnit)
-           and obj.takeable
+        and not isinstance(obj, StorageUnit)
+        and not isinstance(obj, Surface)
+        and obj.takeable
     ]
 
-    return jsonify({
-        "id":               room.id,
-        "name":             room.name,
-        "description":      room.description,
-        "background_image": room.background_image,
-        "exits":            exits,
-        "portable_objects": portable_objects,
-    })
+    # Object states — containers (open/closed) and surfaces (has_items)
+    object_states = {}
+    for obj in room.objects:
+        if isinstance(obj, StorageUnit):
+            object_states[obj.id] = {
+                'type':      'container',
+                'is_open':   obj.is_open,
+                'has_items': len(obj.contents) > 0,
+            }
+        elif isinstance(obj, Surface):
+            object_states[obj.id] = {
+                'type':      'surface',
+                'has_items': obj.has_items,
+            }
+
+    return {
+        'id':               room.id,
+        'name':             room.name,
+        'description':      room.description,
+        'background_image': room.background_image,
+        'exits':            exits,
+        'portable_objects': portable_objects,
+        'object_states':    object_states,
+    }

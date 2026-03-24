@@ -10,39 +10,10 @@ from flask import Blueprint, jsonify, request
 from backend.handlers.command_handler import command_handler
 from backend.models.game_manager import game_manager
 from backend.models.door import SecurityLevel
-from backend.models.interactable import PortableItem, StorageUnit
+from backend.api.game import _build_room_data
 from config import REPAIR_PANEL_GAME_MINUTES
 
 command_bp = Blueprint('command', __name__)
-
-
-def _build_room_data(room) -> dict:
-    """Helper — build room dict for frontend including door states and portable items."""
-    exits = {}
-    for exit_key, exit_data in room.exits.items():
-        door = exit_data.get('door')
-        exits[exit_key] = {
-            'label':      exit_data.get('label', exit_key),
-            'door_state': door.get_state() if door else 'none',
-        }
-
-    # Portable items on the room floor (not inside containers)
-    portable_objects = [
-        {'id': obj.id, 'name': obj.name}
-        for obj in room.objects
-        if isinstance(obj, PortableItem)
-        and not isinstance(obj, StorageUnit)
-        and obj.takeable
-    ]
-
-    return {
-        'id':               room.id,
-        'name':             room.name,
-        'description':      room.description,
-        'background_image': room.background_image,
-        'exits':            exits,
-        'portable_objects': portable_objects,
-    }
 
 
 @command_bp.route('', methods=['POST'])
@@ -110,26 +81,26 @@ def _complete_door_action(door, door_action: str):
     if door_action == 'lock':
         door.lock()
         return jsonify({
-            'response':      f"Credentials verified. The {target_name} door is now locked.",
-            'action_type':   'instant',
-            'lock_input':    False,
-            'room_changed':  False,
+            'response':       f"Credentials verified. The {target_name} door is now locked.",
+            'action_type':    'instant',
+            'lock_input':     False,
+            'room_changed':   False,
             'swipe_complete': True,
-            'swipe_action':  'lock',
-            'ship_time':     game_manager.get_ship_time(),
+            'swipe_action':   'lock',
+            'ship_time':      game_manager.get_ship_time(),
         })
 
     # open or unlock — unlock and open door, player stays
     door.unlock()
     door.open()
     return jsonify({
-        'response':      f"Credentials verified. The {target_name} door is now open.",
-        'action_type':   'instant',
-        'lock_input':    False,
-        'room_changed':  False,
+        'response':       f"Credentials verified. The {target_name} door is now open.",
+        'action_type':    'instant',
+        'lock_input':     False,
+        'room_changed':   False,
         'swipe_complete': True,
-        'swipe_action':  'open',
-        'ship_time':     game_manager.get_ship_time(),
+        'swipe_action':   'open',
+        'ship_time':      game_manager.get_ship_time(),
     })
 
 
@@ -150,7 +121,6 @@ def complete_repair():
     if not door:
         return jsonify({'error': 'Door not found'}), 400
 
-    # Find the panel by ID across both sides
     panel = next(
         (p for p in door.panels.values() if p.panel_id == panel_id),
         None
@@ -158,19 +128,19 @@ def complete_repair():
     if not panel:
         return jsonify({'error': 'Panel not found'}), 400
 
-    panel.is_broken      = False
+    panel.is_broken       = False
     panel.repair_progress = 1.0
     game_manager.advance_time(REPAIR_PANEL_GAME_MINUTES)
 
     exit_label = data.get('exit_label', 'the door')
     return jsonify({
-        'response':        f"You repair the door access panel to {exit_label}. It is now operational.",
-        'action_type':     'repair_complete',
-        'lock_input':      False,
-        'room_changed':    False,
+        'response':       f"You repair the door access panel to {exit_label}. It is now operational.",
+        'action_type':    'repair_complete',
+        'lock_input':     False,
+        'room_changed':   False,
         'security_level': door.security_level,
-        'door_id':         door_id,
-        'ship_time':       game_manager.get_ship_time(),
+        'door_id':        door_id,
+        'ship_time':      game_manager.get_ship_time(),
     })
 
 
@@ -192,12 +162,10 @@ def submit_pin():
     if not door:
         return jsonify({'error': 'Door not found'}), 400
 
-    # Correct PIN — complete the action
     if pin_input == door.pin:
         door.pin_attempts = 0
         return _complete_door_action(door, door_action)
 
-    # Wrong PIN
     door.pin_attempts += 1
     remaining = door.PIN_MAX_ATTEMPTS - door.pin_attempts
 
@@ -206,12 +174,12 @@ def submit_pin():
         door.pin_attempts = 0
         game_manager.invalidate_card(door.security_level)
         return jsonify({
-            'response':     "Incorrect PIN. Card invalidated. Access denied.",
-            'action_type':  'instant',
-            'lock_input':   False,
-            'room_changed': False,
+            'response':         "Incorrect PIN. Card invalidated. Access denied.",
+            'action_type':      'instant',
+            'lock_input':       False,
+            'room_changed':     False,
             'card_invalidated': True,
-            'ship_time':    game_manager.get_ship_time(),
+            'ship_time':        game_manager.get_ship_time(),
         })
 
     return jsonify({

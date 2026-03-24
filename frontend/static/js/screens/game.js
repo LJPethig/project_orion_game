@@ -4,6 +4,9 @@
 // Current room exit data — used for door state tooltips
 let currentExits = {};
 
+// Current room object states — used for container/surface tooltips
+let currentObjects = {};
+
 // PIN mode state
 let pendingPin = null;   // null or { door_id, door_action }
 
@@ -41,7 +44,8 @@ async function loadRoom() {
 }
 
 function updateRoom(room) {
-    currentExits = room.exits || {};
+    currentExits   = room.exits || {};
+    currentObjects = room.object_states || {};
     setRoomImage(`/static/${room.background_image}`);
     renderDescription(room);
 }
@@ -60,51 +64,56 @@ function renderDescription(room) {
     room.description.forEach(line => {
         const el = document.createElement('div');
         el.className = 'room-desc';
-        el.appendChild(parseMarkup(line));
+        el.appendChild(parseMarkup(line, room.object_states || {}));
         content.appendChild(el);
     });
 
-    if (room.portable_objects && room.portable_objects.length > 0) {
-        const label = document.createElement('div');
-        label.className = 'section-label';
-        label.textContent = 'YOU SEE';
-        content.appendChild(label);
-
-        room.portable_objects.forEach(obj => {
-            const el = document.createElement('div');
-            el.className = 'portable-item';
-            el.dataset.object = obj.id;
-            el.textContent = obj.name;
-            content.appendChild(el);
-        });
-    }
-
-    setupExitTooltips(content);
+    setupObjectTooltips(content);
 }
 
 // ── Markup parser ────────────────────────────────────────────
 
-function parseMarkup(text) {
-    const fragment = document.createDocumentFragment();
-    const regex    = /(\*[^*]+\*|%[^%]+%)/g;
-    let lastIndex  = 0;
+function parseMarkup(text, objectStates = {}) {
+    const fragment  = document.createDocumentFragment();
+    // Matches *exit*, %container%, !terminal!, #surface#
+    const regex     = /(\*[^*]+\*|%[^%]+%|![^!]+!|#[^#]+#)/g;
+    let lastIndex   = 0;
     let match;
 
     while ((match = regex.exec(text)) !== null) {
         if (match.index > lastIndex) {
             fragment.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
         }
-        const raw    = match[0];
-        const inner  = raw.slice(1, -1);
-        const isExit = raw.startsWith('*');
-        const span   = document.createElement('span');
-        span.className   = 'markup-highlight';
+
+        const raw   = match[0];
+        const inner = raw.slice(1, -1);
+        const span  = document.createElement('span');
         span.textContent = inner;
-        if (isExit) {
-            span.dataset.exit = inner.toLowerCase().replace(/\s+/g, '_');
-        } else {
-            span.dataset.object = inner.toLowerCase().replace(/\s+/g, '_');
+
+        if (raw.startsWith('*')) {
+            // Exit — hover only
+            span.className       = 'markup-exit';
+            span.dataset.exit    = inner.toLowerCase().replace(/\s+/g, '_');
+
+        } else if (raw.startsWith('%')) {
+            // Container — cyan always
+            span.className          = 'markup-container';
+            span.dataset.container  = inner.toLowerCase().replace(/\s+/g, '_');
+
+        } else if (raw.startsWith('!')) {
+            // Terminal — cyan always
+            span.className         = 'markup-terminal';
+            span.dataset.terminal  = inner.toLowerCase().replace(/\s+/g, '_');
+
+        } else if (raw.startsWith('#')) {
+            // Surface — grey bold when empty, purple bold when has items
+            const key      = inner.toLowerCase().replace(/\s+/g, '_');
+            const objState = _findObjectState(objectStates, key);
+            const hasItems = objState && objState.has_items;
+            span.className       = hasItems ? 'markup-surface markup-surface-items' : 'markup-surface';
+            span.dataset.surface = key;
         }
+
         fragment.appendChild(span);
         lastIndex = regex.lastIndex;
     }
@@ -115,54 +124,91 @@ function parseMarkup(text) {
     return fragment;
 }
 
-// ── Exit hover tooltips ──────────────────────────────────────
+function _findObjectState(objectStates, spanKey) {
+    // Match span keyword against object_states keys (id-based)
+    for (const [id, state] of Object.entries(objectStates)) {
+        // Direct key match or id ends with the span key
+        if (id.toLowerCase().replace(/\s+/g, '_') === spanKey) return state;
+        if (id.toLowerCase().endsWith('_' + spanKey)) return state;
+    }
+    return null;
+}
 
-function setupExitTooltips(container) {
+// ── Object hover tooltips (exits, containers, terminals, surfaces) ──────────
+
+function setupObjectTooltips(container) {
     const tooltip = document.getElementById('exit-tooltip');
     if (!tooltip) return;
 
-    container.querySelectorAll('.markup-highlight[data-exit]').forEach(span => {
+    // ── Exits — door state ────────────────────────────────
+    container.querySelectorAll('.markup-exit').forEach(span => {
         span.addEventListener('mouseenter', (e) => {
             const exitKey  = e.target.dataset.exit;
             const exitData = findExitData(exitKey);
             if (!exitData) return;
-
             const state = exitData.door_state || 'none';
             const label = exitData.label || exitKey;
-
             tooltip.innerHTML = `
                 <div style="color:var(--col-title)">${label}</div>
                 <div style="color:${doorStateColour(state)};font-size:11px">${doorStateText(state)}</div>
             `;
             tooltip.classList.remove('hidden');
-
-            // Position will be set on mousemove
         });
+        _bindTooltipMove(span, tooltip);
+        span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
 
-        span.addEventListener('mousemove', (e) => {
-            const tt   = document.getElementById('exit-tooltip');
-            const tw   = tt.offsetWidth;
-            const th   = tt.offsetHeight;
-            const margin = 14;
-            let left = e.clientX + margin;
-            let top  = e.clientY + margin;
-
-            // Flip left if tooltip would go off right edge
-            if (left + tw > window.innerWidth) {
-                left = e.clientX - tw - margin;
-            }
-            // Flip up if tooltip would go off bottom edge
-            if (top + th > window.innerHeight) {
-                top = e.clientY - th - margin;
-            }
-
-            tt.style.left = left + 'px';
-            tt.style.top  = top  + 'px';
+    // ── Containers — open/closed state ───────────────────
+    container.querySelectorAll('.markup-container').forEach(span => {
+        span.addEventListener('mouseenter', (e) => {
+            const key      = e.target.dataset.container;
+            const objState = _findObjectState(currentObjects, key);
+            const stateStr = objState ? (objState.is_open ? 'Open' : 'Closed') : 'Closed';
+            const colour   = objState && objState.is_open ? 'var(--col-prompt)' : 'var(--col-text)';
+            tooltip.innerHTML = `<div style="color:${colour};font-size:11px">${stateStr}</div>`;
+            tooltip.classList.remove('hidden');
         });
+        _bindTooltipMove(span, tooltip);
+        span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
 
-        span.addEventListener('mouseleave', () => {
-            tooltip.classList.add('hidden');
+    // ── Terminals ─────────────────────────────────────────
+    container.querySelectorAll('.markup-terminal').forEach(span => {
+        span.addEventListener('mouseenter', () => {
+            tooltip.innerHTML = `<div style="color:var(--col-title);font-size:11px">Terminal</div>`;
+            tooltip.classList.remove('hidden');
         });
+        _bindTooltipMove(span, tooltip);
+        span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
+
+    // ── Surfaces — empty or item count ───────────────────
+    container.querySelectorAll('.markup-surface').forEach(span => {
+        span.addEventListener('mouseenter', (e) => {
+            const key      = e.target.dataset.surface;
+            const objState = _findObjectState(currentObjects, key);
+            const hasItems = objState && objState.has_items;
+            const text     = hasItems ? 'Has items' : 'Empty';
+            const colour   = hasItems ? 'var(--col-portable)' : 'var(--col-text)';
+            tooltip.innerHTML = `<div style="color:${colour};font-size:11px">${text}</div>`;
+            tooltip.classList.remove('hidden');
+        });
+        _bindTooltipMove(span, tooltip);
+        span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
+}
+
+function _bindTooltipMove(span, tooltip) {
+    span.addEventListener('mousemove', (e) => {
+        const tw     = tooltip.offsetWidth;
+        const th     = tooltip.offsetHeight;
+        const margin = 14;
+        let left = e.clientX + margin;
+        let top  = e.clientY + margin;
+        if (left + tw > window.innerWidth)  left = e.clientX - tw - margin;
+        if (top  + th > window.innerHeight) top  = e.clientY - th - margin;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top  = top  + 'px';
     });
 }
 
@@ -289,12 +335,12 @@ function handleResult(result) {
     setInputMode('normal');
 
     // Repair complete — show repaired panel image, then restore room
-if (result.action_type === 'repair_complete') {
-    setPanelImage(result.security_level);   // ← add this line
-    refreshExits();
-    setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
-    return;
-}
+    if (result.action_type === 'repair_complete') {
+        setPanelImage(result.security_level);   // ← add this line
+        refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        return;
+    }
 
     // Swipe completed — show open or closed hatch then restore room
     if (result.swipe_complete) {

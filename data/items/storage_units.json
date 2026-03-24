@@ -1,6 +1,6 @@
 [
   {
-    "id": "captains_quarters_cabinet",
+    "id": "captains_quarters_locker",
     "name": "Personal Locker",
     "description": "Your personal locker with twin sliding doors, built into the far wall.",
     "keywords": ["locker", "cabinet", "closet", "personal locker", "personal cabinet"],
@@ -8,7 +8,7 @@
     "open_description": "The cabinet doors slide open smoothly, revealing racks for clothing and several shelves."
   },
   {
-    "id": "crew_cabin_locker",
+    "id": "crew_cabin_storage_locker",
     "name": "Storage Locker",
     "description": "A medium sized locker with metal doors, attached to the wall.",
     "keywords": ["locker", "cabinet", "closet", "storage locker"],
@@ -16,7 +16,7 @@
     "open_description": "The locker doors swing open, revealing clothing racks and several shelves."
   },
   {
-    "id": "head_cabinet",
+    "id": "head_small_cabinet",
     "name": "Small Cabinet",
     "description": "A small cabinet with a single door underneath the sink.",
     "keywords": ["cabinet"],
@@ -24,7 +24,7 @@
     "open_description": "The cabinet door swings open, revealing two small shelves."
   },
   {
-    "id": "med_bay_cabinet",
+    "id": "med_bay_large_medical_cabinet",
     "name": "Large Medical Cabinet",
     "description": "A large cabinet for the storage of medical equipment and first aid supplies.",
     "keywords": ["cabinet", "large medical cabinet"],

@@ -1,24 +1,24 @@
 [
   {
-    "id": "captains_quarters_desk",
+    "id": "captains_quarters_metal_desk",
     "name": "Metal Desk",
     "description": "A sturdy metal desk bolted to the floor beside your bunk.",
     "keywords": ["desk", "metal desk"]
   },
   {
-    "id": "captains_quarters_shelf",
+    "id": "captains_quarters_long_shelf",
     "name": "Long Shelf",
     "description": "A long metal shelf mounted to the wall above the desk.",
     "keywords": ["shelf", "long shelf"]
   },
   {
-    "id": "crew_cabin_desk",
+    "id": "crew_cabin_small_desk",
     "name": "Small Desk",
     "description": "A basic small desk attached to the wall beside the bunk.",
     "keywords": ["desk", "small desk"]
   },
   {
-    "id": "galley_table",
+    "id": "galley_small_table",
     "name": "Small Table",
     "description": "A small table bolted to the galley floor.",
     "keywords": ["table", "small table"]
@@ -30,7 +30,7 @@
     "keywords": ["shelf", "shelving", "shelving unit"]
   },
   {
-    "id": "storage_room_bench",
+    "id": "storage_room_metal_bench",
     "name": "Metal Bench",
     "description": "A heavy metal bench fixed to the wall of the storage room.",
     "keywords": ["bench", "metal bench"]

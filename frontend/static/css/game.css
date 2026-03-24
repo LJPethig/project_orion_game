@@ -235,14 +235,42 @@ html, body {
     margin-bottom: 6px;
 }
 
-.markup-highlight {
+/* ── Description markup spans ───────────────────────────────── */
+
+.markup-exit {
     color: var(--col-title);
+    white-space: nowrap;
+    cursor: default;
+}
+
+.markup-container {
+    color: var(--col-title);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.markup-terminal {
+    color: var(--col-title);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.markup-surface {
+    color: var(--col-text);
     font-weight: bold;
     white-space: nowrap;
     cursor: pointer;
 }
 
-.markup-highlight:hover {
+.markup-surface.markup-surface-items {
+    color: var(--col-portable);
+    font-weight: bold;
+}
+
+.markup-exit:hover,
+.markup-container:hover,
+.markup-terminal:hover,
+.markup-surface:hover {
     text-decoration: underline;
 }
 
