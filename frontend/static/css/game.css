@@ -279,6 +279,66 @@ html, body {
     padding: 2px 0;
 }
 
+
+/* ── Layer 2 — open container contents ──────────────────────── */
+
+.layer2-container {
+    color: var(--col-text);
+    line-height: 1.7;
+    margin-top: 8px;
+    margin-bottom: 2px;
+}
+
+.layer2-container-name {
+    color: var(--col-title);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.layer2-container-name:hover {
+    text-decoration: underline;
+}
+
+.layer2-item {
+    color: var(--col-portable);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.layer2-item:hover {
+    text-decoration: underline;
+}
+
+/* ── Layer 3 — surface contents ─────────────────────────────── */
+
+.layer3-surface {
+    color: var(--col-text);
+    line-height: 1.7;
+    margin-top: 8px;
+    margin-bottom: 2px;
+}
+
+.layer3-surface-name {
+    color: var(--col-portable);
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.layer3-surface-name:hover {
+    text-decoration: underline;
+}
+
+.layer3-item {
+    color: var(--col-portable);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.layer3-item:hover {
+    text-decoration: underline;
+}
+
 /* ── Response content styling ───────────────────────────────── */
 
 #response-content .response-line {

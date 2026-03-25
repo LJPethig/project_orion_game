@@ -76,7 +76,7 @@ def _build_room_data(room) -> dict:
         and obj.takeable
     ]
 
-    # Object states — containers (open/closed) and surfaces (has_items)
+    # Object states — containers (open/closed + contents) and surfaces (has_items + contents)
     object_states = {}
     for obj in room.objects:
         if isinstance(obj, StorageUnit):
@@ -84,11 +84,13 @@ def _build_room_data(room) -> dict:
                 'type':      'container',
                 'is_open':   obj.is_open,
                 'has_items': len(obj.contents) > 0,
+                'contents':  [{'id': i.id, 'name': i.name} for i in obj.contents] if obj.is_open else [],
             }
         elif isinstance(obj, Surface):
             object_states[obj.id] = {
                 'type':      'surface',
                 'has_items': obj.has_items,
+                'contents':  [{'id': i.id, 'name': i.name} for i in obj.contents],
             }
 
     return {

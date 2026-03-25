@@ -70,7 +70,7 @@ class ItemHandler(BaseHandler):
         for obj in room.objects:
             if isinstance(obj, Surface):
                 for item in obj.contents:
-                    if item.matches(target):
+                    if item.id == target or item.matches(target):
                         return item
         return None
 

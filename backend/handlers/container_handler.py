@@ -1,0 +1,142 @@
+# backend/handlers/container_handler.py
+"""
+ContainerHandler — open, close, look in, take from, put in commands for StorageUnits.
+
+open <container>           — open a closed storage unit
+close <container>          — close an open storage unit
+look in <container>        — list contents of an open storage unit
+take <item> from <container> — take an item from an open storage unit
+put <item> in <container>  — put an inventory item into an open storage unit
+"""
+
+from backend.handlers.base_handler import BaseHandler
+from backend.models.game_manager import game_manager
+from backend.models.interactable import StorageUnit, PortableItem
+
+
+class ContainerHandler(BaseHandler):
+
+    def handle_open(self, args: str) -> dict:
+        if not args:
+            return self._instant("Open what?")
+
+        unit = self._find_storage_unit(args.strip().lower())
+        if not unit:
+            return None  # Signal to caller: no container found, try door
+
+        if unit.is_open:
+            return self._instant(f"The {unit.name} is already open.")
+
+        unit.is_open = True
+        response = f"You open the {unit.name}."
+        if unit.open_description:
+            response += f" {unit.open_description}"
+
+        result = self._instant(response)
+        result['room_contents_changed'] = True
+        return result
+
+    def handle_close(self, args: str) -> dict:
+        if not args:
+            return self._instant("Close what?")
+
+        unit = self._find_storage_unit(args.strip().lower())
+        if not unit:
+            return None  # Signal to caller: no container found, try door
+
+        if not unit.is_open:
+            return self._instant(f"The {unit.name} is already closed.")
+
+        unit.is_open = False
+        result = self._instant(f"You close the {unit.name}.")
+        result['room_contents_changed'] = True
+        return result
+
+    def handle_look_in(self, args: str) -> dict:
+        if not args:
+            return self._instant("Look in what?")
+
+        unit = self._find_storage_unit(args.strip().lower())
+        if not unit:
+            return self._instant(f"There is no '{args.strip()}' here.")
+
+        if not unit.is_open:
+            return self._instant(f"The {unit.name} is closed.")
+
+        if not unit.contents:
+            return self._instant(f"The {unit.name} is empty.")
+
+        names = [item.name for item in unit.contents]
+        return self._instant(f"Inside the {unit.name} you see: {', '.join(names)}.")
+
+    def handle_take_from(self, args: str) -> dict:
+        """Syntax: take <item> from <container>"""
+        if not args or ' from ' not in args.lower():
+            return self._instant("Take what from where? Try 'take <item> from <container>'.")
+
+        parts     = args.lower().split(' from ', 1)
+        item_name = parts[0].strip()
+        cont_name = parts[1].strip()
+
+        unit = self._find_storage_unit(cont_name)
+        if not unit:
+            return self._instant(f"There is no '{cont_name}' here.")
+
+        if not unit.is_open:
+            return self._instant(f"The {unit.name} is closed.")
+
+        item = next((i for i in unit.contents if i.matches(item_name)), None)
+        if not item:
+            return self._instant(f"There is no '{item_name}' in the {unit.name}.")
+
+        success, msg = game_manager.player.add_to_inventory(item)
+        if not success:
+            return self._instant(msg)
+
+        unit.remove_item(item)
+        result = self._instant(f"You take the {item.name} from the {unit.name}.")
+        result['room_contents_changed'] = True
+        return result
+
+    def handle_put_in(self, args: str) -> dict:
+        """Syntax: put <item> in <container>"""
+        if not args or ' in ' not in args.lower():
+            return self._instant("Put what in where? Try 'put <item> in <container>'.")
+
+        parts     = args.lower().split(' in ', 1)
+        item_name = parts[0].strip()
+        cont_name = parts[1].strip()
+
+        unit = self._find_storage_unit(cont_name)
+        if not unit:
+            return self._instant(f"There is no '{cont_name}' here.")
+
+        if not unit.is_open:
+            return self._instant(f"The {unit.name} is closed.")
+
+        item = next(
+            (i for i in game_manager.player.get_inventory() if i.matches(item_name)),
+            None
+        )
+        if not item:
+            return self._instant(f"You are not carrying a '{item_name}'.")
+
+        if not unit.add_item(item):
+            return self._instant(f"The {unit.name} is too full to hold the {item.name}.")
+
+        game_manager.player.remove_from_inventory(item)
+        result = self._instant(f"You put the {item.name} in the {unit.name}.")
+        result['room_contents_changed'] = True
+        return result
+
+    # ── Helpers ──────────────────────────────────────────────
+
+    @staticmethod
+    def _find_storage_unit(target: str) -> StorageUnit | None:
+        """Find a StorageUnit in the current room by ID or keyword match."""
+        room = game_manager.get_current_room()
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit):
+                if obj.id == target or obj.matches(target):
+                    return obj
+        return None

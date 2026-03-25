@@ -10,6 +10,9 @@ let currentObjects = {};
 // PIN mode state
 let pendingPin = null;   // null or { door_id, door_action }
 
+// Currently expanded surface ID in Layer 3 (null = collapsed)
+let expandedSurface = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
@@ -68,7 +71,97 @@ function renderDescription(room) {
         content.appendChild(el);
     });
 
+    // ── Layer 2 — open container contents ────────────────
+    const objectStates = room.object_states || {};
+    Object.entries(objectStates).forEach(([id, state]) => {
+        if (state.type === 'container' && state.is_open) {
+            const row = document.createElement('div');
+            row.className = 'layer2-container';
+            row.dataset.containerId = id;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'layer2-container-name';
+            nameSpan.textContent = _getObjectName(id, objectStates) + ' (open)';
+            nameSpan.addEventListener('click', () => {
+                API.sendCommand(`close ${id}`).then(result => handleResult(result));
+            });
+            row.appendChild(nameSpan);
+
+            if (state.contents && state.contents.length > 0) {
+                const sep = document.createTextNode('  ');
+                row.appendChild(sep);
+                state.contents.forEach((item, idx) => {
+                    const itemSpan = document.createElement('span');
+                    itemSpan.className = 'layer2-item';
+                    itemSpan.textContent = item.name;
+                    itemSpan.dataset.itemId = item.id;
+                    itemSpan.addEventListener('click', () => {
+                        API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+                    });
+                    row.appendChild(itemSpan);
+                    if (idx < state.contents.length - 1) {
+                        row.appendChild(document.createTextNode(', '));
+                    }
+                });
+            } else {
+                row.appendChild(document.createTextNode('  Empty'));
+            }
+
+            content.appendChild(row);
+        }
+    });
+
+    // ── Layer 3 — expanded surface contents ──────────────
+    if (expandedSurface) {
+        const state = objectStates[expandedSurface];
+        if (state && state.type === 'surface' && state.has_items) {
+            const row = document.createElement('div');
+            row.className = 'layer3-surface';
+            row.dataset.surfaceId = expandedSurface;
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'layer3-surface-name';
+            nameSpan.textContent = _getObjectName(expandedSurface, objectStates);
+            nameSpan.addEventListener('click', () => {
+                expandedSurface = null;
+                loadRoom();
+            });
+            row.appendChild(nameSpan);
+
+            if (state.contents && state.contents.length > 0) {
+                const sep = document.createTextNode('  ');
+                row.appendChild(sep);
+                state.contents.forEach((item, idx) => {
+                    const itemSpan = document.createElement('span');
+                    itemSpan.className = 'layer3-item';
+                    itemSpan.textContent = item.name;
+                    itemSpan.dataset.itemId = item.id;
+                    itemSpan.addEventListener('click', () => {
+                        API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+                    });
+                    row.appendChild(itemSpan);
+                    if (idx < state.contents.length - 1) {
+                        row.appendChild(document.createTextNode(', '));
+                    }
+                });
+            }
+
+            content.appendChild(row);
+        } else {
+            // Surface no longer has items or doesn't exist — collapse
+            expandedSurface = null;
+        }
+    }
+
     setupObjectTooltips(content);
+    setupClickHandlers(content);
+}
+
+function _getObjectName(id, objectStates) {
+    // Extract a display name from object_states if available, else humanise the id
+    // Names aren't currently in object_states — use the id suffix as fallback
+    const parts = id.split('_');
+    return parts.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
 
 // ── Markup parser ────────────────────────────────────────────
@@ -209,6 +302,66 @@ function _bindTooltipMove(span, tooltip) {
         if (top  + th > window.innerHeight) top  = e.clientY - th - margin;
         tooltip.style.left = left + 'px';
         tooltip.style.top  = top  + 'px';
+    });
+}
+
+
+// ── Click handlers (containers, terminals, surfaces) ─────────
+
+function setupClickHandlers(container) {
+
+    // ── Containers — toggle open/close ───────────────────
+    container.querySelectorAll('.markup-container').forEach(span => {
+        span.addEventListener('click', (e) => {
+            const key      = e.target.dataset.container;
+            const objState = _findObjectState(currentObjects, key);
+            const verb     = objState && objState.is_open ? 'close' : 'open';
+            // Find the full object id via endsWith match
+            const id = Object.keys(currentObjects).find(oid =>
+                oid.toLowerCase() === key || oid.toLowerCase().endsWith('_' + key)
+            );
+            if (id) {
+                clearResponse();
+                appendResponse(`> ${verb} ${e.target.textContent}`, 'player-cmd');
+                API.sendCommand(`${verb} ${id}`).then(result => handleResult(result));
+            }
+        });
+    });
+
+    // ── Terminals — use terminal ──────────────────────────
+    container.querySelectorAll('.markup-terminal').forEach(span => {
+        span.addEventListener('click', (e) => {
+            const id = Object.keys(currentObjects).find(oid => {
+                const key = e.target.dataset.terminal;
+                return oid.toLowerCase() === key || oid.toLowerCase().endsWith('_' + key);
+            });
+            if (id) {
+                clearResponse();
+                appendResponse(`> use terminal`, 'player-cmd');
+                API.sendCommand(`use ${id}`).then(result => handleResult(result));
+            }
+        });
+    });
+
+    // ── Surfaces — expand/collapse Layer 3 ───────────────
+    container.querySelectorAll('.markup-surface').forEach(span => {
+        span.addEventListener('click', (e) => {
+            const key      = e.target.dataset.surface;
+            const objState = _findObjectState(currentObjects, key);
+            if (!objState || !objState.has_items) return;
+
+            const id = Object.keys(currentObjects).find(oid =>
+                oid.toLowerCase() === key || oid.toLowerCase().endsWith('_' + key)
+            );
+            if (!id) return;
+
+            if (expandedSurface === id) {
+                expandedSurface = null;
+            } else {
+                expandedSurface = id;
+            }
+            loadRoom();
+        });
     });
 }
 
