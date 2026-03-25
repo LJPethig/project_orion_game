@@ -16,6 +16,7 @@ from backend.handlers.door_handler import DoorHandler
 from backend.handlers.repair_handler import RepairHandler
 from backend.handlers.item_handler import ItemHandler
 from backend.handlers.container_handler import ContainerHandler
+from backend.handlers.equip_handler import EquipHandler
 
 
 class CommandHandler:
@@ -26,6 +27,7 @@ class CommandHandler:
         self._repair     = RepairHandler()
         self._item       = ItemHandler()
         self._container  = ContainerHandler()
+        self._equip      = EquipHandler()
 
         self.commands = {
             # Movement
@@ -47,6 +49,12 @@ class CommandHandler:
             'pick up':           self._item.handle_take,
             'drop':              self._item.handle_drop,
             'debug_inventory':   self._item.handle_debug_inventory,
+            # Equip/unequip
+            'wear':              self._equip.handle_wear,
+            'equip':             self._equip.handle_wear,
+            'remove':            self._equip.handle_remove,
+            'take off':          self._equip.handle_remove,
+            'unequip':           self._equip.handle_remove,
             # Container specific
             'look in':           self._container.handle_look_in,
             'take from':         self._container.handle_take_from,

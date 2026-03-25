@@ -76,7 +76,7 @@ class Player:
     def equip(self, item: PortableItem) -> Tuple[bool, str]:
         """
         Equip an item into its designated slot.
-        Any item already in the slot is moved back to loose inventory.
+        Blocked if the slot is already occupied — player must remove first.
         """
         slot = getattr(item, 'equip_slot', None)
         if not slot or slot not in self.EQUIP_SLOTS:
@@ -86,18 +86,16 @@ class Player:
         old_item  = getattr(self, slot_attr)
 
         if old_item:
-            success, msg = self.add_to_inventory(old_item)
-            if not success:
-                return False, f"Cannot unequip {old_item.name} — {msg}"
+            return False, f"You are already wearing the {old_item.name}. Remove it first."
 
         setattr(self, slot_attr, item)
         self.remove_from_inventory(item)
         return True, f"You put on the {item.name}."
 
-    def unequip(self, slot_name: str, current_room=None) -> Tuple[bool, str]:
+    def unequip(self, slot_name: str) -> Tuple[bool, str]:
         """
         Unequip item from slot into loose inventory.
-        If too heavy, drops it in the current room instead.
+        Returns (False, msg) if too heavy — caller handles drop logic.
         """
         slot_attr = f"{slot_name.lower()}_slot"
         if not hasattr(self, slot_attr):
@@ -112,15 +110,7 @@ class Player:
             setattr(self, slot_attr, None)
             return True, f"You remove the {item.name}."
 
-        if current_room is None:
-            return False, f"Cannot unequip {item.name} — {msg}"
-
-        current_room.add_object(item)
-        setattr(self, slot_attr, None)
-        return True, (
-            f"You remove the {item.name}, but you are carrying too much — "
-            f"you drop it on the floor."
-        )
+        return False, msg
 
     # ── Card checks (replaces debug flags) ───────────────────
 
