@@ -153,6 +153,34 @@ function renderDescription(room) {
         }
     }
 
+    // ── Floor — items with no surface ───────────────────
+    const floorItems = room.floor_items || [];
+    if (floorItems.length > 0) {
+        const row = document.createElement('div');
+        row.className = 'floor-items';
+
+        const label = document.createElement('span');
+        label.className = 'floor-label';
+        label.textContent = 'Floor: ';
+        row.appendChild(label);
+
+        floorItems.forEach((item, idx) => {
+            const itemSpan = document.createElement('span');
+            itemSpan.className = 'floor-item';
+            itemSpan.textContent = item.name;
+            itemSpan.dataset.itemId = item.id;
+            itemSpan.addEventListener('click', () => {
+                API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+            });
+            row.appendChild(itemSpan);
+            if (idx < floorItems.length - 1) {
+                row.appendChild(document.createTextNode(', '));
+            }
+        });
+
+        content.appendChild(row);
+    }
+
     setupObjectTooltips(content);
     setupClickHandlers(content);
 }

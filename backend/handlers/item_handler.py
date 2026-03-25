@@ -2,8 +2,8 @@
 """
 ItemHandler — take, drop, debug_inventory commands.
 
-take <item>         — take a portable item from room surfaces
-drop <item>         — drop an inventory item onto a room surface
+take <item>         — take a portable item from room surfaces or floor
+drop <item>         — drop an inventory item onto a surface, or floor if none available
 debug_inventory     — dump player inventory to response panel
 """
 
@@ -50,12 +50,17 @@ class ItemHandler(BaseHandler):
 
         room    = game_manager.get_current_room()
         surface = self._find_drop_surface(room)
-        if not surface:
-            return self._instant("There is nowhere to put that here.")
 
         game_manager.player.remove_from_inventory(item)
-        surface.add_item(item)
-        result = self._instant(f"You put the {item.name} on the {surface.name}.")
+
+        if surface:
+            surface.add_item(item)
+            msg = f"You put the {item.name} on the {surface.name}."
+        else:
+            room.floor.append(item)
+            msg = f"You drop the {item.name} on the floor."
+
+        result = self._instant(msg)
         result['room_contents_changed'] = True
         return result
 
@@ -66,23 +71,30 @@ class ItemHandler(BaseHandler):
 
     @staticmethod
     def _find_portable_in_room(room, target: str) -> PortableItem | None:
-        """Find a takeable item on room surfaces."""
+        """Find a takeable item on room surfaces or floor."""
+        # Check surfaces first
         for obj in room.objects:
             if isinstance(obj, Surface):
                 for item in obj.contents:
                     if item.id == target or item.matches(target):
                         return item
+        # Check floor
+        for item in room.floor:
+            if item.id == target or item.matches(target):
+                return item
         return None
 
     @staticmethod
     def _remove_item_from_room(room, item: PortableItem) -> None:
-        """Remove item from a surface. Warns if found loose on floor — should not happen."""
+        """Remove item from a surface or floor."""
         for obj in room.objects:
             if isinstance(obj, Surface) and item in obj.contents:
                 obj.remove_item(item)
                 return
-        print(f"Warning: item '{item.id}' found loose in room '{room.id}' — removing from floor")
-        room.remove_object(item.id)
+        if item in room.floor:
+            room.floor.remove(item)
+            return
+        print(f"Warning: item '{item.id}' not found on any surface or floor in room '{room.id}'")
 
     @staticmethod
     def _find_drop_surface(room) -> Surface | None:

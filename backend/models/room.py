@@ -38,6 +38,9 @@ class Room:
         self.objects:          List[Any]  = []
         self.panels:           Dict[str, Any] = {}
 
+        # Floor — fallback when no surface is available. Not shown in description unless occupied.
+        self.floor:            List[Any]  = []
+
         # Temperature — target set from JSON preset, current starts at target
         self.target_temperature  = target_temperature
         self.current_temperature = target_temperature
@@ -70,7 +73,7 @@ class Room:
 
         return dimensions_m, length * width * height
 
-    # ── Object management (used from Phase 8+) ───────────────
+    # ── Object management ────────────────────────────────────
 
     def add_object(self, obj: Any) -> None:
         self.objects.append(obj)

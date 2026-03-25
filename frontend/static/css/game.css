@@ -339,6 +339,31 @@ html, body {
     text-decoration: underline;
 }
 
+
+/* ── Floor items ────────────────────────────────────────────── */
+
+.floor-items {
+    color: var(--col-text);
+    line-height: 1.7;
+    margin-top: 8px;
+    margin-bottom: 2px;
+}
+
+.floor-label {
+    color: var(--col-text);
+    font-style: italic;
+}
+
+.floor-item {
+    color: var(--col-portable);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.floor-item:hover {
+    text-decoration: underline;
+}
+
 /* ── Response content styling ───────────────────────────────── */
 
 #response-content .response-line {

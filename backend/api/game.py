@@ -95,6 +95,9 @@ def _build_room_data(room) -> dict:
                 'contents': [{'id': i.id, 'name': i.name} for i in obj.contents],
             }
 
+    # Floor items — only populated when items are present
+    floor_items = [{'id': i.id, 'name': i.name} for i in room.floor]
+
     return {
         'id':               room.id,
         'name':             room.name,
@@ -103,4 +106,5 @@ def _build_room_data(room) -> dict:
         'exits':            exits,
         'portable_objects': portable_objects,
         'object_states':    object_states,
+        'floor_items':      floor_items,
     }
