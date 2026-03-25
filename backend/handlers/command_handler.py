@@ -51,6 +51,9 @@ class CommandHandler:
             'look in':           self._container.handle_look_in,
             'take from':         self._container.handle_take_from,
             'put in':            self._container.handle_put_in,
+            'place in':          self._container.handle_put_in,
+            'put on':            self._container.handle_put_on,
+            'place on':          self._container.handle_put_on,
         }
 
     def _route_open(self, args: str) -> dict:
@@ -93,10 +96,18 @@ class CommandHandler:
                 f"{parts[0][5:].strip()} from {parts[1].strip()}"
             )
 
-        if ' in ' in cmd and cmd.startswith('put '):
+        if ' in ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
+            prefix_len = 4 if cmd.startswith('put ') else 6
             parts = cmd.split(' in ', 1)
             return self._container.handle_put_in(
-                f"{parts[0][4:].strip()} in {parts[1].strip()}"
+                f"{parts[0][prefix_len:].strip()} in {parts[1].strip()}"
+            )
+
+        if ' on ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
+            prefix_len = 4 if cmd.startswith('put ') else 6
+            parts = cmd.split(' on ', 1)
+            return self._container.handle_put_on(
+                f"{parts[0][prefix_len:].strip()} on {parts[1].strip()}"
             )
 
         words = cmd.split()

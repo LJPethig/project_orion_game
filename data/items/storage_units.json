@@ -19,7 +19,7 @@
     "id": "head_small_cabinet",
     "name": "Small Cabinet",
     "description": "A small cabinet with a single door underneath the sink.",
-    "keywords": ["cabinet"],
+    "keywords": ["cabinet", "small cabinet"],
     "capacity_mass": 20.0,
     "open_description": "The cabinet door swings open, revealing two small shelves."
   },
@@ -27,7 +27,7 @@
     "id": "med_bay_large_medical_cabinet",
     "name": "Large Medical Cabinet",
     "description": "A large cabinet for the storage of medical equipment and first aid supplies.",
-    "keywords": ["cabinet", "large medical cabinet"],
+    "keywords": ["cabinet", "large medical cabinet", "medical cabinet"],
     "capacity_mass": 100.0,
     "open_description": "The cabinet doors slide open, revealing long shelves."
   },

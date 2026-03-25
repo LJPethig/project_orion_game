@@ -81,16 +81,18 @@ def _build_room_data(room) -> dict:
     for obj in room.objects:
         if isinstance(obj, StorageUnit):
             object_states[obj.id] = {
-                'type':      'container',
-                'is_open':   obj.is_open,
+                'type': 'container',
+                'name': obj.name,
+                'is_open': obj.is_open,
                 'has_items': len(obj.contents) > 0,
-                'contents':  [{'id': i.id, 'name': i.name} for i in obj.contents] if obj.is_open else [],
+                'contents': [{'id': i.id, 'name': i.name} for i in obj.contents] if obj.is_open else [],
             }
         elif isinstance(obj, Surface):
             object_states[obj.id] = {
-                'type':      'surface',
+                'type': 'surface',
+                'name': obj.name,
                 'has_items': obj.has_items,
-                'contents':  [{'id': i.id, 'name': i.name} for i in obj.contents],
+                'contents': [{'id': i.id, 'name': i.name} for i in obj.contents],
             }
 
     return {

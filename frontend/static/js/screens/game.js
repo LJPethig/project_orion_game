@@ -96,7 +96,7 @@ function renderDescription(room) {
                     itemSpan.textContent = item.name;
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
-                        API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+                        API.sendCommand(`take ${item.id} from ${id}`).then(result => handleResult(result));
                     });
                     row.appendChild(itemSpan);
                     if (idx < state.contents.length - 1) {
@@ -158,8 +158,9 @@ function renderDescription(room) {
 }
 
 function _getObjectName(id, objectStates) {
-    // Extract a display name from object_states if available, else humanise the id
-    // Names aren't currently in object_states — use the id suffix as fallback
+    const state = objectStates[id];
+    if (state && state.name) return state.name;
+    // Fallback — humanise ID suffix
     const parts = id.split('_');
     return parts.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
 }
