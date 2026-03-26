@@ -1,0 +1,184 @@
+// frontend/static/js/screens/commands.js
+// Command handling — handleCommand, handleResult, submitPin, refreshExits.
+
+function findExitData(exitKey) {
+    if (currentExits[exitKey]) return currentExits[exitKey];
+    for (const [key, data] of Object.entries(currentExits)) {
+        if (key.toLowerCase() === exitKey.toLowerCase()) return data;
+        if ((data.label || '').toLowerCase().replace(/\s+/g, '_') === exitKey) return data;
+    }
+    return null;
+}
+
+function doorStateText(state) {
+    switch (state) {
+        case 'open':   return 'Door is open';
+        case 'closed': return 'Door is closed';
+        case 'locked': return 'Door is locked';
+        default:       return 'No door';
+    }
+}
+
+function doorStateColour(state) {
+    switch (state) {
+        case 'open':   return 'var(--col-prompt)';
+        case 'closed': return 'var(--col-text)';
+        case 'locked': return 'var(--col-alert)';
+        default:       return 'var(--col-text)';
+    }
+}
+
+// ── Command handling ─────────────────────────────────────────
+
+async function handleCommand() {
+    if (Loop.isLocked()) return;
+
+    const input = document.getElementById('command-input');
+    const cmd   = input.value.trim();
+    if (!cmd) return;
+
+    input.value = '';
+    clearResponse();
+
+    // ── PIN mode — route input as PIN ─────────────────────
+    if (pendingPin) {
+        appendResponse(`> ****`, 'player-cmd');
+        await submitPin(cmd);
+        return;
+    }
+
+    // ── Normal command ────────────────────────────────────
+    appendResponse(`> ${cmd}`, 'player-cmd');
+    const result = await API.sendCommand(cmd);
+    handleResult(result);
+}
+
+function refreshExits() {
+    API.getRoom().then(room => { if (!room.error) currentExits = room.exits || {}; });
+}
+
+function handleResult(result) {
+    if (result.response) appendResponse(result.response);
+    if (result.ship_time) Loop.updateShipTime(result.ship_time);
+
+    // ── Door locked — show closed hatch image, stay on it ────
+    if (result.action_type === 'door_locked') {
+        setDoorImage('closed');
+        refreshExits();
+        return;
+    }
+
+    // ── Panel damaged — show damaged panel image, stay on it ─
+    if (result.action_type === 'panel_damaged') {
+        setDamagedPanelImage(result.security_level);
+        refreshExits();
+        return;
+    }
+
+    // ── Repair panel — show damaged image, lock input, wait, complete ──
+    if (result.action_type === 'repair_panel') {
+        setDamagedPanelImage(result.security_level);
+        showRepairAnimation();
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const repairResult = await API.completeRepair(
+                result.panel_id,
+                result.door_id,
+                result.exit_label
+            );
+            clearResponse();
+            handleResult(repairResult);
+        });
+        return;
+    }
+
+    // ── Card swipe — show panel image, scanning animation, lock input ──
+    if (result.action_type === 'card_swipe') {
+        setPanelImage(result.security_level);
+        showScanAnimation();
+        Loop.lockInput(result.real_seconds, async () => {
+            hideScanAnimation();
+            const swipeResult = await API.completeSwipe(
+                result.door_id,
+                result.pending_move,
+                result.door_action
+            );
+            clearResponse();
+            handleResult(swipeResult);
+        });
+        return;
+    }
+
+    // ── PIN required — switch input to PIN mode ───────────
+    if (result.action_type === 'pin_required') {
+        pendingPin = {
+            door_id:     result.door_id,
+            door_action: result.door_action,
+        };
+        setInputMode('pin');
+        return;
+    }
+
+    // ── Always clear PIN mode before processing result ────
+    pendingPin = null;
+    setInputMode('normal');
+
+    // Repair complete — show repaired panel image, then restore room
+    if (result.action_type === 'repair_complete') {
+        setPanelImage(result.security_level);   // ← add this line
+        refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        return;
+    }
+
+    // Swipe completed — show open or closed hatch then restore room
+    if (result.swipe_complete) {
+        const imgState = result.swipe_action === 'lock' ? 'closed' : 'open';
+        setDoorImage(imgState);
+        refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        return;
+    }
+
+    // Normal room change — just update room directly
+    if (result.room_changed && result.room) {
+        updateRoom(result.room);
+        return;
+    }
+
+    // Instant door image — open or close without card swipe
+    if (result.door_image) {
+        setDoorImage(result.door_image);
+        refreshExits();
+        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        return;
+    }
+
+    // Card invalidated — restore room image immediately
+    if (result.card_invalidated) {
+        loadRoom();
+        return;
+    }
+
+    // Instant action — reload room if contents changed (take/drop), otherwise just refresh exits
+    if (result.action_type === 'instant') {
+        if (result.room_contents_changed) {
+            loadRoom();
+        } else {
+            refreshExits();
+        }
+    }
+}
+
+async function submitPin(pin) {
+    const result = await API.submitPin(
+        pendingPin.door_id,
+        null,
+        pin,
+        pendingPin.door_action
+    );
+    handleResult(result);
+}
+
+// ── Input mode ───────────────────────────────────────────────
+
