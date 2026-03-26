@@ -515,7 +515,7 @@ html, body {
 }
 
 .inv-section-label {
-    color: #3a6a3a;
+    color: #4a9a4a;
     font-size: 10px;
     letter-spacing: 2px;
     margin-top: 12px;
@@ -538,7 +538,7 @@ html, body {
 }
 
 .inv-slot-label {
-    color: #3a6a3a;
+    color: #4a9a4a;
     font-size: 10px;
     letter-spacing: 1px;
     width: 36px;
@@ -574,7 +574,7 @@ html, body {
 }
 
 .inv-item-mass {
-    color: #3a6a3a;
+    color: #4a9a4a;
     font-size: 11px;
 }
 

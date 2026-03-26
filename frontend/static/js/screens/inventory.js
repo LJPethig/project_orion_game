@@ -220,3 +220,10 @@ function _inventoryKeyHandler(e) {
         _selectItem(prev);
     }
 }
+
+function refreshInventoryIfOpen() {
+    const panel = document.getElementById('panel-inventory');
+    if (panel && panel.classList.contains('open')) {
+        renderInventory();
+    }
+}

@@ -22,7 +22,7 @@ class EquipHandler(BaseHandler):
 
         target = args.strip().lower()
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.matches(target)),
+            (i for i in game_manager.player.get_inventory() if i.id == target or i.matches(target)),
             None
         )
 

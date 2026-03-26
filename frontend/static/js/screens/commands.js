@@ -66,6 +66,7 @@ function handleResult(result) {
         setDoorImage('closed');
         refreshExits();
         return;
+
     }
 
     // ── Panel damaged — show damaged panel image, stay on it ─
@@ -168,6 +169,8 @@ function handleResult(result) {
             refreshExits();
         }
     }
+
+    refreshInventoryIfOpen();
 }
 
 async function submitPin(pin) {
