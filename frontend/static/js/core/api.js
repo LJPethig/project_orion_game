@@ -64,4 +64,9 @@ const API = {
         return r.json();
     },
 
+    async getInventory() {
+        const r = await fetch('/api/game/inventory');
+        return r.json();
+    },
+
 };

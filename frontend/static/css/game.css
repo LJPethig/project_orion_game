@@ -466,6 +466,177 @@ html, body {
     text-decoration: underline;
 }
 
+
+/* ── Inventory panel ────────────────────────────────────────── */
+
+.inv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--col-divider);
+}
+
+.inv-title {
+    color: var(--col-title);
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+.inv-weight {
+    color: var(--col-text);
+    font-size: 11px;
+}
+
+.inv-layout {
+    display: flex;
+    gap: 16px;
+    height: calc(100% - 56px);
+}
+
+.inv-list-col {
+    flex: 1;
+    overflow-y: auto;
+    min-width: 0;
+}
+
+.inv-list-col::-webkit-scrollbar { width: 4px; }
+.inv-list-col::-webkit-scrollbar-track { background: var(--col-bg); }
+.inv-list-col::-webkit-scrollbar-thumb { background: var(--col-border); border-radius: 2px; }
+
+.inv-detail-col {
+    width: 45%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+}
+
+.inv-section-label {
+    color: #3a6a3a;
+    font-size: 10px;
+    letter-spacing: 2px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+.inv-slot-row {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 2px;
+}
+
+.inv-slot-row.inv-selected,
+.inv-item-row.inv-selected {
+    background: #0a1f0a;
+    border: 1px solid var(--col-border);
+}
+
+.inv-slot-label {
+    color: #3a6a3a;
+    font-size: 10px;
+    letter-spacing: 1px;
+    width: 36px;
+    flex-shrink: 0;
+}
+
+.inv-slot-item {
+    color: var(--col-portable);
+    cursor: pointer;
+}
+
+.inv-slot-empty {
+    color: #2a4a2a;
+    font-style: italic;
+}
+
+.inv-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 6px;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 1px solid transparent;
+}
+
+.inv-item-row:hover {
+    background: #080f08;
+}
+
+.inv-item-name {
+    color: var(--col-portable);
+}
+
+.inv-item-mass {
+    color: #3a6a3a;
+    font-size: 11px;
+}
+
+/* ── Detail column ───────────────────────────────────────────── */
+
+.inv-item-image {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: contain;
+    background: #050a05;
+    border: 1px solid var(--col-border);
+    margin-bottom: 4px;
+}
+
+.inv-detail-name {
+    color: var(--col-title);
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.inv-detail-mass {
+    color: #3a6a3a;
+    font-size: 11px;
+}
+
+.inv-detail-desc {
+    color: var(--col-text);
+    font-size: 12px;
+    line-height: 1.6;
+    margin-top: 4px;
+}
+
+.inv-detail-hint {
+    color: #2a4a2a;
+    font-style: italic;
+    font-size: 12px;
+    margin-top: 16px;
+}
+
+.inv-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.inv-action-btn {
+    background: #0a1f0a;
+    border: 1px solid var(--col-border);
+    color: var(--col-title);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    letter-spacing: 1px;
+}
+
+.inv-action-btn:hover {
+    background: #0f2f0f;
+    border-color: var(--col-title);
+}
+
 /* ── Response content styling ───────────────────────────────── */
 
 #response-content .response-line {

@@ -60,6 +60,7 @@ function togglePanel(panelId, tab) {
     if (!isOpen) {
         panel.classList.add('open');
         tab.classList.add('active');
+        if (panelId === 'panel-inventory') renderInventory();
     }
 }
 

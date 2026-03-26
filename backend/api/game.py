@@ -56,6 +56,49 @@ def get_room():
     return jsonify(_build_room_data(room))
 
 
+
+@game_bp.route("/inventory", methods=["GET"])
+def get_inventory():
+    """Return player inventory and equipped slots for the inventory panel."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    player = game_manager.player
+
+    # Equipped slots — all five, occupied or empty
+    equipped = {}
+    for slot in player.EQUIP_SLOTS:
+        item = getattr(player, f"{slot}_slot")
+        equipped[slot] = {
+            'id':          item.id                            if item else None,
+            'name':        item.name                          if item else None,
+            'description': item.description                   if item else None,
+            'mass':        item.mass                          if item else None,
+            'image':       f"images/items/{item.id}.png"      if item else None,
+            'equip_slot':  getattr(item, 'equip_slot', None)  if item else None,
+        }
+
+    # Loose carried items
+    carried = [
+        {
+            'id':          item.id,
+            'name':        item.name,
+            'description': item.description,
+            'mass':        item.mass,
+            'image':       f"images/items/{item.id}.png",
+            'equip_slot':  getattr(item, 'equip_slot', None),
+        }
+        for item in player.get_inventory()
+    ]
+
+    return jsonify({
+        'player_name':   player.name,
+        'carry_current': round(player.current_carry_mass, 2),
+        'carry_max':     player.max_carry_mass,
+        'equipped':      equipped,
+        'carried':       carried,
+    })
+
 def _build_room_data(room) -> dict:
     """Build room dict for frontend — exits, portable items, object states."""
     exits = {}
