@@ -13,10 +13,26 @@
         <!-- ── Main area (image + right panel) ─────────────── -->
         <div id="main-area">
 
-            <!-- Left: Room image -->
+            <!-- Left: Room image + tab strip + slide-out panels -->
             <div id="room-image-panel">
                 <img id="room-image" src="" alt="" />
                 <div id="room-image-placeholder">[ NO SIGNAL ]</div>
+
+                <!-- Tab strip — vertical filing cabinet tabs on left edge -->
+                <div id="tab-strip">
+                    <div class="tab" id="tab-inv" data-panel="panel-inventory" title="Inventory">
+                        <span class="tab-label">INV</span>
+                    </div>
+                </div>
+
+                <!-- Slide-out panels — cover the room image -->
+                <div class="slide-panel" id="panel-inventory">
+                    <div class="slide-panel-inner">
+                        <!-- Phase 14b: inventory content goes here -->
+                        <div class="slide-panel-placeholder">INVENTORY</div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Right: Three stacked panels -->
@@ -83,6 +99,5 @@
     <script src="{{ url_for('static', filename='js/screens/commands.js') }}"></script>
     <script src="{{ url_for('static', filename='js/screens/description.js') }}"></script>
     <script src="{{ url_for('static', filename='js/screens/game.js') }}"></script>
-
 </body>
 </html>

@@ -39,6 +39,28 @@ async function init() {
 
     input.disabled = false;
     input.focus();
+
+    // ── Tab strip ────────────────────────────────────────
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => togglePanel(tab.dataset.panel, tab));
+    });
+}
+
+// ── Slide panel toggle ───────────────────────────────────────
+
+function togglePanel(panelId, tab) {
+    const panel      = document.getElementById(panelId);
+    const isOpen     = panel.classList.contains('open');
+
+    // Close all panels and deactivate all tabs first
+    document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    // If it wasn't open, open it now
+    if (!isOpen) {
+        panel.classList.add('open');
+        tab.classList.add('active');
+    }
 }
 
 // ── Room loading ─────────────────────────────────────────────

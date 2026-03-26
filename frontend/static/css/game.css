@@ -59,6 +59,108 @@ html, body {
     border-bottom: 2px solid var(--col-border);
 }
 
+
+/* ── Tab strip ──────────────────────────────────────────────── */
+
+#tab-strip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+    gap: 4px;
+    z-index: 100;
+    pointer-events: none;   /* strip itself is not clickable — tabs are */
+}
+
+.tab {
+    width: 28px;
+    padding: 10px 0;
+    background: #0a1f0a;
+    border: 1px solid var(--col-border);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.tab:hover {
+    background: #0f2f0f;
+    border-color: var(--col-title);
+}
+
+.tab.active {
+    background: #0f2f0f;
+    border-color: var(--col-title);
+}
+
+.tab-label {
+    color: var(--col-title);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    user-select: none;
+}
+
+/* ── Slide-out panels ───────────────────────────────────────── */
+
+.slide-panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 5, 0, 0.97);
+    border-right: 2px solid var(--col-border);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 50;
+    overflow: hidden;
+}
+
+.slide-panel.open {
+    transform: translateX(0);
+}
+
+.slide-panel-inner {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 16px 16px 16px 40px;   /* left padding clears the tab strip */
+}
+
+.slide-panel-inner::-webkit-scrollbar {
+    width: 4px;
+}
+.slide-panel-inner::-webkit-scrollbar-track {
+    background: var(--col-bg);
+}
+.slide-panel-inner::-webkit-scrollbar-thumb {
+    background: var(--col-border);
+    border-radius: 2px;
+}
+
+.slide-panel-placeholder {
+    color: #1a3a1a;
+    font-size: 24px;
+    letter-spacing: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
 /* ── Left: Room image panel ─────────────────────────────────── */
 
 #room-image-panel {
