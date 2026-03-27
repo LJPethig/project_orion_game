@@ -3,7 +3,7 @@
   ],
   "containers": [
     {
-      "container_id": "captains_quarters_cabinet",
+      "container_id": "captains_quarters_locker",
       "items": ["id_card_low_sec", "flight_coveralls", "mag_boots", "pilot_jacket"]
     },
     {

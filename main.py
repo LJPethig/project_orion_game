@@ -4,6 +4,13 @@
 from flask import Flask, render_template
 from backend.api.game import game_bp
 from backend.api.command import command_bp
+import logging
+
+resolver_logger = logging.getLogger('resolver')
+resolver_logger.setLevel(logging.DEBUG)
+handler = logging.FileHandler('resolver_debug.log')
+handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+resolver_logger.addHandler(handler)
 
 app = Flask(
     __name__,

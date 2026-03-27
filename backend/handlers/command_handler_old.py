@@ -17,10 +17,7 @@ from backend.handlers.repair_handler import RepairHandler
 from backend.handlers.item_handler import ItemHandler
 from backend.handlers.container_handler import ContainerHandler
 from backend.handlers.equip_handler import EquipHandler
-from backend.models.game_manager import game_manager
 
-import logging
-resolver_logger = logging.getLogger('resolver')
 
 class CommandHandler:
 
@@ -67,58 +64,6 @@ class CommandHandler:
             'place on':          self._container.handle_put_on,
         }
 
-
-    def _resolve_for_verb(self, verb: str, args: str) -> str:
-        """
-        Resolve the args string to use IDs based on the verb.
-        For preposition commands, resolves both item and target separately.
-        """
-        resolver_logger.info(f"[RESOLVER VERB] verb='{verb}' args='{args}'")
-        if not args:
-            return args
-
-        # ── Inventory item verbs ──────────────────────────────
-        if verb in ('drop', 'wear', 'equip'):
-            return self._resolve(args, 'inventory')
-
-        # ── Equipped item verbs ───────────────────────────────
-        if verb in ('remove', 'take off', 'unequip'):
-            return self._resolve(args, 'equipped')
-
-        # ── Room portable item verbs ──────────────────────────
-        if verb in ('take', 'get', 'pick up'):
-            return self._resolve(args, 'room_portable')
-
-        # ── Fixed object verbs ────────────────────────────────
-        if verb in ('look in',):
-            return self._resolve(args, 'room_fixed')
-
-        # ── open/close — fixed objects only (doors handled in _route_open/close) ──
-        if verb in ('open', 'close'):
-            return self._resolve(args, 'room_fixed')
-
-        # ── Preposition verbs — resolve both parts ────────────
-        if verb == 'take from' and ' from ' in args.lower():
-            parts     = args.lower().split(' from ', 1)
-            item_part = self._resolve(parts[0].strip(), 'room_portable')
-            cont_part = self._resolve(parts[1].strip(), 'room_fixed')
-            return f"{item_part} from {cont_part}"
-
-        if verb in ('put in', 'place in') and ' in ' in args.lower():
-            parts     = args.lower().split(' in ', 1)
-            item_part = self._resolve(parts[0].strip(), 'inventory')
-            cont_part = self._resolve(parts[1].strip(), 'room_fixed')
-            return f"{item_part} in {cont_part}"
-
-        if verb in ('put on', 'place on') and ' on ' in args.lower():
-            parts     = args.lower().split(' on ', 1)
-            item_part = self._resolve(parts[0].strip(), 'inventory')
-            surf_part = self._resolve(parts[1].strip(), 'room_fixed')
-            return f"{item_part} on {surf_part}"
-
-        # Movement, repair, lock, unlock — no item resolution needed
-        return args
-
     def _route_open(self, args: str) -> dict:
         """
         Route 'open' to container or door handler.
@@ -146,66 +91,6 @@ class CommandHandler:
             return container_result
 
         return self._door.handle_close(args)
-
-
-    def _resolve(self, target: str, scope: str) -> str:
-        """
-        Attempt to resolve a keyword or partial string to a concrete object ID.
-        Returns the resolved ID if found, otherwise returns target unchanged.
-        Prints a debug warning if resolution fails.
-
-        scope values:
-          'inventory'    — player loose inventory
-          'equipped'     — player equipped slots
-          'room_portable' — surfaces and floor in current room
-          'room_fixed'   — containers and surfaces (fixed objects) in current room
-        """
-        from backend.models.interactable import StorageUnit, Surface, PortableItem
-        player = game_manager.player
-        room   = game_manager.get_current_room()
-        t = target.strip().lower()
-        resolver_logger.info(f"[RESOLVER] scope='{scope}' input='{t}'")
-
-        if scope == 'inventory':
-            for item in player.get_inventory():
-                if item.id == t or item.matches(t):
-                    if item.id != t:
-                        resolver_logger.info(f"[RESOLVER] inventory: '{t}' → '{item.id}'")
-                    return item.id
-
-        elif scope == 'equipped':
-            from backend.models.interactable import PortableItem
-            for slot in player.EQUIP_SLOTS:
-                item = getattr(player, f"{slot}_slot")
-                if item and (item.id == t or item.matches(t)):
-                    if item.id != t:
-                        resolver_logger.info(f"[RESOLVER] equipped: '{t}' → '{item.id}'")
-                    return item.id
-
-        elif scope == 'room_portable':
-            for obj in room.objects:
-                if isinstance(obj, Surface):
-                    for item in obj.contents:
-                        if item.id == t or item.matches(t):
-                            if item.id != t:
-                                resolver_logger.info(f"[RESOLVER] surface '{obj.id}': '{t}' → '{item.id}'")
-                            return item.id
-            for item in room.floor:
-                if item.id == t or item.matches(t):
-                    if item.id != t:
-                        resolver_logger.info(f"[RESOLVER] floor: '{t}' → '{item.id}'")
-                    return item.id
-
-        elif scope == 'room_fixed':
-            for obj in room.objects:
-                if isinstance(obj, (StorageUnit, Surface)):
-                    if obj.id == t or obj.matches(t):
-                        if obj.id != t:
-                            resolver_logger.info(f"[RESOLVER] fixed: '{t}' → '{obj.id}'")
-                        return obj.id
-
-        resolver_logger.info(f"[RESOLVER FAIL] scope='{scope}' input='{t}' — no match found, passing through")
-        return target
 
     def process(self, raw: str) -> dict:
         cmd = raw.strip().lower()
@@ -239,8 +124,6 @@ class CommandHandler:
             verb = ' '.join(words[:i])
             if verb in self.commands:
                 args = ' '.join(words[i:])
-                # ── Resolve target to ID before dispatching ───
-                args = self._resolve_for_verb(verb, args)
                 return self.commands[verb](args)
 
         return self._unknown(cmd)
