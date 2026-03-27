@@ -16,6 +16,7 @@ env/
 # Flask
 instance/
 *.db
+*.log
 
 # OS
 .DS_Store

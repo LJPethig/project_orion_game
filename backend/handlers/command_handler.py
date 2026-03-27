@@ -190,6 +190,12 @@ class CommandHandler:
                             if item.id != t:
                                 resolver_logger.info(f"[RESOLVER] surface '{obj.id}': '{t}' → '{item.id}'")
                             return item.id
+                elif isinstance(obj, StorageUnit) and obj.is_open:
+                    for item in obj.contents:
+                        if item.id == t or item.matches(t):
+                            if item.id != t:
+                                resolver_logger.info(f"[RESOLVER] container '{obj.id}': '{t}' → '{item.id}'")
+                            return item.id
             for item in room.floor:
                 if item.id == t or item.matches(t):
                     if item.id != t:

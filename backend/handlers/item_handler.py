@@ -22,7 +22,7 @@ class ItemHandler(BaseHandler):
         target = args.strip().lower()
         room   = game_manager.get_current_room()
 
-        item = self._find_portable_in_room(room, target)
+        item, source = self._find_portable_in_room(room, target)
         if not item:
             return self._instant(f"You don't see a '{args.strip()}' here.")
 
@@ -31,6 +31,8 @@ class ItemHandler(BaseHandler):
             return self._instant(msg)
 
         self._remove_item_from_room(room, item)
+        if source:
+            msg = f"You take the {item.name} from the {source}."
         result = self._instant(msg)
         result['room_contents_changed'] = True
         return result
@@ -70,23 +72,30 @@ class ItemHandler(BaseHandler):
     # ── Helpers ──────────────────────────────────────────────
 
     @staticmethod
-    def _find_portable_in_room(room, target: str) -> PortableItem | None:
-        """Find a takeable item on room surfaces or floor."""
-        # Check surfaces first
+    def _find_portable_in_room(room, target: str) -> tuple[PortableItem | None, str | None]:
+        """Find a takeable item in an open container, room surfaces or floor. Returns (item, source_name)."""
         for obj in room.objects:
             if isinstance(obj, Surface):
                 for item in obj.contents:
                     if item.id == target or item.matches(target):
-                        return item
-        # Check floor
+                        return item, obj.name
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit) and obj.is_open:
+                for item in obj.contents:
+                    if item.id == target or item.matches(target):
+                        return item, obj.name
         for item in room.floor:
             if item.id == target or item.matches(target):
-                return item
-        return None
+                return item, "the floor"
+        return None, None
 
     @staticmethod
     def _remove_item_from_room(room, item: PortableItem) -> None:
-        """Remove item from a surface or floor."""
+        """Remove item from an open container a surface or the floor."""
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit) and item in obj.contents:
+                obj.remove_item(item)
+                return
         for obj in room.objects:
             if isinstance(obj, Surface) and item in obj.contents:
                 obj.remove_item(item)
