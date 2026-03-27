@@ -3,14 +3,21 @@
     "id": "wire_low_voltage",
     "name": "Low Voltage Wire",
     "description": "A spool of small gauge electrical wire.",
-    "keywords": ["wire", "wire spool", "electrical wire", "low voltage wire"],
+    "keywords": ["wire", "wire spool", "electrical wire", "low voltage wire", "small gauge electrical wire", "small gauge electrical cable", "electrical cable", "cable"],
     "mass": 0.1
+  },
+  {
+    "id": "wire_high_voltage",
+    "name": "High Voltage Wire",
+    "description": "A spool of heavy gauge electrical wire.",
+    "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
+    "mass": 1
   },
   {
     "id": "wire_optical",
     "name": "Optical Wire",
     "description": "A spool of hybrid optical wire.",
-    "keywords": ["wire", "wire spool", "optical wire"],
+    "keywords": ["wire", "wire spool", "optical wire", "hybrid optical wire", "hybrid optical cable", "optical cable", "cable"],
     "mass": 0.1
   }
 ]

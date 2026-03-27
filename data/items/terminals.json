@@ -3,36 +3,36 @@
     "id": "captains_quarters_personal_terminal",
     "name": "Personal Terminal",
     "description": "Your personal computer terminal. A scratched screen glows softly.",
-    "keywords": ["terminal", "personal terminal", "computer", "console"]
+    "keywords": ["terminal", "personal terminal", "personal computer", "computer"]
   },
   {
     "id": "mainframe_access_terminal",
     "name": "Mainframe Terminal",
     "description": "The firewalled high security access terminal for the ships mainframe.",
-    "keywords": ["terminal", "mainframe terminal", "mainframe access terminal", "computer", "console"]
+    "keywords": ["terminal", "mainframe terminal", "mainframe computer", "mainframe access terminal", "computer"]
   },
   {
     "id": "cockpit_navigation_terminal",
     "name": "Navigation Terminal",
     "description": "The ship's navigation terminal. Charts, waypoints and flight data.",
-    "keywords": ["terminal", "navigation terminal", "nav terminal", "computer", "console"]
+    "keywords": ["terminal", "navigation terminal", "nav terminal", "navigation computer", "nav computer", "computer"]
   },
   {
     "id": "storage_room_storage_inventory_terminal",
     "name": "Storage Terminal",
     "description": "An inventory management terminal for tracking ship cargo and stores.",
-    "keywords": ["terminal", "storage terminal", "inventory terminal", "storage facility terminal", "storage inventory terminal", "computer", "console"]
+    "keywords": ["terminal", "storage terminal", "storage computer", "storage room terminal", "storage room computer", "inventory terminal",  "inventory computer", "storage facility terminal", "storage inventory terminal", "storage management terminal", "storage facility computer", "storage inventory computer", "storage management computer", "computer"]
   },
    {
     "id": "cargo_bay_storage_inventory_terminal",
     "name": "Storage Terminal",
     "description": "An inventory management terminal for tracking ship cargo and stores.",
-    "keywords": ["terminal", "storage terminal", "inventory terminal", "storage facility terminal", "storage inventory terminal", "computer", "console"]
+    "keywords": ["terminal", "cargo bay terminal", "cargo bay computer", "cargo storage terminal", "cargo storage computer", "storage terminal", "inventory terminal", "inventory management terminal", "storage computer", "inventory computer", "inventory management computer", "computer"]
   },
   {
     "id": "med_bay_medical_terminal",
     "name": "Medical Terminal",
     "description": "Medical records, diagnostics and treatment logs.",
-    "keywords": ["terminal", "medical terminal", "computer", "console"]
+    "keywords": ["terminal", "medical terminal", "med-bay terminal", "med bay computer", "med-bay computer", "med bay computer", "medical computer", "computer"]
   }
 ]

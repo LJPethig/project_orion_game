@@ -9,7 +9,7 @@
     "id": "captains_quarters_long_shelf",
     "name": "Long Shelf",
     "description": "A long metal shelf mounted to the wall above the desk.",
-    "keywords": ["shelf", "long shelf"]
+    "keywords": ["shelf", "long shelf", "metal shelf"]
   },
   {
     "id": "crew_cabin_small_desk",
@@ -45,7 +45,7 @@
     "id": "engineering_workbench",
     "name": "Workbench",
     "description": "A long, heavy-duty workbench running along the engineering bay wall.",
-    "keywords": ["bench", "workbench", "work bench"]
+    "keywords": ["bench", "workbench", "work bench", "long bench", "heavy-duty bench", "heavy duty bench"]
   },
   {
     "id": "cargo_bay_shelving_unit",

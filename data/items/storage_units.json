@@ -3,15 +3,15 @@
     "id": "captains_quarters_locker",
     "name": "Personal Locker",
     "description": "Your personal locker with twin sliding doors, built into the far wall.",
-    "keywords": ["locker", "cabinet", "closet", "personal locker", "personal cabinet"],
+    "keywords": ["locker", "personal locker", "wall locker"],
     "capacity_mass": 120.0,
-    "open_description": "The cabinet doors slide open smoothly, revealing racks for clothing and several shelves."
+    "open_description": "The locker doors slide open smoothly, revealing racks for clothing and several shelves."
   },
   {
     "id": "crew_cabin_storage_locker",
     "name": "Storage Locker",
     "description": "A medium sized locker with metal doors, attached to the wall.",
-    "keywords": ["locker", "cabinet", "closet", "storage locker"],
+    "keywords": ["locker", "storage locker", "medium locker", "medium storage locker", "metal locker", "wall locker"],
     "capacity_mass": 120.0,
     "open_description": "The locker doors swing open, revealing clothing racks and several shelves."
   },
@@ -19,15 +19,15 @@
     "id": "head_small_cabinet",
     "name": "Small Cabinet",
     "description": "A small cabinet with a single door underneath the sink.",
-    "keywords": ["cabinet", "small cabinet"],
-    "capacity_mass": 20.0,
+    "keywords": ["cabinet", "small cabinet", "sink cabinet"],
+    "capacity_mass": 5.0,
     "open_description": "The cabinet door swings open, revealing two small shelves."
   },
   {
     "id": "med_bay_large_medical_cabinet",
     "name": "Large Medical Cabinet",
     "description": "A large cabinet for the storage of medical equipment and first aid supplies.",
-    "keywords": ["cabinet", "large medical cabinet", "medical cabinet"],
+    "keywords": ["cabinet", "large medical cabinet", "medical cabinet", "first aid cabinet", "med cabinet"],
     "capacity_mass": 100.0,
     "open_description": "The cabinet doors slide open, revealing long shelves."
   },
@@ -35,7 +35,7 @@
     "id": "storage_room_small_cabinet",
     "name": "Small Cabinet",
     "description": "A compact wall-mounted cabinet.",
-    "keywords": ["cabinet", "small cabinet", "wall cabinet"],
+    "keywords": ["cabinet", "small cabinet", "wall cabinet", "small wall cabinet"],
     "capacity_mass": 80.0,
     "open_description": "The door swings open to reveal several shelves."
   },
@@ -43,9 +43,9 @@
     "id": "storage_room_large_storage_unit",
     "name": "Large Storage Unit",
     "description": "A large wall-mounted storage unit with heavy-duty shelving.",
-    "keywords": ["storage unit", "large storage unit", "large cabinet", "storage"],
+    "keywords": ["storage unit", "large storage unit", "storage", "wall unit", "large wall unit"],
     "capacity_mass": 200.0,
-    "open_description": "The door swings open to reveal several shelves and parts bins."
+    "open_description": "The twin doors swing open to reveal multiple shelves and parts bins."
   },
   {
     "id": "engineering_tool_storage_cabinet",
@@ -59,7 +59,7 @@
     "id": "engineering_large_parts_storage_unit",
     "name": "Large Parts Storage Unit",
     "description": "A large wall-mounted parts storage cabinet for spare components and hardware.",
-    "keywords": ["parts storage", "parts cabinet", "large parts cabinet", "storage unit", "large cabinet", "large parts storage unit"],
+    "keywords": ["parts storage", "parts unit", "parts cabinet", "large parts cabinet", "storage unit", "large storage unit", "large parts storage unit"],
     "capacity_mass": 200.0,
     "open_description": "The door swings open to reveal several shelves and parts bins."
   },
@@ -67,15 +67,15 @@
     "id": "cargo_bay_eva_equipment_locker",
     "name": "EVA Equipment Locker",
     "description": "Dedicated storage for EVA gear with padded hangers and accessory bins.",
-    "keywords": ["eva locker", "eva equipment locker", "equipment locker", "locker"],
+    "keywords": ["eva locker", "eva equipment locker", "eva gear locker", "gear locker", "eva storage", "equipment locker", "locker"],
     "capacity_mass": 150.0,
     "open_description": "The tall door opens to reveal a full-length suit rack and accessory bins."
   },
   {
     "id": "cargo_bay_large_cabinet",
     "name": "Large Cabinet",
-    "description": "A large wall-mounted cabinet for general cargo storage.",
-    "keywords": ["cabinet", "large cabinet"],
+    "description": "A large wall-mounted cabinet for general storage.",
+    "keywords": ["cabinet", "large cabinet", "wall cabinet", "storage cabinet"],
     "capacity_mass": 150.0,
     "open_description": "The door swings open to reveal several shelves."
   }
