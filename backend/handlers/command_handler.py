@@ -230,6 +230,23 @@ class CommandHandler:
             'look in':  'room_fixed',
         }
 
+        # ── Special case: drop — surface may be ambiguous ────
+        if verb == 'drop' and args:
+            item_matches = self._resolve_all(args, 'inventory')
+            if len(item_matches) == 1:
+                item_id, item_name = item_matches[0]
+                room = game_manager.get_current_room()
+                surfaces = [o for o in room.objects if isinstance(o, SurfaceModel)]
+                if len(surfaces) > 1:
+                    options = [
+                        {'label': s.name, 'command': f"put {item_id} on {s.id}"}
+                        for s in surfaces
+                    ]
+                    return self._clarification_response(
+                        f"Where do you want to put the {item_name}?",
+                        options
+                    )
+
         scope = scope_map.get(verb)
         if not scope or not args:
             return None

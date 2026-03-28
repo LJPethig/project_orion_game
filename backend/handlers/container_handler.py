@@ -137,9 +137,10 @@ class ContainerHandler(BaseHandler):
             return self._instant(f"The {unit.name} is closed.")
 
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.matches(item_name)),
+            (i for i in game_manager.player.get_inventory() if i.id == item_name or i.matches(item_name)),
             None
         )
+
         if not item:
             return self._instant(f"You are not carrying a '{item_name}'.")
 
@@ -165,9 +166,10 @@ class ContainerHandler(BaseHandler):
             return self._instant(f"There is no '{surf_name}' here.")
 
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.matches(item_name)),
+            (i for i in game_manager.player.get_inventory() if i.id == item_name or i.matches(item_name)),
             None
         )
+
         if not item:
             return self._instant(f"You are not carrying a '{item_name}'.")
 

@@ -131,7 +131,6 @@ function handleResult(result) {
                 span.textContent = opt.label;
                 span.addEventListener('click', async () => {
                     clearResponse();
-                    appendResponse(`> ${opt.command}`, 'player-cmd');
                     const r = await API.sendCommand(opt.command);
                     handleResult(r);
                 });
