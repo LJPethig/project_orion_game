@@ -43,7 +43,7 @@
     "id": "eva_suit",
     "name": "EVA Suit",
     "description": "A heavy-duty extravehicular activity suit rated for hard vacuum and radiation shielding. Integrated gloves and reinforced joints allow precise external work. A bulky life-support backpack provides hours of independent operation — the only reliable barrier between you and the black.",
-    "keywords": ["eva suit", "spacesuit", "vacuum suit", "vac suit", "extravehicular suit"],
+    "keywords": ["suit", "eva suit", "spacesuit", "vacuum suit", "vac suit", "extravehicular suit"],
     "mass": 8.0,
     "equip_slot": "body"
   },

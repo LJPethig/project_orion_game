@@ -29,6 +29,7 @@ function renderDescription(room) {
             nameSpan.className = 'layer2-container-name';
             nameSpan.textContent = _getObjectName(id, objectStates) + ' (open)';
             nameSpan.addEventListener('click', () => {
+                clearResponse();
                 API.sendCommand(`close ${id}`).then(result => handleResult(result));
             });
             row.appendChild(nameSpan);
@@ -42,6 +43,7 @@ function renderDescription(room) {
                     itemSpan.textContent = item.name;
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
+                        clearResponse();
                         API.sendCommand(`take ${item.id} from ${id}`).then(result => handleResult(result));
                     });
                     row.appendChild(itemSpan);
@@ -83,6 +85,7 @@ function renderDescription(room) {
                     itemSpan.textContent = item.name;
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
+                        clearResponse();
                         API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
                     });
                     row.appendChild(itemSpan);
@@ -116,6 +119,7 @@ function renderDescription(room) {
             itemSpan.textContent = item.name;
             itemSpan.dataset.itemId = item.id;
             itemSpan.addEventListener('click', () => {
+                clearResponse();
                 API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
             });
             row.appendChild(itemSpan);

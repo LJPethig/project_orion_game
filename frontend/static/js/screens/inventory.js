@@ -191,7 +191,6 @@ function _addAction(container, label, handler) {
 
 async function _invCommand(cmd) {
     clearResponse();
-    appendResponse(`> ${cmd}`, 'player-cmd');
     const result = await API.sendCommand(cmd);
     handleResult(result);
     renderInventory();

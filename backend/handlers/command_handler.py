@@ -314,23 +314,39 @@ class CommandHandler:
         if ' in ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
             prefix_len = 4 if cmd.startswith('put ') else 6
             parts = cmd.split(' in ', 1)
+            item_part = parts[0][prefix_len:].strip()
+            cont_part = parts[1].strip()
+            item_matches = self._resolve_all(item_part, 'inventory')
+            if len(item_matches) > 1:
+                options = [
+                    {'label': name, 'command': f"put {item_id} in {cont_part}"}
+                    for item_id, name in item_matches
+                ]
+                return self._clarification_response(f"Which {item_part}?", options)
             return self._container.handle_put_in(
-                f"{parts[0][prefix_len:].strip()} in {parts[1].strip()}"
+                f"{item_part} in {cont_part}"
             )
 
         if ' on ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
             prefix_len = 4 if cmd.startswith('put ') else 6
-            parts      = cmd.split(' on ', 1)
-            item_part  = parts[0][prefix_len:].strip()
+            parts = cmd.split(' on ', 1)
+            item_part = parts[0][prefix_len:].strip()
             if item_part:
-                surf_part        = parts[1].strip()
-                resolved         = self._resolve(item_part, 'inventory')
-                item_obj         = next(
+                surf_part = parts[1].strip()
+                item_matches = self._resolve_all(item_part, 'inventory')
+                if len(item_matches) > 1:
+                    options = [
+                        {'label': name, 'command': f"put {item_id} on {surf_part}"}
+                        for item_id, name in item_matches
+                    ]
+                    return self._clarification_response(f"Which {item_part}?", options)
+                resolved = self._resolve(item_part, 'inventory')
+                item_obj = next(
                     (i for i in game_manager.player.get_inventory() if i.id == resolved),
                     None
                 )
                 surface_resolved = self._resolve(surf_part, 'room_fixed')
-                surface_obj      = next(
+                surface_obj = next(
                     (o for o in game_manager.get_current_room().objects
                      if isinstance(o, SurfaceModel) and o.id == surface_resolved),
                     None
