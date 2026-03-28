@@ -13,8 +13,9 @@
     { "id": "cargo_bay_airlock",                  "door_open": false, "door_locked": true  }
   ],
   "panels": [
-    { "id": "sub_corridor_cargo_bay_panel_sub",         "damaged": true },
-    { "id": "main_corridor_engineering_panel_main",     "damaged": true }
+    { "id": "recreation_room_galley_panel_rec",         "damaged": true },
+    { "id": "recreation_room_cockpit_panel_rec",     "damaged": true },
+    { "id": "recreation_room_main_corridor_panel_rec",     "damaged": true }
   ],
   "pins": [
     { "door_id": "main_corridor_mainframe_room",  "pin": "1111" },

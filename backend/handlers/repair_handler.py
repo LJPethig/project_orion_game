@@ -47,18 +47,31 @@ class RepairHandler(BaseHandler):
         # ── Resolve target ────────────────────────────────────
         target = args.strip().lower()
 
-        if not target:
+        # Strip noise words — if nothing remains, treat as no target
+        noise = ['door access panel', 'access panel', 'door panel',
+                 'access door', 'access', 'panel', 'hatch', 'door', 'doors']
+        cleaned = target
+        for word in sorted(noise, key=len, reverse=True):
+            cleaned = cleaned.replace(word, '').strip()
+
+        if not target or not cleaned:
             # Auto-select if only one broken panel in the room
             if len(broken) == 1:
                 panel, door, exit_label = broken[0]
                 return self._begin_repair(panel, door, exit_label)
 
-            # Multiple — ask for clarification
-            labels = [label for _, _, label in broken]
-            return self._instant(
-                f"Which door access panel do you want to repair? "
-                f"({', '.join(labels)})"
-            )
+            # Multiple — ask for clarification with clickable options
+            options = [
+                {'label': label, 'command': f"repair panel {label.lower()}"}
+                for _, _, label in broken
+            ]
+            return {
+                'response': f"There are {len(broken)} damaged door access panels in this room. Which do you want to repair?",
+                'action_type': 'clarification_required',
+                'lock_input': False,
+                'room_changed': False,
+                'options': options,
+            }
 
         # Explicit target provided — find matching door/panel
         matched_exit = self._find_exit(current_room, target)

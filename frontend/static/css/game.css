@@ -637,6 +637,25 @@ html, body {
     border-color: var(--col-title);
 }
 
+/* ── Clarification options ──────────────────────────────────── */
+
+.clarification-options {
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.clarification-option {
+    color: var(--col-title);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.clarification-option:hover {
+    text-decoration: underline;
+}
+
 /* ── Response content styling ───────────────────────────────── */
 
 #response-content .response-line {

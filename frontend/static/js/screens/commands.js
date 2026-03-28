@@ -120,6 +120,31 @@ function handleResult(result) {
         return;
     }
 
+    // ── Clarification required — render clickable options ─
+    if (result.action_type === 'clarification_required') {
+        if (result.options && result.options.length > 0) {
+            const container = document.createElement('div');
+            container.className = 'clarification-options';
+            result.options.forEach(opt => {
+                const span = document.createElement('span');
+                span.className   = 'clarification-option';
+                span.textContent = opt.label;
+                span.addEventListener('click', async () => {
+                    clearResponse();
+                    appendResponse(`> ${opt.command}`, 'player-cmd');
+                    const r = await API.sendCommand(opt.command);
+                    handleResult(r);
+                });
+                container.appendChild(span);
+                if (opt !== result.options[result.options.length - 1]) {
+                    container.appendChild(document.createTextNode('| '));
+                }
+            });
+            document.getElementById('response-content').appendChild(container);
+        }
+        return;
+    }
+
     // ── Always clear PIN mode before processing result ────
     pendingPin = null;
     setInputMode('normal');
