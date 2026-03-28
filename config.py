@@ -34,7 +34,7 @@ import os
 ROOMS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
 DOORS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'door_status.json')
 INITIAL_STATE_JSON_PATH = os.path.join('data', 'ship', 'structure', 'initial_ship_state.json')
-SHIP_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'ship_items.json')
+SHIP_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'initial_ship_items.json')
 PLAYER_ITEMS_JSON_PATH  = os.path.join('data', 'ship', 'structure', 'player_items.json')
 
 ITEM_FILES = [

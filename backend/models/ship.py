@@ -177,7 +177,7 @@ class Ship:
         registry = load_item_registry()
 
         # ── Loose items on room floors ────────────────────────
-        for entry in data.get('rooms', []):
+        for entry in data.get('room_floor', []):
             room = self.rooms.get(entry['room_id'])
             if not room:
                 print(f"Warning: ship_items.json references unknown room '{entry['room_id']}'")
@@ -185,7 +185,7 @@ class Ship:
             for item_id in entry.get('items', []):
                 item = self._make_item(item_id, registry)
                 if item:
-                    room.add_object(item)
+                    room.floor.append(item)
 
         # ── Items inside containers ───────────────────────────
         container_index = self._build_container_index()
@@ -200,6 +200,18 @@ class Ship:
                     if not container.add_item(item):
                         print(f"Warning: '{item_id}' could not fit in '{entry['container_id']}' — over capacity")
 
+        # ── Items on surfaces ─────────────────────────────────
+        surface_index = self._build_surface_index()
+        for entry in data.get('surfaces', []):
+            surface = surface_index.get(entry['surface_id'])
+            if not surface:
+                print(f"Warning: ship_items.json references unknown surface '{entry['surface_id']}'")
+                continue
+            for item_id in entry.get('items', []):
+                item = self._make_item(item_id, registry)
+                if item:
+                    surface.add_item(item)
+
     def _make_item(self, item_id: str, registry: dict) -> PortableItem | None:
         """Look up an item in the registry and return a fresh instance, or None."""
         item = registry.get(item_id)
@@ -213,6 +225,15 @@ class Ship:
         for room in self.rooms.values():
             for obj in room.objects:
                 if isinstance(obj, StorageUnit):
+                    index[obj.id] = obj
+        return index
+
+    def _build_surface_index(self) -> dict:
+        """Return a flat dict of surface_id → Surface across all rooms."""
+        index = {}
+        for room in self.rooms.values():
+            for obj in room.objects:
+                if isinstance(obj, Surface):
                     index[obj.id] = obj
         return index
 

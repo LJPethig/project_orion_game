@@ -36,7 +36,7 @@
     "name": "Magnetic Work Boots",
     "description": "Heavy-duty boots with electromagnetic soles activated by a simple in-boot heel switch. Provides secure traction on ferromagnetic surfaces during zero-G or gravity malfunctions.",
     "keywords": ["mag boots", "magnetic boots", "work boots", "boots"],
-    "mass": 4.2,
+    "mass": 2,
     "equip_slot": "feet"
   },
   {
@@ -60,7 +60,7 @@
     "name": "EVA Boots",
     "description": "Vacuum-sealed extravehicular boots with integrated switchable electromagnetic soles for hull adhesion. Thick insulation and sealed joints protect against extreme cold — designed to pair with the EVA suit for full external mobility.",
     "keywords": ["eva boots", "vacuum boots", "spacesuit boots", "extravehicular boots", "boots"],
-    "mass": 7.0,
+    "mass": 3,
     "equip_slot": "feet"
   },
   {

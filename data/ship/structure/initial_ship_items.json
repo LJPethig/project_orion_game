@@ -1,10 +1,14 @@
 {
-  "rooms": [
+  "room_floor": [
+    {
+      "room_id": "cargo_bay",
+      "items": ["mag_boots"]
+    }
   ],
   "containers": [
     {
       "container_id": "captains_quarters_locker",
-      "items": ["id_card_low_sec", "flight_coveralls", "mag_boots", "pilot_jacket"]
+      "items": ["id_card_low_sec", "flight_coveralls", "mag_boots", "pilot_jacket", "id_card_high_sec_damaged"]
     },
     {
       "container_id": "engineering_tool_storage_cabinet",
@@ -20,7 +24,13 @@
     },
     {
       "container_id": "storage_room_large_storage_unit",
-      "items": ["socket_set"]
+      "items": ["socket_set", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
+    }
+  ],
+  "surfaces": [
+    {
+      "surface_id": "cargo_bay_shelving_unit",
+      "items": ["wire_low_voltage", "wire_high_voltage"]
     }
   ]
 }

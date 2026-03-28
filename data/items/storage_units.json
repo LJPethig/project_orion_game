@@ -59,7 +59,7 @@
     "id": "engineering_large_parts_storage_unit",
     "name": "Large Parts Storage Unit",
     "description": "A large wall-mounted parts storage cabinet for spare components and hardware.",
-    "keywords": ["parts storage", "parts unit", "parts cabinet", "large parts cabinet", "storage unit", "large storage unit", "large parts storage unit"],
+    "keywords": ["cabinet", "parts storage", "parts unit", "parts cabinet", "large parts cabinet", "storage unit", "large storage unit", "large parts storage unit"],
     "capacity_mass": 200.0,
     "open_description": "The door swings open to reveal several shelves and parts bins."
   },
