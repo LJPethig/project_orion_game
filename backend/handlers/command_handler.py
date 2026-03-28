@@ -18,6 +18,7 @@ from backend.handlers.item_handler import ItemHandler
 from backend.handlers.container_handler import ContainerHandler
 from backend.handlers.equip_handler import EquipHandler
 from backend.models.game_manager import game_manager
+from backend.models.interactable import Surface as SurfaceModel
 
 import logging
 resolver_logger = logging.getLogger('resolver')
@@ -63,8 +64,8 @@ class CommandHandler:
             'take from':         self._container.handle_take_from,
             'put in':            self._container.handle_put_in,
             'place in':          self._container.handle_put_in,
-            'put on':            self._container.handle_put_on,
-            'place on':          self._container.handle_put_on,
+            'put on':            self._route_put_on,
+            'place on':          self._route_put_on,
         }
 
 
@@ -110,11 +111,15 @@ class CommandHandler:
             cont_part = self._resolve(parts[1].strip(), 'room_fixed')
             return f"{item_part} in {cont_part}"
 
-        if verb in ('put on', 'place on') and ' on ' in args.lower():
-            parts     = args.lower().split(' on ', 1)
-            item_part = self._resolve(parts[0].strip(), 'inventory')
-            surf_part = self._resolve(parts[1].strip(), 'room_fixed')
-            return f"{item_part} on {surf_part}"
+        if verb in ('put on', 'place on'):
+            if ' on ' in args.lower():
+                parts = args.lower().split(' on ', 1)
+                item_part = self._resolve(parts[0].strip(), 'inventory')
+                surf_part = self._resolve(parts[1].strip(), 'room_fixed')
+                return f"{item_part} on {surf_part}"
+            else:
+                # No preposition — treat entire args as item to equip
+                return self._resolve(args, 'inventory')
 
         # Movement, repair, lock, unlock — no item resolution needed
         return args
@@ -235,9 +240,26 @@ class CommandHandler:
         if ' on ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
             prefix_len = 4 if cmd.startswith('put ') else 6
             parts = cmd.split(' on ', 1)
-            return self._container.handle_put_on(
-                f"{parts[0][prefix_len:].strip()} on {parts[1].strip()}"
-            )
+            item_part = parts[0][prefix_len:].strip()
+            if item_part:
+                surf_part = parts[1].strip()
+                resolved = self._resolve(item_part, 'inventory')
+                item_obj = next(
+                    (i for i in game_manager.player.get_inventory() if i.id == resolved),
+                    None
+                )
+                # Only route to equip if surf_part doesn't match a surface in the room
+                surface_resolved = self._resolve(surf_part, 'room_fixed')
+                surface_obj = next(
+                    (o for o in game_manager.get_current_room().objects
+                     if isinstance(o, SurfaceModel) and o.id == surface_resolved),
+                    None
+                )
+                if item_obj and getattr(item_obj, 'equip_slot', None) and not surface_obj:
+                    return self._equip.handle_wear(resolved)
+                return self._container.handle_put_on(
+                    f"{item_part} on {surf_part}"
+                )
 
         words = cmd.split()
 
@@ -250,6 +272,18 @@ class CommandHandler:
                 return self.commands[verb](args)
 
         return self._unknown(cmd)
+
+    def _route_put_on(self, args: str) -> dict:
+        """
+        Route 'put on <item>' — equip if item is wearable, surface placement otherwise.
+        """
+        if not args:
+            return self._unknown_action("Put what on?")
+        # If args contains ' on ' it's surface placement: 'put <item> on <surface>'
+        if ' on ' in args:
+            return self._container.handle_put_on(args)
+        # Otherwise it's equip: 'put on <item>'
+        return self._equip.handle_wear(args)
 
     @staticmethod
     def _unknown_action(msg: str) -> dict:
