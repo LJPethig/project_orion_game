@@ -17,17 +17,28 @@ class BaseHandler:
         1. Exact exit key match
         2. Label match
         3. Shortcut match
+        Strips common door-related noise words before matching.
         Returns the exit key if found, None otherwise.
         """
-        for exit_key, exit_data in room.exits.items():
-            if target == exit_key.lower():
-                return exit_key
-            if target == exit_data.get('label', '').lower():
-                return exit_key
-            shortcuts = exit_data.get('shortcuts', [])
-            if isinstance(shortcuts, list):
-                if target in [s.lower() for s in shortcuts]:
+        noise = ['door access panel', 'access panel', 'door panel',
+                 'access door', 'access', 'panel', 'hatch', 'door', 'doors']
+        cleaned = target.strip().lower()
+        for word in sorted(noise, key=len, reverse=True):
+            cleaned = cleaned.replace(word, '').strip()
+
+        for attempt in ([cleaned, target] if cleaned != target else [target]):
+            t = attempt.strip().lower()
+            if not t:
+                continue
+            for exit_key, exit_data in room.exits.items():
+                if t == exit_key.lower():
                     return exit_key
+                if t == exit_data.get('label', '').lower():
+                    return exit_key
+                shortcuts = exit_data.get('shortcuts', [])
+                if isinstance(shortcuts, list):
+                    if t in [s.lower() for s in shortcuts]:
+                        return exit_key
         return None
 
     def _check_card(self, door) -> tuple[bool, str]:
