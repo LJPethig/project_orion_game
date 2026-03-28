@@ -116,6 +116,11 @@ function _buildInventoryPanel(data) {
     layout.appendChild(listCol);
     layout.appendChild(detailCol);
     panel.appendChild(layout);
+
+    // Auto-select first item if any exist
+    if (selectedItemList.length > 0) {
+        _selectItem(0);
+    }
 }
 
 // ── Item selection ───────────────────────────────────────────

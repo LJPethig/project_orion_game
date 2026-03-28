@@ -77,6 +77,10 @@ function updateRoom(room) {
     currentObjects = room.object_states || {};
     setRoomImage(`/static/${room.background_image}`);
     renderDescription(room);
+
+    // Close any open slide panels when room changes
+    document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
 }
 
 // ── Description rendering ────────────────────────────────────
