@@ -40,16 +40,16 @@ class GameManager:
 
         try:
             with open(PLAYER_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
+                player_data = json.load(f)
         except Exception as e:
             print(f"Warning: Could not load player_items.json: {e}")
             return
 
         registry = load_item_registry()
 
-        for item_id in data.get('inventory', []):
-            data = registry.get(item_id)
-            item = instantiate_item(dict(data)) if data else None
+        for item_id in player_data.get('inventory', []):
+            item_data = registry.get(item_id)
+            item = instantiate_item(dict(item_data)) if item_data else None
             if not item:
                 print(f"Warning: player_items.json references unknown item '{item_id}'")
                 continue
@@ -57,13 +57,12 @@ class GameManager:
             if not success:
                 print(f"Warning: Could not add '{item_id}' to player inventory: {msg}")
 
-        for slot, item_id in data.get('equipped', {}).items():
-            data = registry.get(item_id)
-            item = instantiate_item(dict(data)) if data else None
+        for slot, item_id in player_data.get('equipped', {}).items():
+            item_data = registry.get(item_id)
+            item = instantiate_item(dict(item_data)) if item_data else None
             if not item:
                 print(f"Warning: player_items.json references unknown item '{item_id}'")
                 continue
-            # Force item into slot directly — no inventory step needed for starting equipment
             slot_attr = f"{slot}_slot"
             if hasattr(self.player, slot_attr):
                 setattr(self.player, slot_attr, item)

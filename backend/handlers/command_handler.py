@@ -167,8 +167,22 @@ class CommandHandler:
         if verb in ('look in',):
             return self._resolve(args, 'room_fixed')
 
-        # ── open/close — fixed objects only ──────────────────
+        # ── open/close — filter by actionable state ──────────
         if verb in ('open', 'close'):
+            matches = self._resolve_all(args, 'room_fixed')
+            if len(matches) > 1:
+                room = game_manager.get_current_room()
+                container_index = {
+                    obj.id: obj for obj in room.objects if isinstance(obj, StorageUnit)
+                }
+                if verb == 'open':
+                    matches = [(i, n) for i, n in matches
+                               if i in container_index and not container_index[i].is_open]
+                else:
+                    matches = [(i, n) for i, n in matches
+                               if i in container_index and container_index[i].is_open]
+                if matches:
+                    return matches[0][0]
             return self._resolve(args, 'room_fixed')
 
         # ── Preposition verbs — resolve both parts ────────────
@@ -257,6 +271,27 @@ class CommandHandler:
         if len(matches) <= 1:
             return None
 
+        # ── For open/close, filter to only actionable containers ─
+        if verb in ('open', 'close'):
+            room = game_manager.get_current_room()
+            container_index = {
+                obj.id: obj for obj in room.objects if isinstance(obj, StorageUnit)
+            }
+            if verb == 'open':
+                matches = [(i, n) for i, n in matches
+                           if i in container_index and not container_index[i].is_open]
+            else:
+                matches = [(i, n) for i, n in matches
+                           if i in container_index and container_index[i].is_open]
+            if len(matches) <= 1:
+                return None
+            # No name dedup needed for open/close — just build options and return
+            options = [
+                {'label': name, 'command': f"{verb} {item_id}"}
+                for item_id, name in matches
+            ]
+            return self._clarification_response(f"Which {args}?", options)
+
         # Deduplicate by name — identical items are interchangeable, show only one
         seen_names = set()
         deduped = []
@@ -318,8 +353,32 @@ class CommandHandler:
         # Special handling for preposition commands before verb matching
         if ' from ' in cmd and cmd.startswith('take '):
             parts = cmd.split(' from ', 1)
+            item_part = parts[0][5:].strip()
+            cont_part = parts[1].strip()
+
+            # Resolve the container first, then check for ambiguous items within it
+            cont_id = self._resolve(cont_part, 'room_fixed')
+            room = game_manager.get_current_room()
+            cont_obj = next(
+                (o for o in room.objects
+                 if isinstance(o, (StorageUnit, Surface)) and o.id == cont_id),
+                None
+            )
+            if cont_obj:
+                contents = getattr(cont_obj, 'contents', [])
+                t = item_part.strip().lower()
+                matches = [(i.id, i.name) for i in contents if i.id == t or i.matches(t)]
+                seen = set()
+                deduped = [(i, n) for i, n in matches if not (n in seen or seen.add(n))]
+                if len(deduped) > 1:
+                    options = [
+                        {'label': name, 'command': f"take {item_id} from {cont_id}"}
+                        for item_id, name in deduped
+                    ]
+                    return self._clarification_response(f"Which {item_part}?", options)
+
             return self._container.handle_take_from(
-                f"{parts[0][5:].strip()} from {parts[1].strip()}"
+                f"{item_part} from {cont_part}"
             )
 
         if ' in ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
