@@ -36,7 +36,7 @@ class GameManager:
         Load player starting inventory and equipped slots from player_items.json.
         Uses the same item registry as the ship loader.
         """
-        from backend.loaders.item_loader import load_item_registry
+        from backend.loaders.item_loader import load_item_registry, instantiate_item
 
         try:
             with open(PLAYER_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
@@ -48,7 +48,8 @@ class GameManager:
         registry = load_item_registry()
 
         for item_id in data.get('inventory', []):
-            item = registry.get(item_id)
+            data = registry.get(item_id)
+            item = instantiate_item(dict(data)) if data else None
             if not item:
                 print(f"Warning: player_items.json references unknown item '{item_id}'")
                 continue
@@ -57,7 +58,8 @@ class GameManager:
                 print(f"Warning: Could not add '{item_id}' to player inventory: {msg}")
 
         for slot, item_id in data.get('equipped', {}).items():
-            item = registry.get(item_id)
+            data = registry.get(item_id)
+            item = instantiate_item(dict(data)) if data else None
             if not item:
                 print(f"Warning: player_items.json references unknown item '{item_id}'")
                 continue
@@ -85,7 +87,7 @@ class GameManager:
         The player keeps the physical card but it no longer grants access.
         """
         from backend.models.door import SecurityLevel as SL
-        from backend.loaders.item_loader import load_item_registry
+        from backend.loaders.item_loader import load_item_registry, instantiate_item
 
         if not self.player:
             return
@@ -94,8 +96,9 @@ class GameManager:
             card = self.player.find_in_inventory('id_card_high_sec')
             if card:
                 registry = load_item_registry()
-                damaged  = registry.get('id_card_high_sec_damaged')
-                if damaged:
+                data = registry.get('id_card_high_sec_damaged')
+                if data:
+                    damaged = instantiate_item(dict(data))
                     self.player.remove_from_inventory(card)
                     self.player.add_to_inventory(damaged)
 

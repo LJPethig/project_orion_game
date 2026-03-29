@@ -16,6 +16,9 @@ let pendingPin = null;   // null or { door_id, door_action }
 // Currently expanded surface ID in Layer 3 (null = collapsed)
 let expandedSurface = null;
 
+// Current room ID — used to detect room changes
+let currentRoomId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
@@ -73,14 +76,18 @@ async function loadRoom() {
 }
 
 function updateRoom(room) {
+    const roomChanged = room.id !== currentRoomId;
+    currentRoomId  = room.id;
     currentExits   = room.exits || {};
     currentObjects = room.object_states || {};
     setRoomImage(`/static/${room.background_image}`);
     renderDescription(room);
 
-    // Close any open slide panels when room changes
-    document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // Close any open slide panels only on room change
+    if (roomChanged) {
+        document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    }
 }
 
 // ── Description rendering ────────────────────────────────────

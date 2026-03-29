@@ -9,6 +9,7 @@ from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
 from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal
+from backend.loaders.item_loader import instantiate_item
 from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH, \
                    TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, SURFACES_JSON_PATH, \
                    SHIP_ITEMS_JSON_PATH
@@ -213,11 +214,12 @@ class Ship:
                     surface.add_item(item)
 
     def _make_item(self, item_id: str, registry: dict) -> PortableItem | None:
-        """Look up an item in the registry and return a fresh instance, or None."""
-        item = registry.get(item_id)
-        if not item:
-            print(f"Warning: ship_items.json references unknown item '{item_id}'")
-        return item
+        """Create a fresh item instance from registry data. Each call returns a unique object."""
+        data = registry.get(item_id)
+        if not data:
+            print(f"Warning: initial_ship_items.json references unknown item '{item_id}'")
+            return None
+        return instantiate_item(dict(data))
 
     def _build_container_index(self) -> dict:
         """Return a flat dict of container_id → StorageUnit across all rooms."""
