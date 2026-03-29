@@ -43,6 +43,13 @@ async function init() {
     input.disabled = false;
     input.focus();
 
+    // ── Refocus input after any click ────────────────────
+    document.addEventListener('click', () => {
+        if (!Loop.isLocked()) {
+            input.focus();
+        }
+    });
+
     // ── Tab strip ────────────────────────────────────────
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => togglePanel(tab.dataset.panel, tab));
