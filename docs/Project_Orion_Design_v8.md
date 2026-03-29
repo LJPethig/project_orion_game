@@ -315,10 +315,15 @@ Wire and cable items will have `length_m` attribute in `consumables.json`. After
 ## 12. BUILD PLAN — NEXT PHASES
 
 ### Phase 16 — Terminals
-- `use terminal` / `use <terminal name>`
-- Terminal slide-out panel (TERM tab added to tab strip)
-- Terminal commands: ship status, door map
-- Ship diagnostic SVG map accessible via terminal
+- `use terminal` / `use <terminal name>` — opens terminal for current room
+- Clicking a terminal markup link in the description panel also opens it
+- Terminal slide-out panel — opens over the room image, same as INV panel
+- No TERM tab in the tab strip — terminal is opened via command or description
+  click only, not a persistent tab
+- Terminal UI styled as an old-school computer menu — navigable with up/down
+  arrows and enter key, mouse click also selectable
+- Menu items and submenus are specific to the terminal type (nav, storage, etc.)
+- Panel closes automatically on room change — same logic as inventory panel
 
 ### Phase 17 — Electrical system integration
 - Merge electrical system reference project into codebase
