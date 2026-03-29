@@ -324,7 +324,10 @@ class CommandHandler:
         container_result = self._container.handle_open(args)
         if container_result is not None:
             return container_result
-        return self._door.handle_open(args)
+        result = self._door.handle_open(args)
+        if result.get('response') == "There's no exit that way.":
+            return self._unknown_action("You can't open that.")
+        return result
 
     def _route_close(self, args: str) -> dict:
         """Route 'close' to container or door handler."""
@@ -333,7 +336,10 @@ class CommandHandler:
         container_result = self._container.handle_close(args)
         if container_result is not None:
             return container_result
-        return self._door.handle_close(args)
+        result = self._door.handle_close(args)
+        if result.get('response') == "There's no exit that way.":
+            return self._unknown_action("You can't close that.")
+        return result
 
     def _route_put_on(self, args: str) -> dict:
         """Route 'put on <item>' — equip if wearable, surface placement otherwise."""

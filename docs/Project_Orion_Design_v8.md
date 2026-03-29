@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 7.0 — March 2026**
+**Version 8.0 — March 2026**
 
 ---
 
@@ -11,7 +11,7 @@
 Project Orion Game is a space survival simulator set in 2276. The player operates a solo trader/explorer spacecraft named the **Tempus Fugit**, captained by **Jack Harrow**. Core gameplay revolves around maintaining ship systems, repairing failures, and surviving deep space. This is a serious "slow burner" simulator — not an arcade game. Systems fail, cascade, and the player must diagnose and fix them before things get fatal.
 
 ### History
-- **Project Dark Star** — previous iteration in Python/Arcade. Now deprecated — Project Orion Game has surpassed it in every area.
+- **Project Dark Star** — previous iteration in Python/Arcade. Deprecated — Project Orion Game has surpassed it in every area.
 - **Project Orion Game** — Flask backend + HTML/CSS/JS frontend. The active codebase. All Dark Star game logic has been ported and significantly improved.
 - **Electrical system reference project** — a separate standalone project containing electrical system architecture, reactor, panels, breakers, cables and an interactive SVG diagnostic map. Will be merged into Project Orion Game in Phase 17.
 
@@ -59,10 +59,7 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 ### Phase 12 — Ship state, player, inventory ✅
 ### Phase 13 — Description panel, containers, surfaces, equip ✅
 ### Phase 14 — Player inventory screen ✅
-### Phase 15 — Smart command parser ✅ (one task remaining — see below)
-
-#### Phase 15 remaining task
-Strip keyword fallback from all handlers — handlers should accept IDs only. Keywords resolved exclusively by the command resolver. Deferred to start of next session after final stress test.
+### Phase 15 — Smart command parser ✅
 
 ---
 
@@ -194,7 +191,19 @@ All typed commands and UI clicks pass through `command_handler.process()`:
 1. Preposition commands intercepted first (`take from`, `put in`, `put on`)
 2. Ambiguity check — `_check_ambiguity()` finds all matches, returns `clarification_required` if multiple distinct items
 3. Resolver — `_resolve_for_verb()` converts keywords to IDs using `_resolve_all()`
-4. Handler receives ID — no keyword matching needed (cleanup deferred to next session)
+4. Handler receives resolved ID or original keyword
+
+### Dual ID and keyword matching in handlers
+Handlers retain both `item.id == target` and `item.matches(target)` checks. This is intentional:
+
+- The resolver upstream converts keywords to IDs before dispatch — so in normal operation handlers receive IDs.
+- UI clicks fire with known IDs directly — these pass straight through the resolver and hit the `item.id == target` check.
+- The keyword fallback `item.matches(target)` acts as a safety net for any edge cases where resolution fails or a keyword passes through unchanged.
+
+Removing the keyword fallback from handlers was attempted and reverted. The resolver operates on room-scoped snapshots and the preposition early-exit blocks in `process()` have their own resolution paths — keeping keyword matching in handlers avoids fragile chains of state-dependent resolution logic in the preposition paths.
+
+### Fixed object keyword uniqueness
+Fixed objects (containers, surfaces) must have unique keywords within a room. This eliminates ambiguity for `open`, `close`, `put in`, `take from` commands without requiring state-filtered resolution. Portable items (e.g. two pairs of boots) may share keywords — the clarification system handles those cases.
 
 ### Clarification system
 When multiple distinct matches found, returns `clarification_required` with clickable options rendered in response panel. Covers: take, drop, wear, equip, open, close, look in, remove, repair panel, put in, put on.
@@ -299,16 +308,11 @@ Narrow vertical icon tabs on left edge. Each opens a slide-out panel over the im
 Wire and cable items will have `length_m` attribute in `consumables.json`. After use in repair, instance `length_m` is decremented. Two spools of the same wire type are independent — using one doesn't affect the other.
 
 ### Object ID naming convention
-`roomid_markuptext` — ensures `endsWith` matching in resolver is unambiguous within a room.
+`roomid_markuptext` — ensures unambiguous ID matching within a room.
 
 ---
 
 ## 12. BUILD PLAN — NEXT PHASES
-
-### Phase 15 cleanup (start of next session)
-- Final stress test
-- Strip keyword fallback from all handlers — ID only
-- Handlers that need updating: item_handler, equip_handler, container_handler
 
 ### Phase 16 — Terminals
 - `use terminal` / `use <terminal name>`
@@ -346,15 +350,12 @@ Wire and cable items will have `length_m` attribute in `consumables.json`. After
 
 - **Multiple damaged panels same room** — clarification system handles it, untested with 3+ panels simultaneously
 - **Storage room wiring bug** — electrical reference project maps storage_room to wrong panel ID. Fix when merging.
-- **`put <item> in <surface>` wrong error** — surface exists but handler says "not here". Improve message in Phase 15 cleanup.
-- **`put on <item>` conflict** — resolved via `_route_put_on`. Smart parser handles remaining edge cases.
 - **Carry weight on unequip** — always succeeds, drops to surface/floor if too heavy. Intentional for now.
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — deferred. To be discussed.
 - **Consumable `length_m`** — wire instances need `length_m` attribute in consumables.json. Add when repair system built.
 - **Clarification display for items with same name but different state** — e.g. `Optical Wire (5m)` vs `Optical Wire (10m)`. Fix when `length_m` attribute exists.
-- **Keyword fallback in handlers** — still present as safety net. Remove after final Phase 15 stress test.
 
 ---
 
@@ -391,5 +392,5 @@ Bypass mechanic: force open frozen door with crowbar, damages door further.
 
 ---
 
-*Project Orion Game Design Document v7.0*
+*Project Orion Game Design Document v8.0*
 *March 2026*
