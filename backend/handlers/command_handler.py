@@ -233,8 +233,10 @@ class CommandHandler:
         # ── Special case: drop — surface may be ambiguous ────
         if verb == 'drop' and args:
             item_matches = self._resolve_all(args, 'inventory')
-            if len(item_matches) == 1:
-                item_id, item_name = item_matches[0]
+            seen = set()
+            deduped = [(i, n) for i, n in item_matches if not (n in seen or seen.add(n))]
+            if len(deduped) == 1:
+                item_id, item_name = deduped[0]
                 room = game_manager.get_current_room()
                 surfaces = [o for o in room.objects if isinstance(o, SurfaceModel)]
                 if len(surfaces) > 1:
@@ -255,14 +257,23 @@ class CommandHandler:
         if len(matches) <= 1:
             return None
 
+        # Deduplicate by name — identical items are interchangeable, show only one
+        seen_names = set()
+        deduped = []
+        for item_id, name in matches:
+            if name not in seen_names:
+                seen_names.add(name)
+                deduped.append((item_id, name))
+        matches = deduped
+
+        if len(matches) == 1:
+            return None  # Only one distinct item after dedup — no clarification needed
+
         # Build verb-appropriate command for each option
         options = [
             {'label': name, 'command': f"{verb} {item_id}"}
             for item_id, name in matches
         ]
-
-        # Special case — drop shows surface names not item names (all same item)
-        # This is handled naturally since matches are distinct items
 
         return self._clarification_response(
             f"Which {args}?",
@@ -334,6 +345,8 @@ class CommandHandler:
             if item_part:
                 surf_part = parts[1].strip()
                 item_matches = self._resolve_all(item_part, 'inventory')
+                seen = set()
+                item_matches = [(i, n) for i, n in item_matches if not (n in seen or seen.add(n))]
                 if len(item_matches) > 1:
                     options = [
                         {'label': name, 'command': f"put {item_id} on {surf_part}"}
