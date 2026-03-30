@@ -578,6 +578,42 @@ html, body {
     font-size: 11px;
 }
 
+/* ── Terminal panel ─────────────────────────────────────────── */
+
+.term-title {
+    color: var(--col-title);
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--col-divider);
+}
+
+.term-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.term-menu-item {
+    color: var(--col-text);
+    padding: 5px 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    letter-spacing: 1px;
+}
+
+.term-menu-item:hover {
+    background: #080f08;
+}
+
+.term-menu-item.term-selected {
+    color: var(--col-title);
+    background: #0a1f0a;
+    border-color: var(--col-border);
+}
+
 /* ── Detail column ───────────────────────────────────────────── */
 
 .inv-item-image {
@@ -726,4 +762,8 @@ html, body {
 
 .exit-tooltip.hidden {
     display: none;
+}
+
+.hidden {
+    display: none !important;
 }

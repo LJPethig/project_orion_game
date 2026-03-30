@@ -7,7 +7,7 @@ Game API routes.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
-from backend.models.interactable import PortableItem, StorageUnit, Surface
+from backend.models.interactable import PortableItem, StorageUnit, Surface, Terminal
 from config import SHIP_NAME
 
 game_bp = Blueprint("game", __name__)
@@ -119,7 +119,7 @@ def _build_room_data(room) -> dict:
         and obj.takeable
     ]
 
-    # Object states — containers (open/closed + contents) and surfaces (has_items + contents)
+    # Object states — containers (open/closed + contents), surfaces (has_items + contents), terminals
     object_states = {}
     for obj in room.objects:
         if isinstance(obj, StorageUnit):
@@ -136,6 +136,11 @@ def _build_room_data(room) -> dict:
                 'name': obj.name,
                 'has_items': obj.has_items,
                 'contents': [{'id': i.id, 'name': i.name} for i in obj.contents],
+            }
+        elif isinstance(obj, Terminal):
+            object_states[obj.id] = {
+                'type': 'terminal',
+                'name': obj.name,
             }
 
     # Floor items — only populated when items are present

@@ -48,7 +48,7 @@ async function handleCommand() {
     }
 
     // ── Quit ─────────────────────────────────────────────
-    if (cmd.toLowerCase() === 'quit' || cmd.toLowerCase() === 'exit') {
+    if ((cmd.toLowerCase() === 'quit' || cmd.toLowerCase() === 'exit') && !isTerminalOpen()) {
         appendResponse(`> ${cmd}`, 'player-cmd');
         appendResponse('Are you sure you want to quit?');
         const container = document.createElement('div');
@@ -167,6 +167,12 @@ function handleResult(result) {
             });
             document.getElementById('response-content').appendChild(container);
         }
+        return;
+    }
+
+    // ── Terminal open ─────────────────────────────────────
+    if (result.action_type === 'terminal_open') {
+        openTerminalPanel(result);
         return;
     }
 

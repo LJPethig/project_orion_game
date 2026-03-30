@@ -4,7 +4,7 @@
 # ── Ship & Player ────────────────────────────────────────────
 SHIP_NAME       = "Tempus Fugit"
 PLAYER_NAME     = "Jack Harrow"
-STARTING_ROOM   = "head"
+STARTING_ROOM   = "engineering"
 
 # ── Game Clock ───────────────────────────────────────────────
 # Simple calendar: 30 days/month, 360 days/year — no leap years

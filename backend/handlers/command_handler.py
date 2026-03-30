@@ -23,6 +23,7 @@ from backend.handlers.repair_handler import RepairHandler
 from backend.handlers.item_handler import ItemHandler
 from backend.handlers.container_handler import ContainerHandler
 from backend.handlers.equip_handler import EquipHandler
+from backend.handlers.terminal_handler import TerminalHandler
 from backend.models.game_manager import game_manager
 from backend.models.interactable import Surface as SurfaceModel, StorageUnit, Surface
 
@@ -39,6 +40,7 @@ class CommandHandler:
         self._item       = ItemHandler()
         self._container  = ContainerHandler()
         self._equip      = EquipHandler()
+        self._terminal   = TerminalHandler()
 
         self.commands = {
             # Movement
@@ -60,6 +62,8 @@ class CommandHandler:
             'pick up':           self._item.handle_take,
             'drop':              self._item.handle_drop,
             'debug_inventory':   self._item.handle_debug_inventory,
+            # Terminals
+            'access':            self._terminal.handle_terminal_access,
             # Equip/unequip
             'wear':              self._equip.handle_wear,
             'equip':             self._equip.handle_wear,

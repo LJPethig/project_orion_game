@@ -176,4 +176,6 @@ class Terminal(FixedObject):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.powered: bool = True   # Future: tied to electrical system
+        self.powered: bool = True  # Future: tied to electrical system
+        self.terminal_type: str = getattr(self, 'terminal_type', 'generic')
+        self.menu: list = getattr(self, 'menu', [{"label": "Exit", "action": "exit"}])

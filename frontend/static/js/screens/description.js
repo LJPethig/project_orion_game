@@ -247,7 +247,7 @@ function setupObjectTooltips(container) {
     // ── Terminals ─────────────────────────────────────────
     container.querySelectorAll('.markup-terminal').forEach(span => {
         span.addEventListener('mouseenter', () => {
-            tooltip.innerHTML = `<div style="color:var(--col-title);font-size:11px">Terminal</div>`;
+            tooltip.innerHTML = `<div style="color:var(--col-prompt);font-size:11px">Online</div>`;
             tooltip.classList.remove('hidden');
         });
         _bindTooltipMove(span, tooltip);
@@ -307,17 +307,21 @@ function setupClickHandlers(container) {
         });
     });
 
-    // ── Terminals — use terminal ──────────────────────────
+    // ── Terminals — toggle terminal panel ────────────────
     container.querySelectorAll('.markup-terminal').forEach(span => {
         span.addEventListener('click', (e) => {
+            if (isTerminalOpen()) {
+                closeTerminalPanel();
+                return;
+            }
             const id = Object.keys(currentObjects).find(oid => {
                 const key = e.target.dataset.terminal;
                 return oid.toLowerCase() === key || oid.toLowerCase().endsWith('_' + key);
             });
             if (id) {
                 clearResponse();
-                appendResponse(`> use terminal`, 'player-cmd');
-                API.sendCommand(`use ${id}`).then(result => handleResult(result));
+                appendResponse(`> access terminal`, 'player-cmd');
+                API.sendCommand(`access ${id}`).then(result => handleResult(result));
             }
         });
     });

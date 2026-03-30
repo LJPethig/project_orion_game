@@ -52,7 +52,13 @@ async function init() {
 
     // ── Tab strip ────────────────────────────────────────
     document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => togglePanel(tab.dataset.panel, tab));
+        tab.addEventListener('click', () => {
+            if (tab.id === 'tab-term' && isTerminalOpen()) {
+                closeTerminalPanel();
+            } else {
+                togglePanel(tab.dataset.panel, tab);
+            }
+        });
     });
 }
 
@@ -65,6 +71,7 @@ function togglePanel(panelId, tab) {
     // Close all panels and deactivate all tabs first
     document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    if (typeof hideTerminalPanel === 'function') hideTerminalPanel();
 
     // If it wasn't open, open it now
     if (!isOpen) {
@@ -94,6 +101,7 @@ function updateRoom(room) {
     if (roomChanged) {
         document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        if (typeof closeTerminalPanel === 'function') closeTerminalPanel();
     }
 }
 

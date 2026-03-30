@@ -470,7 +470,7 @@
     "target_temperature": "hot",
     "description": [
       "The ship's engineering bay, filled with tools and diagnostic equipment.",
-      "The reactor core thrums with contained energy.",
+      "The reactor core thrums with contained energy. Close by you see the !engineering terminal!.",
       "A %large parts storage unit% sits next to a long #workbench#, opposite to this is a worn %tool storage cabinet%",
       "A solid door leads back towards *main corridor CH-1*, a large door leads ahead to the *propulsion bay*, while on the left wall a small hatch is labelled *life support*"
     ],
@@ -509,6 +509,7 @@
       }
     },
     "fixed_objects": [
+      "engineering_engineering_terminal",
       "engineering_tool_storage_cabinet",
       "engineering_large_parts_storage_unit",
       "engineering_workbench"
