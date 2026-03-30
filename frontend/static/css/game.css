@@ -74,29 +74,24 @@ html, body {
 /* ── Tab strip ──────────────────────────────────────────────── */
 
 #tab-strip {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 32px;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 12px;
-    gap: 4px;
+    flex-direction: row;
+    align-items: flex-end;
+    padding-left: 8px;
+    gap: 3px;
     z-index: 100;
-    pointer-events: none;
+    flex-shrink: 0;
+    background: var(--col-bg);
+    border-bottom: 1px solid var(--col-border);
 }
 
 .tab {
-    width: 28px;
-    padding: 10px 0;
+    padding: 5px 14px;
     background: #0a1f0a;
     border: 1px solid var(--col-border);
-    border-left: none;
-    border-radius: 0 4px 4px 0;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
     cursor: pointer;
-    pointer-events: all;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -118,10 +113,44 @@ html, body {
     font-family: 'Courier New', Courier, monospace;
     font-size: 9px;
     letter-spacing: 1px;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
     user-select: none;
+    writing-mode: horizontal-tb;
+    transform: none;
+}
+
+/* ── Left: Room image panel ─────────────────────────────────── */
+
+#room-image-panel {
+    width: var(--left-panel-ratio);
+    flex-shrink: 0;
+    position: relative;
+    background: #000;
+    border-right: 2px solid var(--col-border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#room-image-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#room-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+}
+
+#room-image-placeholder {
+    color: #1a3a1a;
+    font-size: 18px;
+    letter-spacing: 4px;
 }
 
 /* ── Slide-out panels ───────────────────────────────────────── */
@@ -148,7 +177,7 @@ html, body {
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    padding: 16px 16px 16px 40px;
+    padding: 16px;
 }
 
 .slide-panel-inner::-webkit-scrollbar { width: 4px; }
@@ -165,32 +194,6 @@ html, body {
     height: 100%;
 }
 
-/* ── Left: Room image panel ─────────────────────────────────── */
-
-#room-image-panel {
-    width: var(--left-panel-ratio);
-    flex-shrink: 0;
-    position: relative;
-    background: #000;
-    border-right: 2px solid var(--col-border);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#room-image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: none;
-}
-
-#room-image-placeholder {
-    color: #1a3a1a;
-    font-size: 18px;
-    letter-spacing: 4px;
-}
 
 /* ── Right: Three stacked panels ────────────────────────────── */
 
