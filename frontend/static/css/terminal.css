@@ -122,3 +122,25 @@
 #tab-strip.term-active .tab.active .tab-label {
     color: var(--col-term-text);
 }
+
+/* ── Cursor ──────────────────────────────────────────────────── */
+
+.term-cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1em;
+    background: var(--col-term-text);
+    margin-left: 1px;
+    vertical-align: text-bottom;
+    animation: term-blink 0.8s step-start infinite;
+}
+
+.term-cursor.typing {
+    animation: none;
+    opacity: 1;
+}
+
+@keyframes term-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}

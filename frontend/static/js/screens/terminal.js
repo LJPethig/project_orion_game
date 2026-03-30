@@ -2,7 +2,7 @@
 // Terminal panel — renders terminal menu, handles navigation, exit.
 
 // ── Constants ─────────────────────────────────────────────────
-const TERM_CHAR_SPEED_MS   = 18;    // Base ms per character
+const TERM_CHAR_SPEED_MS   = 20;    // Base ms per character
 const TERM_JITTER_MIN      = 0.6;   // Minimum jitter multiplier
 const TERM_JITTER_MAX      = 2.2;   // Maximum jitter multiplier
 const TERM_LINE_PAUSE_MS   = 80;    // Extra pause between lines
@@ -43,7 +43,7 @@ function openTerminalPanel(terminalData) {
 
 function hideTerminalPanel() {
     // Close the panel visually but keep the session — tab stays visible
-    _cancelTypewriter();
+    // Typewriter continues in background
     document.getElementById('panel-terminal').classList.remove('open');
     document.getElementById('tab-term').classList.remove('active');
     document.getElementById('tab-strip').classList.remove('term-active');
@@ -140,11 +140,19 @@ function _typewriteLines(lineDivs, onComplete) {
     _typewriterActive    = true;
 
     let lineIdx = 0;
+    // Create cursor element
+    const cursor = document.createElement('span');
+    cursor.className = 'term-cursor';
+    cursor.classList.add('typing');
 
     function typeNextLine() {
         if (_typewriterCancelled) return;
         if (lineIdx >= lineDivs.length) {
             _typewriterActive = false;
+            cursor.classList.remove('typing');
+            // Leave cursor blinking on last line
+            const lastLine = lineDivs[lineDivs.length - 1].el;
+            lastLine.appendChild(cursor);
             if (onComplete) onComplete();
             return;
         }
@@ -153,8 +161,12 @@ function _typewriteLines(lineDivs, onComplete) {
         lineIdx++;
 
         if (text === '') {
-            // Blank line — pause then continue
-            setTimeout(typeNextLine, TERM_BLANK_PAUSE_MS);
+            // Blank line — show cursor briefly then continue
+            el.appendChild(cursor);
+            setTimeout(() => {
+                cursor.remove();
+                typeNextLine();
+            }, TERM_BLANK_PAUSE_MS);
             return;
         }
 
@@ -164,15 +176,18 @@ function _typewriteLines(lineDivs, onComplete) {
         function typeNextChar() {
             if (_typewriterCancelled) return;
             if (charIdx >= text.length) {
-                // Line complete — pause then move to next line
+                cursor.remove();
                 setTimeout(typeNextLine, TERM_LINE_PAUSE_MS);
                 return;
             }
-            el.textContent += text[charIdx];
+            // Append character as text node, then re-append cursor
+            el.insertBefore(document.createTextNode(text[charIdx]), cursor);
             charIdx++;
             setTimeout(typeNextChar, _jitteredDelay());
         }
 
+        // Add cursor to the line before typing starts
+        el.appendChild(cursor);
         typeNextChar();
     }
 
