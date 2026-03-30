@@ -614,6 +614,25 @@ html, body {
     border-color: var(--col-border);
 }
 
+/* ── Terminal content (sub-menu text) ───────────────────────── */
+
+.term-content {
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--col-divider);
+    padding-bottom: 16px;
+}
+
+.term-content-line {
+    color: var(--col-prompt);
+    font-size: 12px;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+}
+
+.term-content-blank {
+    height: 10px;
+}
+
 /* ── Detail column ───────────────────────────────────────────── */
 
 .inv-item-image {

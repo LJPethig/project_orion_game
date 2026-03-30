@@ -1,0 +1,38 @@
+{
+  "terminal_id": "engineering_engineering_terminal",
+  "content": {
+    "technical_data": {
+      "title": "Technical Data",
+      "text": [
+        "TEMPUS FUGIT — DRIVE SYSTEM OVERVIEW",
+        "",
+        "Primary propulsion: Nakamura-Weiss NW-7 fusion torch.",
+        "Rated output: 2.4 gigawatts continuous, 3.1 GW peak burst.",
+        "Fuel: Deuterium-helium-3 slurry, 340 tonne capacity.",
+        "Current fuel reserve: 94.2%",
+        "",
+        "The NW-7 has been in continuous service since 2251. Nakamura-Weiss",
+        "ceased manufacture of this model in 2268. Replacement parts are",
+        "sourced from the secondary market and are increasingly difficult",
+        "to obtain. Field repairs are documented in the engineering log.",
+        "",
+        "Reactor core temperature nominal. Coolant pressure nominal.",
+        "Last scheduled maintenance: 2275.318",
+        "Next scheduled maintenance: OVERDUE"
+      ]
+    },
+    "electrical": {
+      "title": "Electrical Systems",
+      "text": [
+        "ELECTRICAL SYSTEM STATUS",
+        "",
+        "Main reactor output: NOMINAL",
+        "Distribution panels: 4 active",
+        "Breaker faults: 0 detected",
+        "",
+        "-- Full diagnostic map available when electrical",
+        "   system integration is complete. --"
+      ]
+    }
+  }
+}

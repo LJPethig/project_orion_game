@@ -69,4 +69,13 @@ const API = {
         return r.json();
     },
 
+    async getTerminalContent(terminal_type, action) {
+        const r = await fetch('/api/game/terminal/content', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ terminal_type, action }),
+        });
+        return r.json();
+    },
+
 };

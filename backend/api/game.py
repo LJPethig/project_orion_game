@@ -5,10 +5,12 @@ Game API routes.
 /api/game/new    — start a new game
 """
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from backend.models.game_manager import game_manager
 from backend.models.interactable import PortableItem, StorageUnit, Surface, Terminal
 from config import SHIP_NAME
+
+import os
 
 game_bp = Blueprint("game", __name__)
 
@@ -156,3 +158,37 @@ def _build_room_data(room) -> dict:
         'object_states':    object_states,
         'floor_items':      floor_items,
     }
+
+@game_bp.route("/terminal/content", methods=["POST"])
+def get_terminal_content():
+    """Return content for a terminal sub-menu action."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    from config import TERMINAL_CONTENT_PATH
+    import json
+
+    data      = request.get_json()
+    term_type = data.get('terminal_type')
+    action    = data.get('action')
+
+    if not term_type or not action:
+        return jsonify({"error": "Missing terminal_type or action"}), 400
+
+    content_path = os.path.join(TERMINAL_CONTENT_PATH, f"{term_type}.json")
+    try:
+        with open(content_path, 'r', encoding='utf-8') as f:
+            content_data = json.load(f)
+    except FileNotFoundError:
+        return jsonify({"error": f"No content file for terminal type '{term_type}'"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    action_content = content_data.get('content', {}).get(action)
+    if not action_content:
+        return jsonify({"error": f"No content for action '{action}'"}), 404
+
+    return jsonify({
+        "title": action_content.get("title", ""),
+        "text":  action_content.get("text", []),
+    })

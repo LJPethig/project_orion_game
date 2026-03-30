@@ -3,6 +3,7 @@
 
 let currentTerminal      = null;   // current terminal data from backend
 let terminalMenuIndex    = 0;      // currently highlighted menu item
+let terminalSubMenu = null;   // null = main menu, object = sub-menu content
 
 function isTerminalOpen() {
     const panel = document.getElementById('panel-terminal');
@@ -34,8 +35,8 @@ function hideTerminalPanel() {
 }
 
 function closeTerminalPanel() {
-    // Full exit — destroy session and hide tab
     currentTerminal = null;
+    terminalSubMenu = null;
     document.getElementById('panel-terminal').classList.remove('open');
     const tab = document.getElementById('tab-term');
     tab.classList.remove('active');
@@ -47,27 +48,47 @@ function _renderTerminal() {
     const inner = document.getElementById('terminal-panel-inner');
     inner.innerHTML = '';
 
-    // Title
     const title = document.createElement('div');
     title.className   = 'term-title';
-    title.textContent = currentTerminal.terminal_name;
+    title.textContent = terminalSubMenu ? terminalSubMenu.title : currentTerminal.terminal_name;
     inner.appendChild(title);
 
-    // Menu
-    const menu = document.createElement('div');
-    menu.className = 'term-menu';
-    menu.id        = 'term-menu';
+    if (terminalSubMenu) {
+        // ── Sub-menu — text content + Return ─────────────
+        const content = document.createElement('div');
+        content.className = 'term-content';
+        terminalSubMenu.text.forEach(line => {
+            const row = document.createElement('div');
+            row.className   = line === '' ? 'term-content-blank' : 'term-content-line';
+            row.textContent = line;
+            content.appendChild(row);
+        });
+        inner.appendChild(content);
 
-    currentTerminal.menu.forEach((item, idx) => {
-        const row = document.createElement('div');
-        row.className   = 'term-menu-item' + (idx === terminalMenuIndex ? ' term-selected' : '');
-        row.dataset.idx = idx;
-        row.textContent = item.label;
-        row.addEventListener('click', () => _selectMenuItem(idx));
-        menu.appendChild(row);
-    });
-
-    inner.appendChild(menu);
+        const menu = document.createElement('div');
+        menu.className = 'term-menu';
+        menu.id        = 'term-menu';
+        const returnRow = document.createElement('div');
+        returnRow.className   = 'term-menu-item term-selected';
+        returnRow.textContent = 'Return';
+        returnRow.addEventListener('click', () => _returnToMainMenu());
+        menu.appendChild(returnRow);
+        inner.appendChild(menu);
+    } else {
+        // ── Main menu ─────────────────────────────────────
+        const menu = document.createElement('div');
+        menu.className = 'term-menu';
+        menu.id        = 'term-menu';
+        currentTerminal.menu.forEach((item, idx) => {
+            const row = document.createElement('div');
+            row.className   = 'term-menu-item' + (idx === terminalMenuIndex ? ' term-selected' : '');
+            row.dataset.idx = idx;
+            row.textContent = item.label;
+            row.addEventListener('click', () => _selectMenuItem(idx));
+            menu.appendChild(row);
+        });
+        inner.appendChild(menu);
+    }
 }
 
 function _selectMenuItem(idx) {
@@ -80,7 +101,12 @@ function _selectMenuItem(idx) {
         return;
     }
 
-    // Future: dispatch other actions
+    // Fetch sub-menu content from backend
+    API.getTerminalContent(currentTerminal.terminal_type, item.action).then(data => {
+        if (data.error) return;
+        terminalSubMenu = data;
+        _renderTerminal();
+    });
 }
 
 function _setupTerminalKeys() {
@@ -90,6 +116,14 @@ function _setupTerminalKeys() {
 
 function _terminalKeyHandler(e) {
     if (!isTerminalOpen()) return;
+
+    if (terminalSubMenu) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            _returnToMainMenu();
+        }
+        return;
+    }
 
     if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -103,4 +137,10 @@ function _terminalKeyHandler(e) {
         e.preventDefault();
         _selectMenuItem(terminalMenuIndex);
     }
+}
+
+function _returnToMainMenu() {
+    terminalSubMenu   = null;
+    terminalMenuIndex = 0;
+    _renderTerminal();
 }
