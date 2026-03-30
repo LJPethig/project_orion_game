@@ -1,0 +1,124 @@
+/* terminal.css — Terminal panel, CRT styling, menu, content */
+
+/* ── Terminal slide panel override — CRT background ─────────── */
+
+#panel-terminal {
+    background: var(--col-term-bg);
+}
+
+/* Scanline overlay via pseudo-element */
+.term-scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 3px,
+        rgba(0, 0, 0, 0.15) 3px,
+        rgba(0, 0, 0, 0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 60;
+}
+
+/* ── Terminal inner panel ────────────────────────────────────── */
+
+#terminal-panel-inner {
+    position: relative;
+    z-index: 20;   /* sits above scanline overlay */
+}
+
+/* ── Terminal title ──────────────────────────────────────────── */
+
+.term-title {
+    color: var(--col-term-dim);
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--col-term-border);
+    text-shadow: 0 0 6px var(--col-term-dim);
+    text-transform: uppercase;
+}
+
+/* ── Terminal menu ───────────────────────────────────────────── */
+
+.term-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.term-menu-item {
+    color: var(--col-term-dim);
+    font-size: 15px;
+    padding: 6px 8px 6px 48px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    text-shadow: 0 0 4px var(--col-term-dim);
+    transition: color 0.1s;
+}
+
+.term-menu-item:hover {
+    color: var(--col-term-text);
+    text-shadow: 0 0 8px var(--col-term-text);
+}
+
+.term-menu-item.term-selected {
+    color: var(--col-term-text);
+    font-weight: bold;
+    text-decoration: underline;
+    text-shadow: 0 0 4px rgba(0, 255, 65, 0.2);
+}
+
+/* ── Terminal content (sub-menu text) ───────────────────────── */
+
+.term-content {
+    margin-bottom: 24px;
+    margin-left: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--col-term-border);
+}
+
+.term-content-line {
+    color: var(--col-term-text);
+    font-size: 12px;
+    line-height: 1.7;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 4px var(--col-term-dim);
+}
+
+.term-content-blank {
+    height: 12px;
+}
+
+/* ── Tab strip — terminal active state ──────────────────────── */
+
+#tab-strip.term-active .tab {
+    background: #001a00;
+    border-color: var(--col-term-border);
+}
+
+#tab-strip.term-active .tab:hover {
+    background: #002a00;
+    border-color: var(--col-term-dim);
+}
+
+#tab-strip.term-active .tab.active {
+    background: #002a00;
+    border-color: var(--col-term-dim);
+}
+
+#tab-strip.term-active .tab-label {
+    color: var(--col-term-dim);
+}
+
+#tab-strip.term-active .tab.active .tab-label {
+    color: var(--col-term-text);
+}

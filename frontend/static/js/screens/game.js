@@ -74,10 +74,13 @@ function togglePanel(panelId, tab) {
     if (typeof hideTerminalPanel === 'function') hideTerminalPanel();
 
     // If it wasn't open, open it now
-    if (!isOpen) {
+   if (!isOpen) {
         panel.classList.add('open');
         tab.classList.add('active');
         if (panelId === 'panel-inventory') renderInventory();
+        document.getElementById('tab-strip').classList.toggle('term-active', panelId === 'panel-terminal');
+    } else {
+        document.getElementById('tab-strip').classList.remove('term-active');
     }
 }
 

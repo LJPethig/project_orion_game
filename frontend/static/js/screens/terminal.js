@@ -24,6 +24,7 @@ function openTerminalPanel(terminalData) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('panel-terminal').classList.add('open');
     tab.classList.add('active');
+    document.getElementById('tab-strip').classList.add('term-active');
 
     _setupTerminalKeys();
 }
@@ -32,6 +33,7 @@ function hideTerminalPanel() {
     // Close the panel visually but keep the session — tab stays visible
     document.getElementById('panel-terminal').classList.remove('open');
     document.getElementById('tab-term').classList.remove('active');
+    document.getElementById('tab-strip').classList.remove('term-active');
 }
 
 function closeTerminalPanel() {
@@ -41,6 +43,7 @@ function closeTerminalPanel() {
     const tab = document.getElementById('tab-term');
     tab.classList.remove('active');
     tab.classList.add('hidden');
+    document.getElementById('tab-strip').classList.remove('term-active');
     document.removeEventListener('keydown', _terminalKeyHandler);
 }
 

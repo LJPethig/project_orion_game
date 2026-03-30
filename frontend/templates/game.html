@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Orion</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/description.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/inventory.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/response.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/terminal.css') }}">
 </head>
 <body>
 
@@ -37,6 +41,7 @@
                 </div>
                 <!-- Terminal slide-out panel -->
                 <div class="slide-panel" id="panel-terminal">
+                    <div class="term-scanlines"></div>
                     <div class="slide-panel-inner" id="terminal-panel-inner">
                     </div>
                 </div>
