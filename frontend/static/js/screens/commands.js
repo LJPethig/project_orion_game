@@ -31,6 +31,7 @@ function doorStateColour(state) {
 // ── Command handling ─────────────────────────────────────────
 
 async function handleCommand() {
+    if (isTerminalSessionActive()) return;
     if (Loop.isLocked()) return;
 
     const input = document.getElementById('command-input');

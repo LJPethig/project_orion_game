@@ -59,23 +59,22 @@
     color: var(--col-term-dim);
     font-size: 15px;
     padding: 6px 8px 6px 48px;
-    cursor: pointer;
+    cursor: default;
     letter-spacing: 2px;
     text-shadow: 0 0 4px var(--col-term-dim);
     transition: color 0.1s;
 }
 
-.term-menu-item:hover {
-    color: var(--col-term-text);
-    text-shadow: 0 0 8px var(--col-term-text);
+.term-submenu-commands {
+    color: var(--col-term-dim);
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding-left: 48px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--col-term-border);
 }
 
-.term-menu-item.term-selected {
-    color: var(--col-term-text);
-    font-weight: bold;
-    text-decoration: underline;
-    text-shadow: 0 0 4px rgba(0, 255, 65, 0.2);
-}
 
 /* ── Terminal content (sub-menu text) ───────────────────────── */
 
@@ -138,6 +137,16 @@
 .term-cursor.typing {
     animation: none;
     opacity: 1;
+}
+
+/* ── Enter Command prompt ────────────────────────────────────── */
+
+.term-prompt {
+    color: var(--col-term-dim);
+    font-size: 14px;
+    letter-spacing: 1px;
+    margin-top: 24px;
+    padding-left: 48px;
 }
 
 @keyframes term-blink {

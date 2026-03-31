@@ -45,7 +45,7 @@ async function init() {
 
     // ── Refocus input after any click ────────────────────
     document.addEventListener('click', () => {
-        if (!Loop.isLocked()) {
+        if (!Loop.isLocked() && !isTerminalSessionActive()) {
             input.focus();
         }
     });
@@ -53,11 +53,7 @@ async function init() {
     // ── Tab strip ────────────────────────────────────────
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
-            if (tab.id === 'tab-term' && isTerminalOpen()) {
-                closeTerminalPanel();
-            } else {
-                togglePanel(tab.dataset.panel, tab);
-            }
+            togglePanel(tab.dataset.panel, tab);
         });
     });
 }
@@ -74,7 +70,7 @@ function togglePanel(panelId, tab) {
     if (typeof hideTerminalPanel === 'function') hideTerminalPanel();
 
     // If it wasn't open, open it now
-   if (!isOpen) {
+    if (!isOpen) {
         panel.classList.add('open');
         tab.classList.add('active');
         if (panelId === 'panel-inventory') renderInventory();
@@ -104,7 +100,6 @@ function updateRoom(room) {
     if (roomChanged) {
         document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        if (typeof closeTerminalPanel === 'function') closeTerminalPanel();
     }
 }
 

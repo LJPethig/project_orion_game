@@ -292,6 +292,7 @@ function setupClickHandlers(container) {
     // ── Containers — toggle open/close ───────────────────
     container.querySelectorAll('.markup-container').forEach(span => {
         span.addEventListener('click', (e) => {
+            if (isTerminalSessionActive()) return;
             const key      = e.target.dataset.container;
             const objState = _findObjectState(currentObjects, key);
             const verb     = objState && objState.is_open ? 'close' : 'open';
@@ -307,13 +308,10 @@ function setupClickHandlers(container) {
         });
     });
 
-    // ── Terminals — toggle terminal panel ────────────────
+    // ── Terminals — open terminal panel ──────────────────
     container.querySelectorAll('.markup-terminal').forEach(span => {
         span.addEventListener('click', (e) => {
-            if (isTerminalOpen()) {
-                closeTerminalPanel();
-                return;
-            }
+            if (isTerminalSessionActive()) return;
             const id = Object.keys(currentObjects).find(oid => {
                 const key = e.target.dataset.terminal;
                 return oid.toLowerCase() === key || oid.toLowerCase().endsWith('_' + key);
@@ -329,6 +327,7 @@ function setupClickHandlers(container) {
     // ── Surfaces — expand/collapse Layer 3 ───────────────
     container.querySelectorAll('.markup-surface').forEach(span => {
         span.addEventListener('click', (e) => {
+            if (isTerminalSessionActive()) return;
             const key      = e.target.dataset.surface;
             const objState = _findObjectState(currentObjects, key);
             if (!objState || !objState.has_items) return;

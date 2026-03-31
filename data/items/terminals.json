@@ -6,7 +6,7 @@
     "keywords": ["terminal", "personal terminal", "personal computer", "computer"],
     "terminal_type": "personal",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -16,7 +16,7 @@
     "keywords": ["terminal", "mainframe terminal", "mainframe computer", "mainframe access terminal", "computer"],
     "terminal_type": "mainframe",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -26,7 +26,7 @@
     "keywords": ["terminal", "navigation terminal", "nav terminal", "navigation computer", "nav computer", "computer"],
     "terminal_type": "navigation",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -36,7 +36,7 @@
     "keywords": ["terminal", "storage terminal", "storage computer", "storage room terminal", "storage room computer", "inventory terminal", "inventory computer", "storage facility terminal", "storage inventory terminal", "storage management terminal", "storage facility computer", "storage inventory computer", "storage management computer", "computer"],
     "terminal_type": "storage",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -46,7 +46,7 @@
     "keywords": ["terminal", "cargo bay terminal", "cargo bay computer", "cargo storage terminal", "cargo storage computer", "storage terminal", "inventory terminal", "inventory management terminal", "storage computer", "inventory computer", "inventory management computer", "computer"],
     "terminal_type": "storage",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -56,7 +56,7 @@
     "keywords": ["terminal", "medical terminal", "med-bay terminal", "med bay computer", "med-bay computer", "med bay computer", "medical computer", "computer"],
     "terminal_type": "medical",
     "menu": [
-      {"label": "Exit", "action": "exit"}
+      {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]
   },
   {
@@ -66,9 +66,9 @@
     "keywords": ["terminal", "engineering terminal", "engineering computer", "computer"],
     "terminal_type": "engineering",
     "menu": [
-      {"label": "Technical data", "action": "technical_data"},
-      {"label": "Electrical", "action": "electrical"},
-      {"label": "Exit", "action": "exit"}
+      {"label": "[T] Technical Data", "action": "technical_data", "key": "t"},
+      {"label": "[E] Electrical",     "action": "electrical",     "key": "e"},
+      {"label": "[X] Exit",           "action": "exit",           "key": "x"}
     ]
   }
 ]

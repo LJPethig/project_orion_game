@@ -1,5 +1,5 @@
 // frontend/static/js/screens/terminal.js
-// Terminal panel — renders terminal menu, handles navigation, exit.
+// Terminal panel — renders terminal menu, handles keypress navigation, exit.
 
 // ── Constants ─────────────────────────────────────────────────
 const TERM_CHAR_SPEED_MS   = 20;    // Base ms per character
@@ -10,10 +10,25 @@ const TERM_BLANK_PAUSE_MS  = 120;   // Pause for blank lines
 
 // ── State ─────────────────────────────────────────────────────
 let currentTerminal      = null;   // current terminal data from backend
-let terminalMenuIndex    = 0;      // currently highlighted menu item
 let terminalSubMenu      = null;   // null = main menu, object = sub-menu content
 let _typewriterActive    = false;  // true while typing is in progress
 let _typewriterCancelled = false;  // set to true to abort current typewriter
+
+// ── Terminal mode — blocks command input ──────────────────────
+
+function setTerminalMode(active) {
+    const input  = document.getElementById('command-input');
+    const prompt = document.getElementById('input-prompt');
+    if (active) {
+        input.disabled = true;
+        input.blur();
+        prompt.style.visibility = 'hidden';
+    } else {
+        input.disabled = false;
+        input.focus();
+        prompt.style.visibility = 'visible';
+    }
+}
 
 // ── Panel open/close ──────────────────────────────────────────
 
@@ -22,9 +37,13 @@ function isTerminalOpen() {
     return panel && panel.classList.contains('open');
 }
 
+function isTerminalSessionActive() {
+    return currentTerminal !== null;
+}
+
 function openTerminalPanel(terminalData) {
-    currentTerminal   = terminalData;
-    terminalMenuIndex = 0;
+    currentTerminal = terminalData;
+    terminalSubMenu = null;
     _renderTerminal();
 
     // Show TERM tab
@@ -38,6 +57,7 @@ function openTerminalPanel(terminalData) {
     tab.classList.add('active');
     document.getElementById('tab-strip').classList.add('term-active');
 
+    setTerminalMode(true);
     _setupTerminalKeys();
 }
 
@@ -59,6 +79,7 @@ function closeTerminalPanel() {
     tab.classList.add('hidden');
     document.getElementById('tab-strip').classList.remove('term-active');
     document.removeEventListener('keydown', _terminalKeyHandler);
+    setTerminalMode(false);
 }
 
 // ── Rendering ─────────────────────────────────────────────────
@@ -73,11 +94,10 @@ function _renderTerminal() {
     inner.appendChild(title);
 
     if (terminalSubMenu) {
-        // ── Sub-menu — type out text content, then show Return ─
+        // ── Sub-menu — type out text content, then show Return prompt ─
         const content = document.createElement('div');
         content.className = 'term-content';
 
-        // Create empty line divs first
         const lineDivs = terminalSubMenu.text.map(line => {
             const row = document.createElement('div');
             row.className = line === '' ? 'term-content-blank' : 'term-content-line';
@@ -87,23 +107,30 @@ function _renderTerminal() {
 
         inner.appendChild(content);
 
-        // Return row — hidden until typing completes
-        const menu = document.createElement('div');
-        menu.className = 'term-menu';
-        menu.id        = 'term-menu';
-        const returnRow = document.createElement('div');
-        returnRow.className   = 'term-menu-item term-selected';
-        returnRow.textContent = 'Return';
-        returnRow.style.visibility = 'hidden';
-        returnRow.addEventListener('click', () => {
-            if (!_typewriterActive) _returnToMainMenu();
-        });
-        menu.appendChild(returnRow);
-        inner.appendChild(menu);
+        // Commands line — hidden until typing completes
+        const commands = document.createElement('div');
+        commands.className = 'term-submenu-commands';
+        commands.textContent = '[R] Return    [X] Exit';
+        commands.style.visibility = 'hidden';
+        inner.appendChild(commands);
 
-        // Start typewriter
+        // Enter Command prompt — hidden until typing completes
+        const prompt = document.createElement('div');
+        prompt.className = 'term-prompt';
+        prompt.style.visibility = 'hidden';
+
+        const promptText = document.createTextNode('Enter Command: ');
+        prompt.appendChild(promptText);
+
+        const cursor = document.createElement('span');
+        cursor.className = 'term-cursor';
+        prompt.appendChild(cursor);
+
+        inner.appendChild(prompt);
+
         _typewriteLines(lineDivs, () => {
-            returnRow.style.visibility = 'visible';
+            commands.style.visibility = 'visible';
+            prompt.style.visibility = 'visible';
         });
 
     } else {
@@ -111,15 +138,28 @@ function _renderTerminal() {
         const menu = document.createElement('div');
         menu.className = 'term-menu';
         menu.id        = 'term-menu';
-        currentTerminal.menu.forEach((item, idx) => {
+
+        currentTerminal.menu.forEach(item => {
             const row = document.createElement('div');
-            row.className   = 'term-menu-item' + (idx === terminalMenuIndex ? ' term-selected' : '');
-            row.dataset.idx = idx;
+            row.className   = 'term-menu-item';
             row.textContent = item.label;
-            row.addEventListener('click', () => _selectMenuItem(idx));
             menu.appendChild(row);
         });
+
         inner.appendChild(menu);
+
+        // Enter Command prompt with blinking cursor
+        const prompt = document.createElement('div');
+        prompt.className = 'term-prompt';
+
+        const promptText = document.createTextNode('Enter Command: ');
+        prompt.appendChild(promptText);
+
+        const cursor = document.createElement('span');
+        cursor.className = 'term-cursor';
+        prompt.appendChild(cursor);
+
+        inner.appendChild(prompt);
     }
 }
 
@@ -140,19 +180,14 @@ function _typewriteLines(lineDivs, onComplete) {
     _typewriterActive    = true;
 
     let lineIdx = 0;
-    // Create cursor element
     const cursor = document.createElement('span');
-    cursor.className = 'term-cursor';
-    cursor.classList.add('typing');
+    cursor.className = 'term-cursor typing';
 
     function typeNextLine() {
         if (_typewriterCancelled) return;
         if (lineIdx >= lineDivs.length) {
             _typewriterActive = false;
-            cursor.classList.remove('typing');
-            // Leave cursor blinking on last line
-            const lastLine = lineDivs[lineDivs.length - 1].el;
-            lastLine.appendChild(cursor);
+            cursor.remove();
             if (onComplete) onComplete();
             return;
         }
@@ -161,7 +196,6 @@ function _typewriteLines(lineDivs, onComplete) {
         lineIdx++;
 
         if (text === '') {
-            // Blank line — show cursor briefly then continue
             el.appendChild(cursor);
             setTimeout(() => {
                 cursor.remove();
@@ -170,7 +204,6 @@ function _typewriteLines(lineDivs, onComplete) {
             return;
         }
 
-        // Type characters one by one
         let charIdx = 0;
 
         function typeNextChar() {
@@ -180,13 +213,11 @@ function _typewriteLines(lineDivs, onComplete) {
                 setTimeout(typeNextLine, TERM_LINE_PAUSE_MS);
                 return;
             }
-            // Append character as text node, then re-append cursor
             el.insertBefore(document.createTextNode(text[charIdx]), cursor);
             charIdx++;
             setTimeout(typeNextChar, _jitteredDelay());
         }
 
-        // Add cursor to the line before typing starts
         el.appendChild(cursor);
         typeNextChar();
     }
@@ -196,18 +227,34 @@ function _typewriteLines(lineDivs, onComplete) {
 
 // ── Menu interaction ──────────────────────────────────────────
 
-function _selectMenuItem(idx) {
-    if (_typewriterActive) return;   // Block during typewriter
-    terminalMenuIndex = idx;
-    _renderTerminal();
+function _handleMenuKey(key) {
+    if (_typewriterActive) return;
 
-    const item = currentTerminal.menu[idx];
-    if (item.action === 'exit') {
-        closeTerminalPanel();
+    const menu = terminalSubMenu ? null : currentTerminal.menu;
+
+    if (terminalSubMenu) {
+        if (key === 'r') _returnToMainMenu();
+        if (key === 'x') {
+            const name = currentTerminal.terminal_name;
+            closeTerminalPanel();
+            clearResponse();
+            appendResponse(`You close the ${name}.`);
+        }
         return;
     }
 
-    // Fetch sub-menu content from backend
+    // Main menu — find matching key
+    const item = menu.find(m => m.key === key);
+    if (!item) return;
+
+    if (item.action === 'exit') {
+        const name = currentTerminal.terminal_name;
+        closeTerminalPanel();
+        clearResponse();
+        appendResponse(`You close the ${name}.`);
+        return;
+    }
+
     API.getTerminalContent(currentTerminal.terminal_type, item.action).then(data => {
         if (data.error) return;
         terminalSubMenu = data;
@@ -217,8 +264,7 @@ function _selectMenuItem(idx) {
 
 function _returnToMainMenu() {
     _cancelTypewriter();
-    terminalSubMenu   = null;
-    terminalMenuIndex = 0;
+    terminalSubMenu = null;
     _renderTerminal();
 }
 
@@ -230,26 +276,15 @@ function _setupTerminalKeys() {
 }
 
 function _terminalKeyHandler(e) {
-    if (!isTerminalOpen()) return;
+    if (!isTerminalSessionActive()) return;
 
-    if (terminalSubMenu) {
-        if (e.key === 'Enter' && !_typewriterActive) {
-            e.preventDefault();
-            _returnToMainMenu();
-        }
-        return;
-    }
+    // Allow tab switching — don't swallow tab-related clicks
+    if (e.key === 'Tab') return;
 
-    if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        terminalMenuIndex = Math.min(terminalMenuIndex + 1, currentTerminal.menu.length - 1);
-        _renderTerminal();
-    } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        terminalMenuIndex = Math.max(terminalMenuIndex - 1, 0);
-        _renderTerminal();
-    } else if (e.key === 'Enter') {
-        e.preventDefault();
-        _selectMenuItem(terminalMenuIndex);
-    }
+    // Swallow all other keys when terminal is active
+    e.preventDefault();
+    e.stopPropagation();
+
+    const key = e.key.toLowerCase();
+    _handleMenuKey(key);
 }
