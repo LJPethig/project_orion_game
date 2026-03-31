@@ -8,8 +8,9 @@ import json
 from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
 from backend.models.player import Player
+from backend.systems.electrical.electrical_system import ElectricalSystem
 from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
-                   PLAYER_ITEMS_JSON_PATH
+                   PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH
 
 
 class GameManager:
@@ -21,6 +22,7 @@ class GameManager:
         self.ship         = None
         self.player       = None
         self.current_room = None
+        self.electrical_system = None
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
@@ -29,6 +31,8 @@ class GameManager:
         self.player       = Player(PLAYER_NAME)
         self.current_room = self.ship.get_room(STARTING_ROOM)
         self._load_player_items()
+        self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
+        self.electrical_system.update_battery_states()
         self.initialised  = True
 
     def _load_player_items(self) -> None:

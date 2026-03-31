@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Project Orion - Electrical System</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #1a5490;
+        }
+        #diagram {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Project Orion - Electrical System Diagram</h1>
+    <div id="diagram">
+        <pre class="mermaid">
+flowchart TB
+
+    %% TIER 1: REACTOR AND MAIN PANEL
+    reactor_core[reactor_core<br/>Fission Reactor 25kW]
+    PNL_ENG_MAIN{{PNL-ENG-MAIN<br/>Engineering}}
+
+    reactor_core -->|PWC-ENG-01| PNL_ENG_MAIN
+
+    %% Main Panel Breakers (IN ORDER)
+    FUS_ENG_01([FUS-ENG-01<br/>Life Support])
+    FUS_ENG_02([FUS-ENG-02<br/>Main Corridor])
+    FUS_ENG_03([FUS-ENG-03<br/>Sub Corridor])
+    FUS_ENG_04([FUS-ENG-04<br/>Recreation Room])
+    FUS_ENG_05([FUS-ENG-05<br/>Engineering])
+
+    PNL_ENG_MAIN --> FUS_ENG_01
+    PNL_ENG_MAIN --> FUS_ENG_02
+    PNL_ENG_MAIN --> FUS_ENG_03
+    PNL_ENG_MAIN --> FUS_ENG_04
+    PNL_ENG_MAIN --> FUS_ENG_05
+
+    %% BRANCH 1: Life Support
+    life_support[/life_support/]
+    BAT_LS_01[BAT-LS-01<br/>Backup Battery]
+    FUS_ENG_01 -->|PWC-ENG-02| life_support
+    BAT_LS_01 -.->|Backup| life_support
+
+    %% BRANCH 2: Main Corridor -> Sub Panel A
+    PNL_MC_SUB_A{{PNL-MC-SUB-A<br/>Main Corridor}}
+    FUS_ENG_02 -->|PWC-ENG-03<br/>PWC-MC-06| PNL_MC_SUB_A
+
+    FUS_MC_01([FUS-MC-01<br/>Crew Cabin])
+    FUS_MC_02([FUS-MC-02<br/>Captains Quarters])
+    FUS_MC_03([FUS-MC-03<br/>Mainframe])
+    main_corridor[/main_corridor/]
+
+    PNL_MC_SUB_A --> FUS_MC_01
+    PNL_MC_SUB_A --> FUS_MC_02
+    PNL_MC_SUB_A --> FUS_MC_03
+    PNL_MC_SUB_A -->|PWC-MC-04| main_corridor
+
+    crew_cabin[/crew_cabin/]
+    captains_quarters[/captains_quarters/]
+    mainframe_room[/mainframe_room/]
+    BAT_MF_01[BAT-MF-01<br/>Backup Battery]
+
+    FUS_MC_01 -->|PWC-MC-01| crew_cabin
+    FUS_MC_02 -->|PWC-MC-02| captains_quarters
+    FUS_MC_03 -->|PWC-MC-03| mainframe_room
+    BAT_MF_01 -.->|Backup| mainframe_room
+
+    %% BRANCH 3: Sub Corridor -> Sub Panel B
+    PNL_SC_SUB_B{{PNL-SC-SUB-B<br/>Sub Corridor}}
+    FUS_ENG_03 -->|PWC-ENG-04<br/>PWC-MC-07<br/>PWC-SC-05| PNL_SC_SUB_B
+
+    FUS_SC_01([FUS-SC-01<br/>Bathroom])
+    FUS_SC_02([FUS-SC-02<br/>Cargo Bay])
+    FUS_SC_03([FUS-SC-03<br/>Storage])
+    FUS_SC_04([FUS-SC-04<br/>Airlock])
+    sub_corridor[/sub_corridor/]
+
+    PNL_SC_SUB_B --> FUS_SC_01
+    PNL_SC_SUB_B --> FUS_SC_02
+    PNL_SC_SUB_B --> FUS_SC_03
+    PNL_SC_SUB_B --> FUS_SC_04
+    PNL_SC_SUB_B -->|PWC-SC-06| sub_corridor
+
+    head[/head/]
+    cargo_bay[/cargo_bay/]
+    storage_room[/storage_room/]
+    airlock[/airlock/]
+
+    FUS_SC_01 -->|PWC-SC-01| head
+    FUS_SC_02 -->|PWC-SC-02| cargo_bay
+    FUS_SC_03 -->|PWC-SC-03| storage_room
+    FUS_SC_04 -->|PWC-SC-04| airlock
+
+    %% BRANCH 4: Recreation Room -> Sub Panel C
+    PNL_REC_SUB_C{{PNL-REC-SUB-C<br/>Recreation Room}}
+    FUS_ENG_04 -->|PWC-ENG-05<br/>PWC-MC-08<br/>PWC-REC-05| PNL_REC_SUB_C
+
+    FUS_REC_01([FUS-REC-01<br/>Med-Bay])
+    FUS_REC_02([FUS-REC-02<br/>Hyper-sleep])
+    FUS_REC_03([FUS-REC-03<br/>Galley])
+    FUS_REC_04([FUS-REC-04<br/>Cockpit])
+    recreation_room[/recreation_room/]
+
+    PNL_REC_SUB_C --> FUS_REC_01
+    PNL_REC_SUB_C --> FUS_REC_02
+    PNL_REC_SUB_C --> FUS_REC_03
+    PNL_REC_SUB_C --> FUS_REC_04
+    PNL_REC_SUB_C -->|PWC-REC-06| recreation_room
+
+    med_bay[/med_bay/]
+    hypersleep_chamber[/hypersleep_chamber/]
+    galley[/galley/]
+    cockpit[/cockpit/]
+
+    FUS_REC_01 -->|PWC-REC-01| med_bay
+    FUS_REC_02 -->|PWC-REC-02| hypersleep_chamber
+    FUS_REC_03 -->|PWC-REC-03| galley
+    FUS_REC_04 -->|PWC-REC-04| cockpit
+
+    %% BRANCH 5: Engineering Local
+    engineering[/engineering/]
+    FUS_ENG_05 -->|PWC-ENG-06| engineering
+        </pre>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>

@@ -47,6 +47,7 @@ TERMINALS_JSON_PATH     = os.path.join('data', 'items', 'terminals.json')
 STORAGE_UNITS_JSON_PATH = os.path.join('data', 'items', 'storage_units.json')
 SURFACES_JSON_PATH      = os.path.join('data', 'items', 'surfaces.json')
 TERMINAL_CONTENT_PATH   = os.path.join('data', 'terminals')
+ELECTRICAL_JSON_PATH    = os.path.join('data', 'ship', 'systems', 'electrical.json')
 
 # ── Flask ────────────────────────────────────────────────────
 DEBUG = True
