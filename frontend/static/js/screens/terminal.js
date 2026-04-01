@@ -369,7 +369,7 @@ async function _updateRoomColours() {
         const roomPower = data.room_power || {};
 
         for (const [svgId, roomId] of Object.entries(SVG_ROOM_MAP)) {
-            const el = document.getElementById(svgId);
+            const el = _mapSvgEl ? _mapSvgEl.getElementById(svgId) : document.getElementById(svgId);
             if (!el) continue;
             el.classList.remove('room-powered', 'room-unpowered');
             el.classList.add(roomPower[roomId] ? 'room-powered' : 'room-unpowered');
@@ -395,8 +395,11 @@ function _setupTerminalKeys() {
 function _terminalKeyHandler(e) {
     if (!isTerminalSessionActive()) return;
 
-    // Allow tab switching — don't swallow tab-related clicks
+    // Allow tab switching
     if (e.key === 'Tab') return;
+
+    // Allow debug console input through
+    if (document.activeElement === document.getElementById('debug-input')) return;
 
     // Swallow all other keys when terminal is active
     e.preventDefault();

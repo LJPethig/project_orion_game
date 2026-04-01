@@ -103,4 +103,85 @@ function updateRoom(room) {
     }
 }
 
-// ── Description rendering ────────────────────────────────────
+// ── Debug console ─────────────────────────────────────────────
+
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        const panel = document.getElementById('debug-panel');
+        panel.classList.toggle('hidden');
+        if (!panel.classList.contains('hidden')) {
+            document.getElementById('debug-input').focus();
+        }
+    }
+});
+
+document.getElementById('debug-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') _debugHandleCommand();
+    if (e.key === 'Escape') {
+        document.getElementById('debug-panel').classList.add('hidden');
+    }
+});
+
+function _debugLog(msg, type = 'info') {
+    const out  = document.getElementById('debug-output');
+    const line = document.createElement('div');
+    line.className = `debug-${type}`;
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+    line.textContent = `[${ts}] ${msg}`;
+    out.appendChild(line);
+    out.scrollTop = out.scrollHeight;
+    while (out.children.length > 100) out.removeChild(out.firstChild);
+}
+
+async function _debugHandleCommand() {
+    const input = document.getElementById('debug-input');
+    const raw   = input.value.trim();
+    if (!raw) return;
+    input.value = '';
+
+    const parts = raw.split(/\s+/);
+    const cmd   = parts[0].toLowerCase();
+    const arg   = parts[1] || '';
+
+    _debugLog(`> ${raw}`, 'cmd');
+
+    if (cmd === 'break') {
+        if (!arg) { _debugLog('Usage: break <component_id>', 'err'); return; }
+        await _debugBreakFix('break', arg);
+    } else if (cmd === 'fix') {
+        if (!arg) { _debugLog('Usage: fix <component_id>', 'err'); return; }
+        await _debugBreakFix('fix', arg);
+    } else {
+        _debugLog(`Unknown command. Try: break <id> | fix <id>`, 'err');
+    }
+}
+
+async function _debugBreakFix(action, componentId) {
+    try {
+        const resp = await fetch(
+            `/api/systems/electrical/${action}/${encodeURIComponent(componentId)}`,
+            { method: 'POST' }
+        );
+        const data = await resp.json();
+
+        if (!data.success) {
+            _debugLog(`FAIL: ${data.error}`, 'err');
+            return;
+        }
+
+        const powered = Object.values(data.room_power).filter(Boolean).length;
+        const total   = Object.values(data.room_power).length;
+        const type    = action === 'break' ? 'warn' : 'ok';
+        _debugLog(`${data.component_type.toUpperCase()} [${data.component_id}] → ${data.action.toUpperCase()}`, type);
+        _debugLog(`Rooms powered: ${powered}/${total}`, powered === total ? 'ok' : 'warn');
+
+        // Refresh map colours if map is currently open
+        if (typeof _updateRoomColours === 'function') {
+            await _updateRoomColours();
+        }
+
+    } catch (err) {
+        _debugLog(`Network error: ${err.message}`, 'err');
+    }
+}

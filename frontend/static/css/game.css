@@ -319,3 +319,63 @@ html, body {
 }
 
 .exit-tooltip.hidden { display: none; }
+
+/* ── Debug console ──────────────────────────────────────────── */
+
+#debug-panel {
+    position: fixed;
+    bottom: var(--event-strip-height);
+    left: 0;
+    right: 0;
+    height: 160px;
+    background: rgba(0, 0, 0, 0.95);
+    border-top: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+}
+
+#debug-panel.hidden {
+    display: none !important;
+}
+
+#debug-output {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px 12px;
+    color: #667788;
+}
+
+#debug-input-row {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-top: 1px solid #222;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+#debug-prompt {
+    color: #ff8c00;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+
+#debug-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #ff8c00;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    caret-color: #ff8c00;
+}
+
+.debug-info { color: #667788; }
+.debug-cmd  { color: #aabbcc; }
+.debug-ok   { color: #00cc44; }
+.debug-warn { color: #ff8c00; }
+.debug-err  { color: #ff4444; }

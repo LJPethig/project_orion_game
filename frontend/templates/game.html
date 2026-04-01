@@ -100,6 +100,16 @@
             </div>
         </div>
 
+        <!-- ── Debug console (Ctrl+D to toggle) ─────────── -->
+        <div id="debug-panel" class="hidden">
+            <div id="debug-output"></div>
+            <div id="debug-input-row">
+                <span id="debug-prompt">DBG&gt;</span>
+                <input type="text" id="debug-input" autocomplete="off"
+                       spellcheck="false" placeholder="break <id> | fix <id>"/>
+            </div>
+        </div>
+
     </div>
 
     <!-- Exit door state tooltip — body level so never clipped -->
