@@ -73,7 +73,7 @@
       "name": "Sub Circuit Panel B",
       "location": "sub_corridor",
       "description": "Sub circuit panel mounted near Cargo Bay door",
-      "breaker_count": 4,
+      "breaker_count": 3,
       "x": 400,
       "y": 450
     },
@@ -83,7 +83,7 @@
       "name": "Sub Circuit Panel C",
       "location": "recreation_room",
       "description": "Sub circuit panel on wall facing Main Corridor",
-      "breaker_count": 4,
+      "breaker_count": 5,
       "x": 400,
       "y": 100
     }
@@ -168,13 +168,6 @@
       "rating_amps": 30
     },
     {
-      "id": "FUS-SC-03",
-      "panel_id": "PNL-SC-SUB-B",
-      "name": "Storage Room Circuit Breaker",
-      "feeds": "storage_room",
-      "rating_amps": 20
-    },
-    {
       "id": "FUS-SC-04",
       "panel_id": "PNL-SC-SUB-B",
       "name": "Airlock Circuit Breaker",
@@ -208,6 +201,13 @@
       "name": "Cockpit Circuit Breaker",
       "feeds": "cockpit",
       "rating_amps": 30
+    },
+    {
+      "id": "FUS-REC-05",
+      "panel_id": "PNL-REC-SUB-C",
+      "name": "Storage Room Circuit Breaker",
+      "feeds": "storage_room",
+      "rating_amps": 20
     }
   ],
   
@@ -339,13 +339,6 @@
       "location": "sub_corridor"
     },
     {
-      "id": "PWC-SC-03",
-      "from": "FUS-SC-03",
-      "to": "storage_room",
-      "name": "Storage Room Power Cable",
-      "location": "sub_corridor"
-    },
-    {
       "id": "PWC-SC-04",
       "from": "FUS-SC-04",
       "to": "airlock",
@@ -407,6 +400,13 @@
       "to": "recreation_room",
       "name": "Recreation Room Local Power",
       "location": "recreation_room"
+    },
+    {
+      "id": "PWC-REC-07",
+      "from": "FUS-REC-05",
+      "to": "storage_room",
+      "name": "Storage Room Power Cable",
+      "location": "recreation_room"
     }
   ],
   
@@ -421,7 +421,7 @@
     "sub_corridor": "PNL-SC-SUB-B",
     "head": "FUS-SC-01",
     "cargo_bay": "FUS-SC-02",
-    "storage_room": "FUS-SC-03",
+    "storage_room": "FUS-REC-05",
     "airlock": "FUS-SC-04",
     "recreation_room": "PNL-REC-SUB-C",
     "med_bay": "FUS-REC-01",

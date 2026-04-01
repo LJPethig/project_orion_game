@@ -1,0 +1,68 @@
+<svg width="400" height="600" viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <style>
+      .bg         { fill: #0a0e1a; }
+      .reactor    { fill: #0a0e1a; stroke: #ff9900; stroke-width: 1.5; }
+      .panel      { fill: #0a0e1a; stroke: #27e6ec; stroke-width: 1.5; }
+      .fuse       { fill: #0a0e1a; stroke: #00cc44; stroke-width: 1.8; }
+      .fuse-bar   { stroke: #00cc44; stroke-width: 1.2; }
+      .cable      { stroke: #445566; stroke-width: 2; fill: none; stroke-linecap: round; }
+      .cable-dash { stroke: #334466; stroke-width: 2; fill: none; stroke-dasharray: 5,3; stroke-linecap: round; }
+      .endpoint   { fill: #0a0e1a; stroke: #bea5cd; stroke-width: 1.5; }
+      .battery    { fill: #0a0e1a; stroke: #4488ff; stroke-width: 1.5; }
+      .label-reactor  { fill: #ff9900; font-family: Courier New; font-size: 12px; text-anchor: middle; }
+      .label-panel    { fill: #27e6ec; font-family: Courier New; font-size: 12px; text-anchor: middle; }
+      .label-fuse     { fill: #00cc44; font-family: Courier New; font-size: 10px; text-anchor: middle; }
+      .label-endpoint { fill: #bea5cd; font-family: Courier New; font-size: 12px; text-anchor: middle; }
+      .label-battery  { fill: #4488ff; font-family: Courier New; font-size: 12px; text-anchor: middle; }
+      .label-cable    { fill: #445566; font-family: Courier New; font-size: 9px; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="100%" height="100%" class="bg"/>
+
+  <!-- ── Reactor ─────────────────────────────── -->
+  <rect x="150" y="20" width="100" height="40" rx="4" class="reactor"/>
+  <text x="200" y="45" class="label-reactor">Reactor</text>
+
+  <!-- Cable: reactor → panel -->
+  <line x1="200" y1="60" x2="200" y2="100" class="cable"/>
+
+  <!-- ── Panel (tall, contains fuses) ──────── -->
+  <rect x="100" y="100" width="200" height="120" rx="4" class="panel"/>
+  <text x="200" y="118" class="label-panel">Circuit Panel</text>
+
+    <!-- Fuse 1 (left, inside panel) -->
+    <circle cx="155" cy="185" r="8" class="fuse"/>
+    <line x1="147" y1="185" x2="163" y2="185" class="fuse-bar"/>
+    <text x="155" y="175" class="label-fuse">FUS-01</text>
+
+    <!-- Fuse 2 (right, inside panel) -->
+    <circle cx="245" cy="185" r="8" class="fuse"/>
+    <line x1="237" y1="185" x2="253" y2="185" class="fuse-bar"/>
+    <text x="245" y="175" class="label-fuse">FUS-02</text>
+
+  <!-- Cable: fuse 1 → endpoint 1 -->
+  <line x1="155" y1="193" x2="155" y2="340" class="cable"/>
+
+  <!-- Cable: fuse 2 → endpoint 2 -->
+  <line x1="245" y1="193" x2="245" y2="340" class="cable"/>
+
+  <!-- ── Endpoint 1 (room power socket) ────── -->
+  <rect x="95" y="340" width="120" height="40" rx="4" class="endpoint"/>
+  <text x="155" y="365" class="label-endpoint">Room A</text>
+
+  <!-- ── Endpoint 2 (room power socket) ────── -->
+  <rect x="185" y="340" width="120" height="40" rx="4" class="endpoint"/>
+  <text x="245" y="365" class="label-endpoint">Room B</text>
+
+  <!-- Cable: battery → endpoint 1 (dashed backup) -->
+  <line x1="155" y1="500" x2="155" y2="380" class="cable-dash"/>
+
+  <!-- ── Battery (backup for endpoint 1) ───── -->
+  <rect x="95" y="500" width="120" height="40" rx="4" class="battery"/>
+  <text x="155" y="525" class="label-battery">Battery</text>
+
+</svg>

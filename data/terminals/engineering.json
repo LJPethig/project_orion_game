@@ -23,16 +23,7 @@
     },
     "electrical": {
       "title": "Electrical Systems",
-      "text": [
-        "ELECTRICAL SYSTEM STATUS",
-        "",
-        "Main reactor output: NOMINAL",
-        "Distribution panels: 4 active",
-        "Breaker faults: 0 detected",
-        "",
-        "-- Full diagnostic map available when electrical",
-        "   system integration is complete. --"
-      ]
+      "view": "electrical_map"
     }
   }
 }

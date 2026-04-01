@@ -149,6 +149,30 @@
     padding-left: 48px;
 }
 
+/* ── Electrical map ──────────────────────────────────────────── */
+
+.term-map-container {
+    width: 100%;
+    height: calc(100% - 120px);
+    overflow: hidden;
+    position: relative;
+    margin-top: 8px;
+    border: 1px solid var(--col-term-border);
+}
+
+.term-map-container svg {
+    display: block;
+    cursor: grab;
+}
+
+.room-powered {
+    fill: rgba(0, 255, 0, 0.55) !important;
+}
+
+.room-unpowered {
+    fill: rgba(255, 0, 0, 0.4) !important;
+}
+
 @keyframes term-blink {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }

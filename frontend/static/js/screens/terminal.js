@@ -14,6 +14,38 @@ let terminalSubMenu      = null;   // null = main menu, object = sub-menu conten
 let _typewriterActive    = false;  // true while typing is in progress
 let _typewriterCancelled = false;  // set to true to abort current typewriter
 
+// ── Electrical map ────────────────────────────────────────────
+
+const SVG_ROOM_MAP = {
+    'rec-room-fill':        'recreation_room',
+    'cockpit-fill':         'cockpit',
+    'storage-fill':         'storage_room',
+    'medbay-fill':          'med_bay',
+    'stasis-room-fill':     'hypersleep_chamber',
+    'galley-fill':          'galley',
+    'corridor-main-fill':   'main_corridor',
+    'corridor-sub-fill':    'sub_corridor',
+    'bathroom-sub-fill':    'head',
+    'mainframe-sub-fill':   'mainframe_room',
+    'cargo-bay-sub-fill':   'cargo_bay',
+    'airlock-sub-fill':     'airlock',
+    'engineering-sub-fill': 'engineering',
+    'propulsion-sub-fill':  'propulsion_bay',
+    'captains-cabin-sub-fill': 'captains_quarters',
+    'crew-quarters-sub-fill':  'crew_cabin',
+    'life-support-sub-fill':   'life_support',
+};
+
+let _mapPanX    = 0;
+let _mapPanY    = 0;
+let _mapScale   = 0.35;
+let _mapSvgEl   = null;
+
+const MAP_SCALE_MIN  = 0.2;
+const MAP_SCALE_MAX  = 1.0;
+const MAP_SCALE_STEP = 0.05;
+const MAP_PAN_STEP   = 30;
+
 // ── Terminal mode — blocks command input ──────────────────────
 
 function setTerminalMode(active) {
@@ -233,6 +265,21 @@ function _handleMenuKey(key) {
     const menu = terminalSubMenu ? null : currentTerminal.menu;
 
     if (terminalSubMenu) {
+        // ── Map pan/zoom ──────────────────────────────────
+        if (terminalSubMenu.view === 'electrical_map') {
+            if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP; _applyMapTransform(); return; }
+            if (key === 'arrowdown')  { _mapPanY -= MAP_PAN_STEP; _applyMapTransform(); return; }
+            if (key === 'arrowleft')  { _mapPanX += MAP_PAN_STEP; _applyMapTransform(); return; }
+            if (key === 'arrowright') { _mapPanX -= MAP_PAN_STEP; _applyMapTransform(); return; }
+            if (key === '+' || key === '=') {
+                _mapScale = Math.min(MAP_SCALE_MAX, _mapScale + MAP_SCALE_STEP);
+                _applyMapTransform(); return;
+            }
+            if (key === '-') {
+                _mapScale = Math.max(MAP_SCALE_MIN, _mapScale - MAP_SCALE_STEP);
+                _applyMapTransform(); return;
+            }
+        }
         if (key === 'r') _returnToMainMenu();
         if (key === 'x') {
             const name = currentTerminal.terminal_name;
@@ -257,9 +304,79 @@ function _handleMenuKey(key) {
 
     API.getTerminalContent(currentTerminal.terminal_type, item.action).then(data => {
         if (data.error) return;
-        terminalSubMenu = data;
-        _renderTerminal();
+        if (data.view === 'electrical_map') {
+            _openElectricalMap(data.title);
+        } else {
+            terminalSubMenu = data;
+            _renderTerminal();
+        }
     });
+}
+
+async function _openElectricalMap(title) {
+    const inner = document.getElementById('terminal-panel-inner');
+    inner.innerHTML = '';
+
+    // Title
+    const titleEl = document.createElement('div');
+    titleEl.className   = 'term-title';
+    titleEl.textContent = title;
+    inner.appendChild(titleEl);
+
+    // Commands
+    const commands = document.createElement('div');
+    commands.className   = 'term-submenu-commands';
+    commands.textContent = '[R] Return    [X] Exit    Arrow keys pan    [+][-] zoom';
+    inner.appendChild(commands);
+
+    // Map container
+    const mapContainer = document.createElement('div');
+    mapContainer.className = 'term-map-container';
+    mapContainer.id        = 'term-map-container';
+    inner.appendChild(mapContainer);
+
+    // Load SVG
+    try {
+        const response = await fetch('/static/images/ship_layout.svg');
+        const svgText  = await response.text();
+        mapContainer.innerHTML = svgText;
+        _mapSvgEl = mapContainer.querySelector('svg');
+        if (_mapSvgEl) {
+            _mapSvgEl.style.transformOrigin = '0 0';
+            _mapPanX  = 0;
+            _mapPanY  = 0;
+            _mapScale = 0.35;
+            _applyMapTransform();
+            await _updateRoomColours();
+        }
+    } catch (e) {
+        mapContainer.textContent = 'Map unavailable.';
+    }
+
+    // Set sub-menu state so R/X keys work
+    terminalSubMenu = { view: 'electrical_map', title };
+}
+
+function _applyMapTransform() {
+    if (!_mapSvgEl) return;
+    _mapSvgEl.style.transform = `translate(${_mapPanX}px, ${_mapPanY}px) scale(${_mapScale})`;
+}
+
+async function _updateRoomColours() {
+    try {
+        const r    = await fetch('/api/systems/electrical/status');
+        const data = await r.json();
+        const roomPower = data.room_power || {};
+
+        for (const [svgId, roomId] of Object.entries(SVG_ROOM_MAP)) {
+            const el = document.getElementById(svgId);
+            if (!el) continue;
+            el.classList.remove('room-powered', 'room-unpowered');
+            el.classList.add(roomPower[roomId] ? 'room-powered' : 'room-unpowered');
+        }
+    } catch (e) {
+        console.error('Could not load electrical status:', e);
+    }
 }
 
 function _returnToMainMenu() {
