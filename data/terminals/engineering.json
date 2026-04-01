@@ -21,9 +21,28 @@
         "Next scheduled maintenance: OVERDUE"
       ]
     },
-    "electrical": {
+    "electrical_menu": {
       "title": "Electrical Systems",
+      "view": "electrical_menu",
+      "menu": [
+        {"label": "[P] Power Status",    "action": "power_status",    "key": "p"},
+        {"label": "[C] Circuit Diagram", "action": "circuit_diagram", "key": "c"},
+        {"label": "[R] Return",          "action": "return",          "key": "r"},
+        {"label": "[X] Exit",            "action": "exit",            "key": "x"}
+      ]
+    },
+    "power_status": {
+      "title": "Power Status",
       "view": "electrical_map"
+    },
+    "circuit_diagram": {
+      "title": "Circuit Diagram",
+      "text": [
+        "CIRCUIT DIAGRAM",
+        "",
+        "Circuit diagram not yet available.",
+        "Install diagnostic software package to enable."
+      ]
     }
   }
 }

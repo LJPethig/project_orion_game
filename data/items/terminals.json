@@ -67,7 +67,7 @@
     "terminal_type": "engineering",
     "menu": [
       {"label": "[T] Technical Data", "action": "technical_data", "key": "t"},
-      {"label": "[E] Electrical",     "action": "electrical",     "key": "e"},
+      {"label": "[E] Electrical",     "action": "electrical_menu",     "key": "e"},
       {"label": "[X] Exit",           "action": "exit",           "key": "x"}
     ]
   }

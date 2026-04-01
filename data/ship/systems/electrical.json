@@ -7,9 +7,7 @@
       "location": "engineering",
       "output_kw": 25.0,
       "critical_temp": 1200,
-      "normal_temp": 850,
-      "x": 100,
-      "y": 300
+      "normal_temp": 850
     },
     {
       "id": "propulsion_reactor",
@@ -18,9 +16,7 @@
       "location": "propulsion_bay",
       "output_kw": 120.0,
       "critical_temp": 1400,
-      "normal_temp": 950,
-      "x": 100,
-      "y": 500
+      "normal_temp": 950
     },
     {
       "id": "BAT-LS-01",
@@ -29,9 +25,7 @@
       "location": "life_support",
       "capacity_kwh": 150,
       "powers_room": "life_support",
-      "auto_activate": true,
-      "x": 150,
-      "y": 450
+      "auto_activate": true
     },
     {
       "id": "BAT-MF-01",
@@ -40,9 +34,7 @@
       "location": "mainframe_room",
       "capacity_kwh": 150,
       "powers_room": "mainframe_room",
-      "auto_activate": true,
-      "x": 450,
-      "y": 200
+      "auto_activate": true
     }
   ],
   
@@ -53,9 +45,7 @@
       "name": "Main Circuit Panel",
       "location": "engineering",
       "description": "Main circuit panel mounted on east wall near reactor",
-      "breaker_count": 5,
-      "x": 200,
-      "y": 300
+      "breaker_count": 5
     },
     {
       "id": "PNL-MC-SUB-A",
@@ -63,9 +53,7 @@
       "name": "Sub Circuit Panel A",
       "location": "main_corridor",
       "description": "Sub circuit panel mounted near Mainframe Room door",
-      "breaker_count": 3,
-      "x": 400,
-      "y": 250
+      "breaker_count": 3
     },
     {
       "id": "PNL-SC-SUB-B",
@@ -73,9 +61,7 @@
       "name": "Sub Circuit Panel B",
       "location": "sub_corridor",
       "description": "Sub circuit panel mounted near Cargo Bay door",
-      "breaker_count": 3,
-      "x": 400,
-      "y": 450
+      "breaker_count": 3
     },
     {
       "id": "PNL-REC-SUB-C",
@@ -83,9 +69,7 @@
       "name": "Sub Circuit Panel C",
       "location": "recreation_room",
       "description": "Sub circuit panel on wall facing Main Corridor",
-      "breaker_count": 5,
-      "x": 400,
-      "y": 100
+      "breaker_count": 5
     }
   ],
   

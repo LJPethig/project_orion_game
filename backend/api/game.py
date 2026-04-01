@@ -188,12 +188,15 @@ def get_terminal_content():
     if not action_content:
         return jsonify({"error": f"No content for action '{action}'"}), 404
 
-    # Map view — return view type instead of text
+    # View — return view type and any additional fields (menu etc.)
     if action_content.get('view'):
-        return jsonify({
+        response = {
             "title": action_content.get("title", ""),
             "view": action_content.get("view"),
-        })
+        }
+        if action_content.get('menu'):
+            response['menu'] = action_content.get('menu')
+        return jsonify(response)
 
     return jsonify({
         "title": action_content.get("title", ""),

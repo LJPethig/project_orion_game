@@ -13,6 +13,7 @@ let currentTerminal      = null;   // current terminal data from backend
 let terminalSubMenu      = null;   // null = main menu, object = sub-menu content
 let _typewriterActive    = false;  // true while typing is in progress
 let _typewriterCancelled = false;  // set to true to abort current typewriter
+let _electricalSubMenuData = null;   // electrical sub-menu data for back navigation
 
 // ── Electrical map ────────────────────────────────────────────
 
@@ -265,6 +266,29 @@ function _handleMenuKey(key) {
     const menu = terminalSubMenu ? null : currentTerminal.menu;
 
     if (terminalSubMenu) {
+        // ── Electrical sub-menu ───────────────────────────
+        if (terminalSubMenu.view === 'electrical_menu') {
+            const item = terminalSubMenu.menu.find(m => m.key === key);
+            if (!item) return;
+            if (item.action === 'return') { _returnToMainMenu(); return; }
+            if (item.action === 'exit') {
+                const name = currentTerminal.terminal_name;
+                closeTerminalPanel();
+                clearResponse();
+                appendResponse(`You close the ${name}.`);
+                return;
+            }
+            API.getTerminalContent(currentTerminal.terminal_type, item.action).then(data => {
+                if (data.error) return;
+                if (data.view === 'electrical_map') {
+                    _openElectricalMap(data.title);
+                } else {
+                    terminalSubMenu = data;
+                    _renderTerminal();
+                }
+            });
+            return;
+        }
         // ── Map pan/zoom ──────────────────────────────────
         if (terminalSubMenu.view === 'electrical_map') {
             if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP; _applyMapTransform(); return; }
@@ -280,7 +304,14 @@ function _handleMenuKey(key) {
                 _applyMapTransform(); return;
             }
         }
-        if (key === 'r') _returnToMainMenu();
+        if (key === 'r') {
+            // If we came from electrical sub-menu, go back there
+            if (terminalSubMenu && terminalSubMenu._parent) {
+                _openElectricalSubMenu(terminalSubMenu._parent);
+            } else {
+                _returnToMainMenu();
+            }
+        }
         if (key === 'x') {
             const name = currentTerminal.terminal_name;
             closeTerminalPanel();
@@ -306,11 +337,43 @@ function _handleMenuKey(key) {
         if (data.error) return;
         if (data.view === 'electrical_map') {
             _openElectricalMap(data.title);
+        } else if (data.view === 'electrical_menu') {
+            _openElectricalSubMenu(data);
         } else {
             terminalSubMenu = data;
             _renderTerminal();
         }
     });
+}
+
+function _openElectricalSubMenu(data) {
+    _electricalSubMenuData = data;
+    terminalSubMenu = data;
+    const inner = document.getElementById('terminal-panel-inner');
+    inner.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.className   = 'term-title';
+    title.textContent = data.title;
+    inner.appendChild(title);
+
+    const menu = document.createElement('div');
+    menu.className = 'term-menu';
+    data.menu.forEach(item => {
+        const row = document.createElement('div');
+        row.className   = 'term-menu-item';
+        row.textContent = item.label;
+        menu.appendChild(row);
+    });
+    inner.appendChild(menu);
+
+    const prompt = document.createElement('div');
+    prompt.className = 'term-prompt';
+    prompt.appendChild(document.createTextNode('Enter Command: '));
+    const cursor = document.createElement('span');
+    cursor.className = 'term-cursor';
+    prompt.appendChild(cursor);
+    inner.appendChild(prompt);
 }
 
 async function _openElectricalMap(title) {
@@ -354,11 +417,25 @@ async function _openElectricalMap(title) {
     }
 
     // Set sub-menu state so R/X keys work
-    terminalSubMenu = { view: 'electrical_map', title };
+    terminalSubMenu = { view: 'electrical_map', title, _parent: _electricalSubMenuData };
 }
 
 function _applyMapTransform() {
     if (!_mapSvgEl) return;
+    const container = document.getElementById('term-map-container');
+    if (container) {
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        const sw = _mapSvgEl.viewBox.baseVal.width  * _mapScale;
+        const sh = _mapSvgEl.viewBox.baseVal.height * _mapScale;
+        // Keep at least a quarter of the map visible in each direction
+        const minX = -(sw - cw * 0.25);
+        const maxX =   cw * 0.75;
+        const minY = -(sh - ch * 0.25);
+        const maxY =   ch * 0.75;
+        _mapPanX = Math.max(minX, Math.min(maxX, _mapPanX));
+        _mapPanY = Math.max(minY, Math.min(maxY, _mapPanY));
+    }
     _mapSvgEl.style.transform = `translate(${_mapPanX}px, ${_mapPanY}px) scale(${_mapScale})`;
 }
 

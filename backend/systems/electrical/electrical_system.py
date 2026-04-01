@@ -11,20 +11,18 @@ from typing import Dict, Optional
 class PowerSource:
     """Base class for power generation sources"""
 
-    def __init__(self, id: str, name: str, location: str, x: int, y: int):
+    def __init__(self, id: str, name: str, location: str):
         self.id = id
         self.name = name
         self.location = location
-        self.x = x
-        self.y = y
 
 
 class FissionReactor(PowerSource):
     """Thermionic fission reactor - primary power source"""
 
     def __init__(self, id: str, name: str, location: str, output_kw: float,
-                 critical_temp: int, normal_temp: int, x: int, y: int):
-        super().__init__(id, name, location, x, y)
+                 critical_temp: int, normal_temp: int):
+        super().__init__(id, name, location)
         self.output_kw = output_kw
         self.critical_temp = critical_temp
         self.normal_temp = normal_temp
@@ -39,8 +37,8 @@ class BackupBattery(PowerSource):
     """Emergency backup battery for critical systems"""
 
     def __init__(self, id: str, name: str, location: str, capacity_kwh: int,
-                 powers_room: str, auto_activate: bool, x: int, y: int):
-        super().__init__(id, name, location, x, y)
+                 powers_room: str, auto_activate: bool):
+        super().__init__(id, name, location)
         self.capacity_kwh = capacity_kwh
         self.powers_room = powers_room
         self.auto_activate = auto_activate
@@ -54,15 +52,13 @@ class CircuitPanel:
     """Circuit breaker panel containing multiple breakers"""
 
     def __init__(self, id: str, type: str, name: str, location: str,
-                 description: str, breaker_count: int, x: int, y: int):
+                 description: str, breaker_count: int):
         self.id = id
         self.type = type
         self.name = name
         self.location = location
         self.description = description
         self.breaker_count = breaker_count
-        self.x = x
-        self.y = y
 
         # Runtime state (defaults)
         self.operational = True
@@ -127,9 +123,7 @@ class ElectricalSystem:
                     location=ps_data['location'],
                     output_kw=ps_data['output_kw'],
                     critical_temp=ps_data['critical_temp'],
-                    normal_temp=ps_data['normal_temp'],
-                    x=ps_data['x'],
-                    y=ps_data['y']
+                    normal_temp=ps_data['normal_temp']
                 )
             elif ps_data['type'] == 'backup_battery':
                 ps = BackupBattery(
@@ -138,9 +132,7 @@ class ElectricalSystem:
                     location=ps_data['location'],
                     capacity_kwh=ps_data['capacity_kwh'],
                     powers_room=ps_data['powers_room'],
-                    auto_activate=ps_data['auto_activate'],
-                    x=ps_data['x'],
-                    y=ps_data['y']
+                    auto_activate=ps_data['auto_activate']
                 )
             else:
                 continue
@@ -155,9 +147,7 @@ class ElectricalSystem:
                 name=panel_data['name'],
                 location=panel_data['location'],
                 description=panel_data['description'],
-                breaker_count=panel_data['breaker_count'],
-                x=panel_data['x'],
-                y=panel_data['y']
+                breaker_count=panel_data['breaker_count']
             )
             system.panels[panel.id] = panel
 

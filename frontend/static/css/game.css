@@ -327,7 +327,7 @@ html, body {
     bottom: var(--event-strip-height);
     left: 0;
     right: 0;
-    height: 160px;
+    height: 80px;
     background: rgba(0, 0, 0, 0.95);
     border-top: 1px solid #333;
     display: flex;
