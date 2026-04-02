@@ -93,6 +93,25 @@ class BaseHandler:
             'security_level': door.security_level,
         }
 
+    def _panel_offline_response(self, door, target_name: str) -> dict:
+        """
+        Return the panel_offline response — no image, just a message.
+        Used when the panel's room has no power.
+        """
+        return {
+            'response': f"The {target_name} door access panel is unresponsive — it looks like it's offline.",
+            'action_type': 'instant',
+            'lock_input': False,
+            'room_changed': False,
+        }
+
+    def _check_room_power(self, room_id: str) -> bool:
+        """Check if a room has power via the electrical system."""
+        es = game_manager.electrical_system
+        if not es:
+            return True  # No electrical system — assume powered
+        return es.check_room_power(room_id)
+
     @staticmethod
     def _instant(message: str, room_changed: bool = False) -> dict:
         return {

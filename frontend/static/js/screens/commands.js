@@ -80,8 +80,15 @@ async function handleCommand() {
     handleResult(result);
 }
 
+// TODO: rename to refreshDescription() — now updates exits and object states
+// currentObjects must stay in sync so tooltips (terminals, containers) reflect live state
 function refreshExits() {
-    API.getRoom().then(room => { if (!room.error) currentExits = room.exits || {}; });
+    API.getRoom().then(room => {
+        if (!room.error) {
+            currentExits   = room.exits || {};
+            currentObjects = room.object_states || {};
+        }
+    });
 }
 
 function handleResult(result) {

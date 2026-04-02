@@ -104,11 +104,16 @@ def get_inventory():
 def _build_room_data(room) -> dict:
     """Build room dict for frontend — exits, portable items, object states."""
     exits = {}
+    es = game_manager.electrical_system
     for exit_key, exit_data in room.exits.items():
         door = exit_data.get('door')
+        powered = True
+        if es and door:
+            powered = es.check_room_power(room.id)
         exits[exit_key] = {
-            'label':      exit_data.get('label', exit_key),
+            'label': exit_data.get('label', exit_key),
             'door_state': door.get_state() if door else 'none',
+            'panel_powered': powered,
         }
 
     # Portable items on the room floor (safety net — surfaces are primary)
@@ -143,6 +148,7 @@ def _build_room_data(room) -> dict:
             object_states[obj.id] = {
                 'type': 'terminal',
                 'name': obj.name,
+                'powered': es.check_room_power(room.id) if es else True,
             }
 
     # Floor items — only populated when items are present

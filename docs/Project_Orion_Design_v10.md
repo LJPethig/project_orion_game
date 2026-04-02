@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 9.0 — April 2026**
+**Version 10.0 — April 2026**
 
 ---
 
@@ -11,8 +11,8 @@
 Project Orion Game is a space survival simulator set in 2276. The player operates a solo trader/explorer spacecraft named the **Tempus Fugit**, captained by **Jack Harrow**. Core gameplay revolves around maintaining ship systems, repairing failures, and surviving deep space. This is a serious "slow burner" simulator — not an arcade game. Systems fail, cascade, and the player must diagnose and fix them before things get fatal.
 
 ### History
-- **Project Dark Star** — previous iteration in Python/Arcade. Deprecated — Project Orion Game has surpassed it in every area.
-- **Project Orion (electrical reference project)** — standalone project used to design and validate the electrical system architecture. Now deprecated as a separate codebase — all relevant code and data has been merged into Project Orion Game.
+- **Project Dark Star** — previous iteration in Python/Arcade. Deprecated.
+- **Project Orion (electrical reference project)** — standalone project used to design and validate the electrical system architecture. Now deprecated — all code and data merged into Project Orion Game.
 - **Project Orion Game** — Flask backend + HTML/CSS/JS frontend. The active codebase.
 
 ### Core Philosophy
@@ -48,7 +48,11 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - Player inventory screen: slide-out panel, equipped slots, carried items, actions ✅
 - Smart command parser: ID resolver, verb conflict resolution, clarification system ✅
 - Item registry: unique instances per placement (foundation for consumables) ✅
-- Dark Star feature parity: **complete** — Project Dark Star is now deprecated ✅
+- Terminal system: CRT styling, typewriter, keypress nav, sub-menus, terminal mode lockout ✅
+- Electrical system: reactor, panels, breakers, cables, batteries, power tracing ✅
+- Electrical integrated into gameplay: door panels and terminals check room power ✅
+- Engineering terminal: Technical Data, Electrical sub-menu (Power Status map, Circuit Diagram placeholder) ✅
+- Debug console: Ctrl+D, break/fix commands, live map refresh ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -62,7 +66,7 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - **Phase 14** — Player inventory screen ✅
 - **Phase 15** — Smart command parser ✅
 - **Phase 16** — Terminal system ✅
-- **Phase 17** — Electrical system integration ✅ (in progress — map and debug complete, circuit diagram SVG pending)
+- **Phase 17** — Electrical system integration ✅ (circuit diagram SVG pending — being built manually)
 
 ---
 
@@ -91,7 +95,7 @@ project_orion_game/
 │   │                                    CircuitPanel, Breaker, PowerCable
 │   │
 │   ├── handlers/
-│   │   ├── base_handler.py
+│   │   ├── base_handler.py        ← _check_room_power, _panel_offline_response
 │   │   ├── command_handler.py
 │   │   ├── movement_handler.py
 │   │   ├── door_handler.py
@@ -105,19 +109,19 @@ project_orion_game/
 │   │   └── item_loader.py
 │   │
 │   └── api/
-│       ├── game.py                ← includes /api/game/terminal/content
+│       ├── game.py                ← /api/game/terminal/content, room data includes panel_powered + terminal powered
 │       ├── command.py
 │       └── systems.py             ← /api/systems/electrical/status, break, fix
 │
 ├── frontend/
 │   ├── templates/
 │   │   ├── splash.html
-│   │   └── game.html
+│   │   └── game.html              ← includes debug console panel
 │   │
 │   └── static/
 │       ├── css/
 │       │   ├── splash.css
-│       │   ├── game.css
+│       │   ├── game.css           ← includes debug console styles
 │       │   ├── description.css
 │       │   ├── inventory.css
 │       │   ├── response.css
@@ -130,11 +134,11 @@ project_orion_game/
 │       │   └── screens/
 │       │       ├── splash.js
 │       │       ├── ui.js
-│       │       ├── commands.js
-│       │       ├── description.js
+│       │       ├── commands.js    ← refreshExits() also updates currentObjects
+│       │       ├── description.js ← exit/terminal tooltips show Offline state
 │       │       ├── inventory.js
 │       │       ├── terminal.js    ← terminal panel, map, typewriter, keypress nav
-│       │       └── game.js        ← includes debug console (Ctrl+D)
+│       │       └── game.js        ← debug console (Ctrl+D), _debugBreakFix calls refreshExits
 │       └── images/
 │           ├── rooms/
 │           ├── doors/
@@ -146,11 +150,11 @@ project_orion_game/
     │   ├── wearables.json
     │   ├── misc_items.json
     │   ├── consumables.json
-    │   ├── terminals.json
+    │   ├── terminals.json         ← terminal definitions, keywords, menu items with key bindings
     │   ├── storage_units.json
     │   └── surfaces.json
     ├── terminals/
-    │   └── engineering.json       ← engineering terminal content
+    │   └── engineering.json       ← engineering terminal content and sub-menus
     └── ship/
         ├── structure/
         │   ├── ship_rooms.json
@@ -266,7 +270,7 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 | `--col-text` | `#bababa` | Default text |
 | `--col-title` | `#27e6ec` | Cyan — titles, exits, containers, terminals |
 | `--col-portable` | `#bea5cd` | Purple — portable items, surfaces with items |
-| `--col-alert` | `#ff8c00` | Orange — alerts, locked doors |
+| `--col-alert` | `#ff8c00` | Orange — alerts, locked doors, offline state |
 | `--col-prompt` | `#00ff00` | Green — command prompt, open doors |
 | `--col-response` | `#7e97ae` | Muted blue — player input echo |
 | `--col-term-bg` | `#000d00` | CRT phosphor background |
@@ -281,9 +285,9 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 ### Markup types
 | Markup | Type | Colour | Hover | Click |
 |--------|------|--------|-------|-------|
-| `*exit*` | Exit | Cyan | Door state | None |
+| `*exit*` | Exit | Cyan | Door state + Offline if unpowered | None |
 | `%object%` | Container | Cyan | Open/Closed | Toggle open/close |
-| `!terminal!` | Terminal | Cyan | "Online" | `access <terminal>` |
+| `!terminal!` | Terminal | Cyan | Online / Offline | `access <terminal>` |
 | `#surface#` | Surface | Grey bold (empty) / Purple bold (has items) | "Empty"/"Has items" | Expand Layer 3 |
 
 ### Description layers
@@ -328,19 +332,22 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 ### Overview
 Terminals are accessed via `access terminal` command or clicking terminal markup in the description. Once accessed, the player is locked to the terminal until they explicitly exit with `[X]`.
 
+### Power check
+Terminal access is blocked if the room has no power. Message: "The [terminal name] is unresponsive — it looks like it's offline." Tooltip shows "Offline" in orange.
+
 ### Terminal mode
 - Command input disabled, `>` prompt hidden
 - Global click refocus suppressed
-- Description panel clicks blocked (except terminal markup, which is also blocked during active session)
+- Description panel clicks blocked during active session
 - INV tab still accessible
-- TERM tab visible for duration of session, switches between panels without closing session
-- Only `[X]` exits the terminal — no other mechanism
+- TERM tab visible for duration of session
+- Only `[X]` exits the terminal
 
 ### Terminal panel
 - CRT styling: dark green phosphor background, scanlines, text glow
 - Typewriter effect with jitter on sub-menu content text
 - Blinking block cursor — solid during typing, blinking at rest
-- Keypress navigation — single key, no Enter required, unrecognised keys silently ignored
+- Keypress navigation — single key, no Enter required
 - Tab colour adapts — CRT green when terminal active
 
 ### Terminal menu structure (engineering terminal)
@@ -352,7 +359,7 @@ Main Menu
 
 Electrical Sub-Menu
   [P] Power Status      ← ship layout SVG, live room colours
-  [C] Circuit Diagram   ← wiring diagram SVG (pending — being built manually)
+  [C] Circuit Diagram   ← wiring diagram SVG (pending — being built manually in Inkscape)
   [R] Return
   [X] Exit
 ```
@@ -360,12 +367,12 @@ Electrical Sub-Menu
 ### Terminal content files
 - `data/terminals/engineering.json` — engineering terminal content
 - Terminal type maps to filename: `{terminal_type}.json`
-- Content actions support `text` (typewriter) or `view` (special rendering)
+- Content actions support `text` (typewriter), `view` (special rendering), or `view` + `menu` (sub-menu)
 - View types: `electrical_map`, `electrical_menu`
 
 ### Key files
 - `data/items/terminals.json` — terminal definitions, keywords, menu items with key bindings
-- `backend/handlers/terminal_handler.py` — `access` verb handler
+- `backend/handlers/terminal_handler.py` — `access` verb handler, power check
 - `backend/api/game.py` — `/api/game/terminal/content` POST route
 - `frontend/static/js/screens/terminal.js` — all terminal rendering and interaction
 - `frontend/static/css/terminal.css` — CRT styling
@@ -437,7 +444,7 @@ propulsion_reactor (120kW) — independent tree
 | Rooms powered | 17 |
 
 ### Cable junctions
-Cables change ID at room boundaries. Junctions are not modelled as components — breaking either cable segment interrupts flow. Example: Engineering→Main Corridor power travels via `PWC-ENG-03` then continues as `PWC-MC-06`.
+Cables change ID at room boundaries. Junctions are not modelled as components — breaking either cable segment interrupts flow.
 
 ### Backup batteries
 Both batteries monitor their room continuously and auto-activate on mains power loss. They provide power only to their designated room with no backfeed. `update_battery_states()` must be called after any component state change.
@@ -448,7 +455,15 @@ Both batteries monitor their room continuously and auto-activate on mains power 
 - **FUS-MC-03 trips** — Mainframe loses mains, battery activates, other MC-SUB-A rooms unaffected
 - **PWC-SC-02 break** — Cargo Bay only, other Sub Corridor rooms unaffected
 - **PNL-REC-SUB-C failure** — Rec Room, Cockpit, Galley, Med Bay, Hypersleep all dark
-- **PWC-MC-06 break** — entire Main Corridor branch dark (Crew Cabin, Captains Quarters, Mainframe on battery, Main Corridor)
+- **PWC-MC-06 break** — entire Main Corridor branch dark
+
+### Power integration in gameplay
+- **Door panels** — all doors require powered panel to operate. Unpowered: "The [room] door access panel is unresponsive — it looks like it's offline." No door image shown. Crowbar bypass still works.
+- **Terminals** — terminal access blocked if room unpowered. Message: "The [terminal name] is unresponsive — it looks like it's offline."
+- **Hover tooltips** — exits show "Open — Offline" / "Closed — Offline" in orange when unpowered. Terminals show "Offline" in orange.
+- **Description refresh** — `refreshExits()` in `commands.js` updates both `currentExits` and `currentObjects` so tooltips reflect live state immediately after break/fix.
+- **Active terminal on power loss** — if power is lost to a room while the player is using the terminal (via game events), the terminal should close immediately with an appropriate message. Not yet implemented — deferred to when event system is built.
+- **Room description** — static prose descriptions have had all electrical atmosphere references removed (flickering lights, humming HVAC etc). A dynamic power-state description layer will be added later — powered rooms get atmospheric detail, unpowered rooms get darkness and silence.
 
 ### API endpoints
 | Endpoint | Method | Description |
@@ -459,8 +474,8 @@ Both batteries monitor their room continuously and auto-activate on mains power 
 | `/api/systems/electrical/fix/<id>` | POST | Fix any component by ID |
 
 ### Engineering terminal — electrical sub-menu
-- **[P] Power Status** — ship layout SVG (`ship_layout.svg`) with live room colours (green=powered, red=unpowered). Pan with arrow keys, zoom with +/-. Colours fetched from `/api/systems/electrical/status` on open.
-- **[C] Circuit Diagram** — wiring diagram SVG (being built manually in Inkscape from `skeleton.svg` skeleton). Shows reactor → panels → fuses → rooms topology. Hover on wire = cable ID/name. Hover on fuse = breaker ID/name. Static reference — no live power colouring.
+- **[P] Power Status** — ship layout SVG with live room colours (green=powered, red=unpowered). Pan with arrow keys, zoom with +/-. Pan constrained to keep map visible.
+- **[C] Circuit Diagram** — wiring diagram SVG (being built manually in Inkscape). Shows reactor → panels → fuses → rooms topology. Hover on wire = cable ID/name. Hover on fuse = breaker ID/name. Static reference — no live power colouring.
 
 ### SVG room ID mapping (ship_layout.svg → backend)
 | SVG ID | Backend room ID |
@@ -496,27 +511,26 @@ Both batteries monitor their room continuously and auto-activate on mains power 
 
 ### Debug console
 - `Ctrl+D` toggles debug panel in game
-- `break <component_id>` — breaks any electrical component, map updates immediately
-- `fix <component_id>` — fixes any electrical component, map updates immediately
+- `break <component_id>` — breaks any electrical component, map and tooltips update immediately
+- `fix <component_id>` — fixes any electrical component, map and tooltips update immediately
 - Terminal keyhandler passes input through to debug console when debug input is focused
 
 ### Key files
 - `data/ship/systems/electrical.json` — full electrical system definition
 - `backend/systems/electrical/electrical_system.py` — ElectricalSystem and all component classes
 - `backend/api/systems.py` — electrical API routes
+- `backend/handlers/base_handler.py` — `_check_room_power()`, `_panel_offline_response()`
 - `frontend/static/images/ship_layout.svg` — interactive ship layout map
-- `frontend/static/js/screens/terminal.js` — map rendering and interaction (SVG_ROOM_MAP, `_openElectricalMap`, `_updateRoomColours`)
+- `frontend/static/js/screens/terminal.js` — map rendering and interaction
+- `frontend/static/js/screens/commands.js` — `refreshExits()` updates both exits and object states
 
 ---
 
 ## 14. BUILD PLAN — NEXT PHASES
 
-### Phase 17 — Electrical system integration (CURRENT)
+### Phase 17 — Electrical system integration (COMPLETE except circuit diagram SVG)
 Remaining:
-- Circuit diagram SVG being built manually in Inkscape
-- Wire circuit diagram into `[C] Circuit Diagram` terminal option
-- Remove placeholder x/y coordinates from `electrical.json` and `ElectricalSystem` classes
-- Room power affecting doors, terminals (later in phase)
+- Circuit diagram SVG being built manually in Inkscape — integrate into `[C] Circuit Diagram` when ready
 
 ### Phase 18 — Full repair system
 - Diagnosis, repair, verification flow
@@ -531,6 +545,7 @@ Remaining:
 ### Phase 20 — Life support
 - Binary operational states driven by electrical system
 - Temperature modelling — open/closed doors, room volume, HVAC
+- Dynamic room descriptions based on power state
 
 ### Phase 21+ — Events, navigation, trading...
 
@@ -567,7 +582,10 @@ Breaker reset vs replacement:
 - **Examine / look at command** — deferred. To be discussed.
 - **Consumable `length_m`** — wire instances need `length_m` attribute in consumables.json. Add when repair system built.
 - **Clarification display for items with same name but different state** — e.g. `Optical Wire (5m)` vs `Optical Wire (10m)`. Fix when `length_m` attribute exists.
-- **Storage room wiring** — logical bug fixed in `electrical.json` (storage_room now correctly mapped to `PNL-SC-SUB-B` via `FUS-SC-03`).
+- **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
+- **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Not implemented — no crash risk, purely a gameplay/immersion issue. Implement when event system is built.
+- **Dynamic room descriptions** — static prose has had electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
+- **resolver_debug.log** — logging added during Phase 15 to investigate whether keyword fallback could be safely removed from handlers. Conclusion: keep dual matching (see Section 7). Log is now redundant — remove logger setup from main.py and delete the log file during a tidy-up session.
 
 ---
 
@@ -591,5 +609,5 @@ Breaker reset vs replacement:
 
 ---
 
-*Project Orion Game Design Document v9.0*
+*Project Orion Game Design Document v10.0*
 *April 2026*

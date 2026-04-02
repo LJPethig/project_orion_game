@@ -146,10 +146,12 @@ class DoorHandler(BaseHandler):
 
     def _check_panel(self, door, target_name: str) -> dict | None:
         """
-        Return a panel_damaged response dict if the panel on the player's side
-        is broken. Returns None if operational (or absent).
+        Return an error response if the panel on the player's side is broken
+        or the room has no power. Returns None if operational.
         """
         current_room = game_manager.get_current_room()
+        if not self._check_room_power(current_room.id):
+            return self._panel_offline_response(door, target_name)
         panel = door.get_panel_for_room(current_room.id)
         if panel and panel.is_broken:
             return self._panel_damaged_response(door, target_name)

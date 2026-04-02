@@ -45,13 +45,16 @@ class TerminalHandler(BaseHandler):
                 'options':      options,
             }
 
+        if not self._check_room_power(room.id):
+            return self._instant(f"The {matched.name} is unresponsive — it looks like it's offline.")
+
         return {
-            'response':       f"You access the {matched.name}.",
-            'action_type':    'terminal_open',
-            'lock_input':     False,
-            'room_changed':   False,
-            'terminal_id':    matched.id,
-            'terminal_name':  matched.name,
-            'terminal_type':  matched.terminal_type,
-            'menu':           matched.menu,
+            'response': f"You access the {matched.name}.",
+            'action_type': 'terminal_open',
+            'lock_input': False,
+            'room_changed': False,
+            'terminal_id': matched.id,
+            'terminal_name': matched.name,
+            'terminal_type': matched.terminal_type,
+            'menu': matched.menu,
         }

@@ -218,11 +218,14 @@ function setupObjectTooltips(container) {
             const exitKey  = e.target.dataset.exit;
             const exitData = findExitData(exitKey);
             if (!exitData) return;
-            const state = exitData.door_state || 'none';
-            const label = exitData.label || exitKey;
+            const state   = exitData.door_state || 'none';
+            const label   = exitData.label || exitKey;
+            const powered = exitData.panel_powered !== false;
+            const stateText = powered ? doorStateText(state) : doorStateText(state) + ' — Offline';
+            const stateCol  = powered ? doorStateColour(state) : 'var(--col-alert)';
             tooltip.innerHTML = `
                 <div style="color:var(--col-title)">${label}</div>
-                <div style="color:${doorStateColour(state)};font-size:11px">${doorStateText(state)}</div>
+                <div style="color:${stateCol};font-size:11px">${stateText}</div>
             `;
             tooltip.classList.remove('hidden');
         });
@@ -246,8 +249,13 @@ function setupObjectTooltips(container) {
 
     // ── Terminals ─────────────────────────────────────────
     container.querySelectorAll('.markup-terminal').forEach(span => {
-        span.addEventListener('mouseenter', () => {
-            tooltip.innerHTML = `<div style="color:var(--col-prompt);font-size:11px">Online</div>`;
+        span.addEventListener('mouseenter', (e) => {
+            const key      = e.target.dataset.terminal;
+            const objState = _findObjectState(currentObjects, key);
+            const powered  = objState ? objState.powered !== false : true;
+            const text     = powered ? 'Online' : 'Offline';
+            const colour   = powered ? 'var(--col-prompt)' : 'var(--col-alert)';
+            tooltip.innerHTML = `<div style="color:${colour};font-size:11px">${text}</div>`;
             tooltip.classList.remove('hidden');
         });
         _bindTooltipMove(span, tooltip);
