@@ -183,8 +183,9 @@ class Ship:
             if not room:
                 print(f"Warning: ship_items.json references unknown room '{entry['room_id']}'")
                 continue
-            for item_id in entry.get('items', []):
-                item = self._make_item(item_id, registry)
+            for item_entry in entry.get('items', []):
+                item_id, overrides = self._parse_item_entry(item_entry)
+                item = self._make_item(item_id, registry, overrides)
                 if item:
                     room.floor.append(item)
 
@@ -195,8 +196,9 @@ class Ship:
             if not container:
                 print(f"Warning: ship_items.json references unknown container '{entry['container_id']}'")
                 continue
-            for item_id in entry.get('items', []):
-                item = self._make_item(item_id, registry)
+            for item_entry in entry.get('items', []):
+                item_id, overrides = self._parse_item_entry(item_entry)
+                item = self._make_item(item_id, registry, overrides)
                 if item:
                     if not container.add_item(item):
                         print(f"Warning: '{item_id}' could not fit in '{entry['container_id']}' — over capacity")
@@ -208,18 +210,38 @@ class Ship:
             if not surface:
                 print(f"Warning: ship_items.json references unknown surface '{entry['surface_id']}'")
                 continue
-            for item_id in entry.get('items', []):
-                item = self._make_item(item_id, registry)
+            for item_entry in entry.get('items', []):
+                item_id, overrides = self._parse_item_entry(item_entry)
+                item = self._make_item(item_id, registry, overrides)
                 if item:
                     surface.add_item(item)
 
-    def _make_item(self, item_id: str, registry: dict) -> PortableItem | None:
-        """Create a fresh item instance from registry data. Each call returns a unique object."""
+    def _parse_item_entry(self, entry) -> tuple[str, dict | None]:
+        """
+        Parse a placement entry from initial_ship_items.json.
+        Supports both simple string and dict formats:
+          "wire_low_voltage"
+          {"id": "wire_low_voltage", "length_m": 12.5}
+        Returns (item_id, overrides_dict_or_None).
+        """
+        if isinstance(entry, str):
+            return entry, None
+        item_id = entry.get('id')
+        overrides = {k: v for k, v in entry.items() if k != 'id'}
+        return item_id, overrides or None
+
+    def _make_item(self, item_id: str, registry: dict, overrides: dict = None) -> PortableItem | None:
+        """Create a fresh item instance from registry data. Each call returns a unique object.
+        overrides — optional dict of instance attributes to apply after base data (e.g. length_m for wire).
+        """
         data = registry.get(item_id)
         if not data:
             print(f"Warning: initial_ship_items.json references unknown item '{item_id}'")
             return None
-        return instantiate_item(dict(data))
+        merged = dict(data)
+        if overrides:
+            merged.update(overrides)
+        return instantiate_item(merged)
 
     def _build_container_index(self) -> dict:
         """Return a flat dict of container_id → StorageUnit across all rooms."""

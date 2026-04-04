@@ -2,14 +2,18 @@
   {
     "id": "stasis_garment",
     "name": "Stasis Interface Garment",
+    "manufacturer": "CryoWeave Dynamics",
+    "model": "Cryo One 7",
     "description": "A worn, charcoal-gray one-piece garment designed for long-term stasis pod use. Faded corporate markings and micro-abrasions speak to years of service. Embedded sensor threads and auto-sealing ports allow seamless integration with pod life support systems.",
-    "keywords": ["stasis garment", "pod garment", "pod suit", "stasis interface garment", "garment","stasis suit"],
+    "keywords": ["stasis garment", "pod garment", "pod suit", "stasis interface garment", "garment", "stasis suit"],
     "mass": 1.2,
     "equip_slot": "body"
   },
   {
     "id": "flight_coveralls",
     "name": "Shipboard Flight Coveralls",
+    "manufacturer": "Blåkläder Nova",
+    "model": "Flight X200",
     "description": "Heavy-duty one-piece coveralls in navy synth-fabric. Reinforced panels at knees and elbows, multiple cargo pockets, and tool loops along the thighs. Standard intra-ship wear for pilots and engineers — functional, flame-resistant, and built for long-haul reliability.",
     "keywords": ["coveralls", "coverall", "flight coveralls", "flight coverall", "jumpsuit", "flight suit"],
     "mass": 3.5,
@@ -18,6 +22,8 @@
   {
     "id": "pilot_jacket",
     "name": "Pilot's Jacket",
+    "manufacturer": "Tenjin Leather Collective",
+    "model": "Samurai",
     "description": "A short black synth-leather jacket with high mandarin collar and structured shoulders. Multiple deep pockets line the chest and sides — designed not to interfere with a tool belt. Clean lines and subtle wear marks give it a sharp, authoritative presence in cold ship corridors.",
     "keywords": ["pilots jacket", "pilot jacket", "flight jacket", "jacket", "black jacket", "leather jacket"],
     "mass": 3.0,
@@ -26,6 +32,8 @@
   {
     "id": "utility_belt",
     "name": "Utility Belt",
+    "manufacturer": "Blåkläder Nova",
+    "model": "Clip-TECH",
     "description": "A heavy-duty belt with multiple pouches and clips for tools and personal equipment.",
     "keywords": ["utility belt", "belt"],
     "mass": 0.5,
@@ -34,6 +42,8 @@
   {
     "id": "mag_boots",
     "name": "Magnetic Work Boots",
+    "manufacturer": "Viking Footwear",
+    "model": "MAG-LOKKA",
     "description": "Heavy-duty boots with electromagnetic soles activated by a simple in-boot heel switch. Provides secure traction on ferromagnetic surfaces during zero-G or gravity malfunctions.",
     "keywords": ["mag boots", "magnetic boots", "work boots", "boots"],
     "mass": 2,
@@ -42,6 +52,8 @@
   {
     "id": "eva_suit",
     "name": "EVA Suit",
+    "manufacturer": "Helios LLC",
+    "model": "X-SUIT",
     "description": "A heavy-duty extravehicular activity suit rated for hard vacuum and radiation shielding. Integrated gloves and reinforced joints allow precise external work. A bulky life-support backpack provides hours of independent operation — the only reliable barrier between you and the black.",
     "keywords": ["suit", "eva suit", "spacesuit", "vacuum suit", "vac suit", "extravehicular suit"],
     "mass": 8.0,
@@ -50,6 +62,8 @@
   {
     "id": "eva_helmet",
     "name": "EVA Helmet",
+    "manufacturer": "Kurogane Corp",
+    "model": "VESTRA",
     "description": "A sealed extravehicular helmet with gold-tinted visor for glare reduction and radiation filtering. Scratched polycarbonate dome and worn neck ring show years of hard use. Integrated comms and HUD overlay provide vital readouts in the black.",
     "keywords": ["eva helmet", "spacesuit helmet", "vacuum helmet", "helmet"],
     "mass": 5.5,
@@ -58,6 +72,8 @@
   {
     "id": "eva_boots",
     "name": "EVA Boots",
+    "manufacturer": "Helios LLC",
+    "model": "X-BOOT",
     "description": "Vacuum-sealed extravehicular boots with integrated switchable electromagnetic soles for hull adhesion. Thick insulation and sealed joints protect against extreme cold — designed to pair with the EVA suit for full external mobility.",
     "keywords": ["eva boots", "vacuum boots", "spacesuit boots", "extravehicular boots", "boots"],
     "mass": 3,
@@ -66,6 +82,8 @@
   {
     "id": "personal_atm_monitor",
     "name": "Personal Atmosphere Monitor (PAM)",
+    "manufacturer": "Teltonka Systems",
+    "model": "Altair iO-8",
     "description": "A compact, rugged sensor unit designed to clip onto a utility belt. Provides real-time local readout of pressure, temperature, and composite air quality — essential for any spacer who wants to know if they're still breathing.",
     "keywords": ["pam", "air monitor", "atmosphere monitor", "personal atmosphere monitor"],
     "mass": 0.15,

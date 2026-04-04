@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 10.0 — April 2026**
+**Version 11.0 — April 2026**
 
 ---
 
@@ -106,7 +106,8 @@ project_orion_game/
 │   │   └── terminal_handler.py
 │   │
 │   ├── loaders/
-│   │   └── item_loader.py
+│   │   └── item_loader.py         ← handles mixed format in initial_ship_items.json,
+│   │                                 computed mass for wire consumables
 │   │
 │   └── api/
 │       ├── game.py                ← /api/game/terminal/content, room data includes panel_powered + terminal powered
@@ -155,6 +156,8 @@ project_orion_game/
     │   └── surfaces.json
     ├── terminals/
     │   └── engineering.json       ← engineering terminal content and sub-menus
+    ├── repair/
+    │   └── repair_profiles.json   ← repair profiles for all repairable objects (Phase 18)
     └── ship/
         ├── structure/
         │   ├── ship_rooms.json
@@ -191,6 +194,7 @@ TERMINAL_CONTENT_PATH   = 'data/terminals'
 STORAGE_UNITS_JSON_PATH = 'data/items/storage_units.json'
 SURFACES_JSON_PATH      = 'data/items/surfaces.json'
 ELECTRICAL_JSON_PATH    = 'data/ship/systems/electrical.json'
+REPAIR_PROFILES_PATH    = 'data/repair/repair_profiles.json'
 ITEM_FILES = [
     'data/items/tools.json',
     'data/items/wearables.json',
@@ -232,7 +236,7 @@ When multiple distinct matches found, returns `clarification_required` with clic
 | `go`, `enter`, `move` | MovementHandler |
 | `open`, `close` | _route_open/_route_close |
 | `lock`, `unlock` | DoorHandler |
-| `repair panel`, `repair` | RepairHandler |
+| `repair`, `repair panel` | RepairHandler |
 | `take`, `get`, `pick up` | ItemHandler |
 | `drop` | ItemHandler |
 | `look in` | ContainerHandler |
@@ -324,6 +328,44 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 
 ### Object ID naming convention
 `roomid_markuptext` — ensures unambiguous ID matching within a room.
+
+### Item fields — all item types (tools, wearables, consumables)
+Every item in the game must have:
+- `manufacturer` — company name (e.g. "Veridian Systems", "Axiom Systems", "Solaris Cable Co.")
+- `model` — model or part number (e.g. "VS-900", "AX-7", "SC-OPT-2276")
+- `description` — written with character, not generic. Include manufacturer, model, condition where appropriate.
+
+No generic descriptions anywhere. Every item must feel like it exists in the world of 2276.
+
+### Wire consumables — special fields
+Wire items use `mass_per_metre` instead of `mass` (mass is computed at runtime from `length_m`):
+- `max_length_m` — maximum spool capacity, physical property of the item type
+- `mass_per_metre` — used to compute instance mass at runtime
+
+Wire instance attributes (set at runtime, not in JSON type definition):
+- `length_m` — actual length of this spool, set from placement data, decremented on use
+- `mass` — computed: `length_m * mass_per_metre`
+
+### Scan tool — special fields
+- `installed_manuals` — list of repair profile keys the scan tool can service
+  - Phase 18: `["door_panel_l1", "door_panel_l2", "door_panel_l3"]`
+  - Expandable as new system manuals are added or purchased
+
+### initial_ship_items.json — mixed placement format
+Supports both simple string (standard instantiation) and dict (instance attribute overrides):
+
+```json
+{
+  "container_id": "engineering_large_parts_storage_unit",
+  "items": [
+    "electrical_service_kit",
+    {"id": "wire_light_duty", "length_m": 12.5},
+    {"id": "wire_optical", "length_m": 8.0}
+  ]
+}
+```
+
+`item_loader.py` handles both formats — string uses defaults, dict applies instance attribute overrides after instantiation.
 
 ---
 
@@ -533,8 +575,7 @@ Remaining:
 - Circuit diagram SVG being built manually in Inkscape — integrate into `[C] Circuit Diagram` when ready
 
 ### Phase 18 — Full repair system
-- Diagnosis, repair, verification flow
-- Real tool and parts checks
+- Scope: door panels first — designed to be fully generic for all future repairable objects
 - See Section 15 for complete design
 
 ### Phase 19 — Ship inventory + cargo
@@ -551,27 +592,152 @@ Remaining:
 
 ---
 
-## 15. FULL REPAIR SYSTEM — TARGET DESIGN (PHASE 18)
+## 15. FULL REPAIR SYSTEM — DESIGN (PHASE 18)
 
-**Step 1 — Diagnose** using Scan Tool + basic access tools + workshop manuals (optional)
-**Step 2 — Repair/Replace** correct parts and tools at component location
-**Step 3 — Verify** using Scan Tool again
-**Step 4 — Operational** or return to Step 2
+### Overview
+The repair system replaces the current magic repair with a realistic multi-step process. Phase 18 scope is door panels only, but the architecture is fully generic — the same code handles any future repairable object by reading its repair profile from JSON.
 
-Without correct manual: diagnosis less precise, chance of incorrect repair.
-Bypass mechanic: force open frozen door with crowbar, damages door further.
+### The Scan Tool
+The scan tool is the central diagnostic instrument — a jack-of-all-trades device equivalent to a high-end modern workshop tool. Capabilities:
+- Fault code reading and bi-directional comms
+- Coding, reset and initialisation procedures
+- Built-in service manuals (door panels pre-installed; other exotic systems require scan tool updates purchased later)
+- Built-in oscilloscope / multimeter
+- Thermal imager
+- Optical borescope
+- WiFi link — can be used to view ship electrical systems SVG remotely
 
-Repair procedure (electrical):
-1. Diagnose: Use scan tool on failed component to identify fault
-2. Navigate: Travel to component location
-3. Gather Tools: Insulated gloves, powered bit driver, multimeter, wire cutters
-4. Gather Parts: Replacement breakers, wire segments, circuit boards (as needed)
-5. Perform Repair: Replace failed component (game time advances 15-60 minutes)
-6. Test: Verify power restoration, check downstream systems
+The scan tool has an `installed_manuals` attribute — a list of repair profile keys it can service. Phase 18: `["door_panel_l1", "door_panel_l2", "door_panel_l3"]`. Each security level has its own profile key with distinct fluff text (manufacturer, model, revision).
 
-Breaker reset vs replacement:
-- **Tripped breaker** — quick reset (2 minutes). Trips again immediately = fault downstream.
-- **Failed breaker** — requires replacement (15 minutes).
+### Repair command — stateful and progressive
+The single `repair <object>` command drives the entire process. The game determines what stage the player is at based on object state:
+
+```
+panel.is_broken = False
+  → "The panel is operational."
+
+panel.is_broken = True, panel.diagnosed_components = []
+  → Run diagnosis (check tools, timed action, reveal broken components)
+
+panel.is_broken = True, panel.diagnosed_components populated
+  → Run repair (check tools + parts, timed action, restore panel)
+```
+
+The player never needs to think about which sub-command to use. Typing `repair panel` repeatedly walks them through the process naturally. Once diagnosis is complete, re-typing `repair panel` jumps straight to the repair stage — diagnosis is never repeated unnecessarily.
+
+### Game state per repairable object
+```python
+panel.is_broken = True/False
+panel.broken_components = ["logic_circuit", "wiring_optical"]   # ground truth — set at break time
+panel.diagnosed_components = []                                   # what player has discovered — set by diagnosis
+```
+
+The separation between `broken_components` and `diagnosed_components` is intentional. The repair handler checks `broken_components` to determine actual success, but the player can only act on `diagnosed_components`. This is the hook for future difficulty scaling — a missed diagnosis means a repair appears to succeed but the panel stays broken, forcing the player to diagnose again.
+
+### Repair profiles JSON
+`data/repair/repair_profiles.json` — one profile per repairable object type, keyed by security level for door panels.
+
+```json
+{
+  "door_panel_l1": {
+    "display_name": "Door Access Panel (Level 1)",
+    "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
+    "components": [
+      {
+        "id": "logic_circuit",
+        "name": "Logic Circuit",
+        "diag_time_mins": 5,
+        "repair_time_mins": 15,
+        "parts_required": [
+          {"item_id": "logic_circuit_board", "qty": 1}
+        ]
+      },
+      {
+        "id": "interface",
+        "name": "Interface Module",
+        "diag_time_mins": 5,
+        "repair_time_mins": 10,
+        "parts_required": [
+          {"item_id": "interface_module", "qty": 1}
+        ]
+      },
+      {
+        "id": "screen",
+        "name": "Panel Screen",
+        "diag_time_mins": 5,
+        "repair_time_mins": 10,
+        "parts_required": [
+          {"item_id": "panel_screen", "qty": 1}
+        ]
+      },
+      {
+        "id": "wiring_light",
+        "name": "Light Duty Wiring",
+        "diag_time_mins": 3,
+        "repair_time_mins": 8,
+        "parts_required": [
+          {"item_id": "wire_light_duty", "qty": 1}
+        ]
+      },
+      {
+        "id": "wiring_optical",
+        "name": "Optical Wiring",
+        "diag_time_mins": 3,
+        "repair_time_mins": 8,
+        "parts_required": [
+          {"item_id": "wire_optical", "qty": 1}
+        ]
+      }
+    ]
+  },
+  "door_panel_l2": { ... },
+  "door_panel_l3": { ... }
+}
+```
+
+### Repair flow — detailed
+**Step 1 — Player types `repair panel`**
+- Handler finds the broken panel in the current room
+- Checks `diagnosed_components` — if empty, proceeds to diagnosis
+- Checks `diag_tools_required` — if any missing, lists what's needed and stops
+- Checks scan tool `installed_manuals` includes profile key — if not, informs player scan tool lacks the required manual
+- All tools and manual present → timed diagnosis action begins (sum of `diag_time_mins` for all broken components)
+
+**Step 2 — Diagnosis complete**
+- `diagnosed_components` populated with broken component IDs
+- Response panel lists what was found: "Scan complete. Faults found: Logic Circuit, Optical Wiring."
+- Parts required listed: "Parts needed: 1x Logic Circuit Board, 1x Optical Wire"
+- Tools required for repair listed
+
+**Step 3 — Player gathers parts and returns, types `repair panel` again**
+- `diagnosed_components` already populated → skip to repair stage
+- Checks `repair_tools_required` — if any missing, lists what's needed and stops
+- Checks player inventory for all parts required across all diagnosed components — if any missing, lists what's needed and stops
+- All tools and parts present → timed repair action begins (sum of `repair_time_mins` for diagnosed components)
+
+**Step 4 — Repair complete**
+- Parts consumed from player inventory
+- Handler checks if `diagnosed_components` covers all `broken_components`
+  - If yes → panel restored, `is_broken = False`, door operational
+  - If no (missed diagnosis) → panel still broken, message: "The panel powers up briefly then fails again. Further diagnosis required."
+- `diagnosed_components` cleared regardless, ready for next diagnosis attempt
+
+### Diagnosis timing
+Total diagnosis time = sum of `diag_time_mins` for all actually broken components. Converted to real seconds via existing timed action system.
+
+### Repair timing
+Total repair time = sum of `repair_time_mins` for all diagnosed components. Only diagnosed components are repaired.
+
+### Breaking a panel — component selection
+When a panel breaks (game event or debug), one or more components are selected randomly from the profile's component list. Number and selection tunable per event type.
+
+### Future scope (not Phase 18)
+- Incorrect diagnosis chance based on difficulty setting
+- Scan tool software updates for exotic systems (purchasable)
+- Crowbar bypass — force open door, damages panel further
+- Visual pre-diagnosis — obvious burnt components visible without scan tool
+- Salvageable components — scan tool determines which broken parts can be reused
 
 ---
 
@@ -580,12 +746,12 @@ Breaker reset vs replacement:
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — deferred. To be discussed.
-- **Consumable `length_m`** — wire instances need `length_m` attribute in consumables.json. Add when repair system built.
-- **Clarification display for items with same name but different state** — e.g. `Optical Wire (5m)` vs `Optical Wire (10m)`. Fix when `length_m` attribute exists.
+- **Wire `length_m` and computed mass** — fully designed (see Section 11) but not yet implemented. Implement in Phase 18 when repair parts are built out.
+- **Clarification display for items with same name but different state** — e.g. `Optical Wire (5m)` vs `Optical Wire (10m)`. Implement alongside `length_m`.
 - **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Not implemented — no crash risk, purely a gameplay/immersion issue. Implement when event system is built.
 - **Dynamic room descriptions** — static prose has had electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
-- **resolver_debug.log** — logging added during Phase 15 to investigate whether keyword fallback could be safely removed from handlers. Conclusion: keep dual matching (see Section 7). Log is now redundant — remove logger setup from main.py and delete the log file during a tidy-up session.
+- **resolver_debug.log** — logging added during Phase 15 to investigate whether keyword fallback could be safely removed from handlers. Conclusion: keep dual matching (see Section 7). Log is now redundant — remove logger setup from `main.py` and delete the log file during a tidy-up session.
 
 ---
 
@@ -609,5 +775,5 @@ Breaker reset vs replacement:
 
 ---
 
-*Project Orion Game Design Document v10.0*
+*Project Orion Game Design Document v11.0*
 *April 2026*

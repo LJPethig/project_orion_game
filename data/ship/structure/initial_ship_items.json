@@ -12,11 +12,15 @@
     },
     {
       "container_id": "engineering_tool_storage_cabinet",
-      "items": ["scan_tool", "wrench", "powered_bit_driver", "laser_solderer"]
+      "items": ["scan_tool", "wrench", "power_screwdriver_set", "laser_solderer"]
     },
     {
       "container_id": "engineering_large_parts_storage_unit",
-      "items": ["electrical_service_kit", "wire_low_voltage", "wire_optical"]
+      "items": [
+        "electrical_service_kit",
+        {"id": "wire_low_voltage", "length_m": 12.5},
+        {"id": "wire_optical", "length_m": 8.0}
+      ]
     },
     {
       "container_id": "cargo_bay_eva_equipment_locker",
@@ -24,7 +28,7 @@
     },
     {
       "container_id": "storage_room_large_storage_unit",
-      "items": ["socket_set", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
+      "items": ["small_socket_set", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
     }
   ],
   "surfaces": [

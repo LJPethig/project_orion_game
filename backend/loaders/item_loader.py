@@ -50,8 +50,20 @@ def load_item_registry() -> dict:
 
 
 def instantiate_item(data: dict) -> PortableItem:
-    """Instantiate the correct PortableItem subclass from a data dict."""
+    """
+    Instantiate the correct PortableItem subclass from a data dict.
+
+    Wire items use mass_per_metre + length_m instead of a fixed mass.
+    mass is computed at instantiation time: length_m * mass_per_metre.
+    length_m may be supplied as an instance override from placement data.
+    """
     kwargs = {k: v for k, v in data.items()}
+
+    # ── Wire mass computation ─────────────────────────────────
+    if 'mass_per_metre' in kwargs:
+        length_m = kwargs.get('length_m', kwargs.get('max_length_m', 0.0))
+        kwargs['length_m'] = length_m
+        kwargs['mass'] = round(length_m * kwargs['mass_per_metre'], 4)
 
     if kwargs.get('id') == 'utility_belt':
         return UtilityBelt(**kwargs)

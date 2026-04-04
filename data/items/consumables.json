@@ -2,22 +2,112 @@
   {
     "id": "wire_low_voltage",
     "name": "Low Voltage Wire",
+    "manufacturer": "Tengu cables",
+    "model": "H05V-K",
     "description": "A spool of small gauge electrical wire.",
     "keywords": ["wire", "wire spool", "electrical wire", "low voltage wire", "small gauge electrical wire", "small gauge electrical cable", "electrical cable", "cable"],
-    "mass": 0.1
+    "max_length_m": 50.0,
+    "mass_per_metre": 0.05
   },
   {
     "id": "wire_high_voltage",
     "name": "High Voltage Wire",
+    "manufacturer": "Harju Elekter Power",
+    "model": "QZJP21-E",
     "description": "A spool of heavy gauge electrical wire.",
     "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
-    "mass": 1
+    "max_length_m": 20.0,
+    "mass_per_metre": 0.2
   },
   {
     "id": "wire_optical",
     "name": "Optical Wire",
+    "manufacturer": "Lumina Powertech",
+    "model": "WTC24–864F",
     "description": "A spool of hybrid optical wire.",
     "keywords": ["wire", "wire spool", "optical wire", "hybrid optical wire", "hybrid optical cable", "optical cable", "cable"],
+    "max_length_m": 50.0,
+    "mass_per_metre": 0.03
+  },
+  {
+    "id": "u-lock_door_logic_board",
+    "name": "Door Access Panel Logic Board",
+    "manufacturer": "Vesper Control",
+    "model": "VC-571-4021",
+    "description": "A logic circuit board for the Vesper Control U-LOCK.",
+    "keywords": ["logic circuit", "logic circuit board", "circuit board", "circuit"],
+    "mass": 0.2
+  },
+  {
+    "id": "ts1500_door_logic_board",
+    "name": "Door Access Panel Logic Board",
+    "manufacturer": "SMC Nova",
+    "model": "SMC-82001-87",
+    "description": "A logic circuit board for the SMC Nova TS1500.",
+    "keywords": ["logic circuit", "logic circuit board", "circuit board", "circuit"],
+    "mass": 0.2
+  },
+  {
+    "id": "q-emerald_door_logic_board",
+    "name": "Door Access Panel Logic Board",
+    "manufacturer": "SMC Nova",
+    "model": "SMC-QE-661",
+    "description": "A logic circuit board for the quantum chipped SMC Nova Q-Emerald.",
+    "keywords": ["logic circuit", "logic circuit board", "circuit board", "circuit"],
+    "mass": 0.2
+  },
+  {
+    "id": "id_card_scanner_head",
+    "name": "ID Card Scanner Head",
+    "manufacturer": "Eclipse Microelectronics",
+    "model": "OSMOND F",
+    "description": "A generic reader for ID card encrypted chips",
+    "keywords": ["scanner head", "card scanner", "id scanner", "card reader", "scanner"],
     "mass": 0.1
+  },
+  {
+    "id": "relay_switch_array",
+    "name": "Relay Switch Array",
+    "manufacturer": "Matsuri Energy Systems",
+    "model": "DC400A10",
+    "description": "Power switching and position sensing for the high current door motor",
+    "keywords": ["relay", "relay switch", "relay array", "switch array", "relay switch array"],
+    "mass": 0.15
+  },
+  {
+    "id": "power_regulator",
+    "name": "Power Regulator",
+    "manufacturer": "Harju Elekter Power",
+    "model": "LM2776D",
+    "description": "A step down power converter suitable to door access panels.",
+    "keywords": ["power regulator", "regulator", "step down converter", "converter"],
+    "mass": 0.3
+  },
+  {
+    "id": "22_pin_interconnect",
+    "name": "22 Pin Interconnect Header",
+    "manufacturer": "AP Interconnects",
+    "model": "64690-22-ND",
+    "description": "Light gauge wiring interconnect.",
+    "keywords": ["22 pin interconnect", "22 pin header", "interconnect header", "interconnect", "header"],
+    "mass": 0.1
+  },
+  {
+    "id": "4_pin_interconnect",
+    "name": "4 Pin Interconnect Header",
+    "manufacturer": "AP Interconnects",
+    "model": "1209-4-ND",
+    "description": "Heavy gauge wiring interconnect.",
+    "keywords": ["4 pin interconnect", "4 pin header", "interconnect header", "interconnect", "header"],
+    "mass": 0.1
+  },
+  {
+    "id": "panel_screen",
+    "name": "Panel Screen",
+    "manufacturer": "Lumenstrand Systems",
+    "model": "DFR0506",
+    "description": "A generic display screen for door access panels.",
+    "keywords": ["panel screen", "screen", "display", "panel display"],
+    "mass": 0.4
   }
 ]

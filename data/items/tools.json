@@ -2,7 +2,9 @@
   {
     "id": "wrench",
     "name": "Adjustable Wrench",
-    "description": "A sturdy adjustable wrench for zero-G repairs.",
+    "manufacturer": "Nordgrip",
+    "model": "ADJUSTA-Wrench",
+    "description": "A sturdy adjustable wrench for zero-G repairs, typical of Nordgrip's rugged quality.",
     "keywords": [
       "adjustable wrench",
       "adjustable spanner",
@@ -13,8 +15,10 @@
   },
   {
     "id": "wrench_set",
-    "name": "Wrench set",
-    "description": "A comprehensive set of wrenches.",
+    "name": "Wrench Set",
+    "manufacturer": "Vanguard Tools",
+    "model": "GH-836",
+    "description": "A comprehensive set of gear-head metric wrenches.",
     "keywords": [
       "wrench set",
       "spanner set"
@@ -22,21 +26,28 @@
     "mass": 5.0
   },
   {
-    "id": "powered_bit_driver",
-    "name": "Power Bit Driver",
+    "id": "power_screwdriver_set",
+    "name": "Power Screwdriver Set",
+    "manufacturer": "Helix Precision",
+    "model": "HX-Driver Set 32 piece",
     "description": "An electric screwdriver and bit set. Suitable for most small fasteners found on ship access panels.",
     "keywords": [
       "screwdriver",
       "bit driver",
       "electric screwdriver",
       "powered screwdriver",
-      "power screwdriver"],
+      "power screwdriver",
+      "screwdriver set",
+      "power screwdriver set"
+    ],
     "mass": 0.5
   },
   {
     "id": "electrical_service_kit",
     "name": "Electrical Service Tool Kit",
-    "description": "A small case of common sized wire strippers, crimping and interconnect assembly tools.",
+    "manufacturer": "AP Interconnects",
+    "model": "AP-KIT 1502",
+    "description": "A small case of specialised wire strippers, crimping and interconnect assembly tools.",
     "keywords": [
       "electrical toolkit",
       "electrical service kit",
@@ -48,6 +59,8 @@
   {
     "id": "laser_solderer",
     "name": "Laser Solderer",
+    "manufacturer": "Atlas Nova",
+    "model": "320W",
     "description": "A specialist tool for fast and reliable electrical repair.",
     "keywords": [
       "solderer",
@@ -57,26 +70,55 @@
     "mass": 0.5
   },
   {
-    "id": "socket_set",
-    "name": "Socket Set",
-    "description": "A small case of common sized sockets, ratchets and adapters for medium sized fasteners.",
+    "id": "socket_set_small",
+    "name": "Small Socket Set",
+    "manufacturer": "Vanguard Tools",
+    "model": "Z Series 612",
+    "description": "A small case of sockets, ratchets and adapters for small to medium metric fasteners.",
     "keywords": [
       "sockets",
       "socket set",
-      "ratchet set"
+      "ratchet set",
+      "small sockets",
+      "small socket set",
+      "small ratchet set"
     ],
     "mass": 2.5
   },
   {
+    "id": "socket_set_large",
+    "name": "Large Socket Set",
+    "manufacturer": "NordGrip",
+    "model": "MEGA-SOCKIT 26-54",
+    "description": "A case of oversize sockets, ratchets and adapters for large metric fasteners. Built Nordgrip tough",
+    "keywords": [
+      "sockets",
+      "socket set",
+      "ratchet set",
+      "large sockets",
+      "large socket set",
+      "large ratchet set"
+    ],
+    "mass": 6.5
+  },
+  {
     "id": "scan_tool",
     "name": "Scan Tool",
-    "description": "A hand-held tablet based scan tool incorporating diagnostic logic, oscilloscope, and thermal imaging with augmented reality overlays. Upgradable with additional ship systems schematics and manuals.",
+    "manufacturer": "Enso VeilTech",
+    "model": "Enso VT-7 SmartDiag PLUS",
+    "description": "A hand-held tablet based scan tool incorporating diagnostic logic, oscilloscope, and thermal imaging with augmented reality overlays. Upgradable with additional diagnostic manuals.",
     "keywords": [
       "scan tool",
       "diagnostic tool",
       "diagnosis tool",
       "diag tool",
-      "scanner"],
-    "mass": 1.5
+      "scanner"
+    ],
+    "mass": 1.5,
+    "installed_manuals": [
+      "Vesper Control U-LOCK Access Panel",
+      "SMC Nova TS1500 Security Door Panel",
+      "SMC Nova Q-Emerald Security Door Panel"
+    ]
   }
 ]
