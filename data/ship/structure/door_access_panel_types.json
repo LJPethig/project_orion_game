@@ -1,15 +1,18 @@
 {
-  "1": {
+  "vesper_ulock": {
+    "security_level": 1,
     "manufacturer": "Vesper Control",
     "model": "Vesper Control U-LOCK Access Panel",
     "description": "A basic door access panel with no security features other than door side locking"
   },
-  "2": {
+  "smc_ts1500": {
+    "security_level": 2,
     "manufacturer": "SMC Nova",
     "model": "SMC Nova TS1500 Security Door Panel",
     "description": "A mid tier security door access panel, it requires a valid ID card to operate"
   },
-  "3": {
+  "smc_q_emerald": {
+    "security_level": 3,
     "manufacturer": "SMC Nova",
     "model": "SMC Nova Q-Emerald Security Door Panel",
     "description": "A high security door access panel, requiring a quantum chip ID card and PIN authentication"

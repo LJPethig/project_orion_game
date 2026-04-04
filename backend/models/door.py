@@ -4,6 +4,9 @@ Door and SecurityPanel — represent door connections between rooms.
 Ported from Project Dark Star with Arcade dependencies removed.
 Three door states: open, closed, locked.
 Security panel logic (keycard/PIN) kept for future use but not enforced yet.
+
+panel_type references a key in door_access_panel_types.json.
+security_level is resolved from the panel type registry at load time.
 """
 
 from typing import Optional
@@ -21,7 +24,9 @@ class SecurityPanel:
     """
     A panel on one side of a door.
     Controls locking/unlocking from that side.
-    repair_progress is runtime state — initialised here, not loaded from JSON.
+    panel_type is the key into door_access_panel_types.json.
+    security_level is resolved from the type registry at load time.
+    broken_components and diagnosed_components are runtime repair state.
     """
 
     def __init__(
@@ -29,15 +34,21 @@ class SecurityPanel:
         panel_id:       str,
         door_id:        str,
         side:           str,
+        panel_type:     str,
         security_level: int,
     ):
         self.panel_id       = panel_id
         self.door_id        = door_id
         self.side           = side
+        self.panel_type     = panel_type
         self.security_level = SecurityLevel(security_level)
         self.pin            = None    # Set by _apply_initial_state if level 3
         self.is_broken      = False   # Set by _apply_initial_state if damaged
-        self.repair_progress = 0.0    # Runtime state only — not in JSON
+        self.repair_progress = 0.0   # Runtime state only — not in JSON
+
+        # ── Repair state ──────────────────────────────────────
+        self.broken_components    = []   # Component ids broken at break time
+        self.diagnosed_components = []   # Component ids found by diagnosis
 
     def get_state_label(self) -> str:
         """Return a short display label for the panel state."""
@@ -51,6 +62,8 @@ class Door:
     A bi-directional door connecting two rooms.
     Tracks open/closed/locked state independently.
     Each side has its own SecurityPanel.
+    panel_type is the shared hardware type for both panels on this door.
+    security_level is resolved from the type registry at load time.
     """
 
     def __init__(
@@ -60,12 +73,14 @@ class Door:
         room_b_id:      str,
         door_open:      bool,
         door_locked:    bool,
+        panel_type:     str,
         security_level: int,
     ):
         self.id             = door_id
         self.room_ids       = (room_a_id, room_b_id)
         self.door_open      = door_open
         self.door_locked    = door_locked
+        self.panel_type     = panel_type
         self.security_level = security_level
         self.pin            = None    # Set by _apply_initial_state if level 3
 

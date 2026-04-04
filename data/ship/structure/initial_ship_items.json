@@ -28,7 +28,7 @@
     },
     {
       "container_id": "storage_room_large_storage_unit",
-      "items": ["small_socket_set", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
+      "items": ["socket_set_small", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
     }
   ],
   "surfaces": [

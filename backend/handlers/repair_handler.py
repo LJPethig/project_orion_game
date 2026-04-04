@@ -20,7 +20,7 @@ Flow:
 
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
-from config import REPAIR_PANEL_REAL_SECONDS, REPAIR_PANEL_GAME_MINUTES, DEBUG_HAS_REPAIR_TOOL
+from config import REPAIR_REAL_SECONDS, DEBUG_HAS_REPAIR_TOOL
 
 
 class RepairHandler(BaseHandler):
@@ -100,7 +100,7 @@ class RepairHandler(BaseHandler):
             'response':       f"Repairing door access panel to {exit_label}...",
             'action_type':    'repair_panel',
             'lock_input':     True,
-            'real_seconds':   REPAIR_PANEL_REAL_SECONDS,
+            'real_seconds':   REPAIR_REAL_SECONDS,
             'room_changed':   False,
             'panel_id':       panel.panel_id,
             'door_id':        door.id,

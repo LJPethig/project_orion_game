@@ -20,22 +20,26 @@ ROOM_TEMP_PRESETS = {
     "hot":    25.5,
 }
 
-# ── Timed Actions (real seconds → game minutes) ──────────────
-REPAIR_PANEL_REAL_SECONDS  = 8
-REPAIR_PANEL_GAME_MINUTES  = 30
-CARD_SWIPE_REAL_SECONDS    = 5    # Real-world wait during card swipe
-CARD_SWIPE_GAME_MINUTES    = 0
+# ── Timed Actions ────────────────────────────────────────────
+# Real seconds stubs — replaced by calc functions in repair_handler.py
+# when proper time scaling is implemented. Delete these at that point.
+REPAIR_REAL_SECONDS    = 8
+DIAGNOSE_REAL_SECONDS  = 5
+CARD_SWIPE_REAL_SECONDS = 5
+CARD_SWIPE_GAME_MINUTES = 0
 
 # ── Debug flags ──────────────────────────────────────────────
-DEBUG_HAS_REPAIR_TOOL   = True   # Phase 12: replace with real tool inventory check
+DEBUG_HAS_REPAIR_TOOL = True   # Phase 18: remove when repair system is complete
 
 # ── Data file paths ──────────────────────────────────────────
 import os
-ROOMS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
-DOORS_JSON_PATH         = os.path.join('data', 'ship', 'structure', 'door_status.json')
-INITIAL_STATE_JSON_PATH = os.path.join('data', 'ship', 'structure', 'initial_ship_state.json')
-SHIP_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'initial_ship_items.json')
-PLAYER_ITEMS_JSON_PATH  = os.path.join('data', 'ship', 'structure', 'player_items.json')
+ROOMS_JSON_PATH           = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')
+DOORS_JSON_PATH           = os.path.join('data', 'ship', 'structure', 'door_status.json')
+DOOR_PANEL_TYPES_PATH     = os.path.join('data', 'ship', 'structure', 'door_access_panel_types.json')
+INITIAL_STATE_JSON_PATH   = os.path.join('data', 'ship', 'structure', 'initial_ship_state.json')
+SHIP_ITEMS_JSON_PATH      = os.path.join('data', 'ship', 'structure', 'initial_ship_items.json')
+PLAYER_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'player_items.json')
+REPAIR_PROFILES_PATH      = os.path.join('data', 'repair', 'repair_profiles.json')
 
 ITEM_FILES = [
     os.path.join('data', 'items', 'tools.json'),

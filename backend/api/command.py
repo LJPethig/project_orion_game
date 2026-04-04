@@ -11,7 +11,6 @@ from backend.handlers.command_handler import command_handler
 from backend.models.game_manager import game_manager
 from backend.models.door import SecurityLevel
 from backend.api.game import _build_room_data
-from config import REPAIR_PANEL_GAME_MINUTES
 
 command_bp = Blueprint('command', __name__)
 
@@ -130,7 +129,7 @@ def complete_repair():
 
     panel.is_broken       = False
     panel.repair_progress = 1.0
-    game_manager.advance_time(REPAIR_PANEL_GAME_MINUTES)
+    game_manager.advance_time(30)  # TODO: replace with profile-driven time in Phase 18
 
     exit_label = data.get('exit_label', 'the door')
     return jsonify({

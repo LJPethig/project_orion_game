@@ -10,9 +10,9 @@ from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
 from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal
 from backend.loaders.item_loader import instantiate_item
-from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, INITIAL_STATE_JSON_PATH, \
-                   TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, SURFACES_JSON_PATH, \
-                   SHIP_ITEMS_JSON_PATH
+from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, DOOR_PANEL_TYPES_PATH, \
+                   INITIAL_STATE_JSON_PATH, TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, \
+                   SURFACES_JSON_PATH, SHIP_ITEMS_JSON_PATH
 
 
 class Ship:
@@ -64,7 +64,17 @@ class Ship:
             self.rooms[room_id] = room
 
     def _load_doors(self) -> None:
-        """Load all doors from door_status.json and attach to rooms."""
+        """Load all doors from door_status.json and attach to rooms.
+        Panel type and security level are resolved from door_access_panel_types.json.
+        """
+        # ── Load panel type registry ──────────────────────────
+        try:
+            with open(DOOR_PANEL_TYPES_PATH, 'r', encoding='utf-8') as f:
+                panel_types = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load door_access_panel_types.json: {e}")
+            panel_types = {}
+
         try:
             with open(DOORS_JSON_PATH, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -84,13 +94,19 @@ class Ship:
                 print(f"Warning: Door {conn['id']} references unknown room(s): {room_a_id}, {room_b_id}")
                 continue
 
+            # ── Resolve panel type and security level ─────────
+            panel_type = conn['panel_type']  # KeyError if missing — intentional
+            type_data = panel_types[panel_type]  # KeyError if unknown type — intentional
+            security_level = type_data['security_level']  # KeyError if missing — intentional
+
             door = Door(
                 door_id=conn['id'],
                 room_a_id=room_a_id,
                 room_b_id=room_b_id,
                 door_open=conn.get('door_open', False),
                 door_locked=conn.get('door_locked', False),
-                security_level=conn.get('security_level', 1),
+                panel_type=panel_type,
+                security_level=security_level,
             )
 
             # Create panels and attach to door and room
@@ -99,7 +115,8 @@ class Ship:
                     panel_id=panel_data['id'],
                     door_id=door.id,
                     side=panel_data['side'],
-                    security_level=conn.get('security_level', 1),
+                    panel_type=panel_type,
+                    security_level=security_level,
                 )
                 door.panels[panel_data['side']] = panel
 
