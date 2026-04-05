@@ -69,6 +69,62 @@ function hideRepairAnimation() {
     if (el) el.remove();
 }
 
+function showDiagnosisAnimation() {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'repair-animation';
+    el.className  = 'scan-animation';
+    el.innerHTML  = `
+        <span>DIAGNOSING ACCESS PANEL</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    `;
+    content.appendChild(el);
+}
+
+// ── Repair message ────────────────────────────────────────────
+
+function appendRepairMessage(result) {
+    const content = document.getElementById('response-content');
+
+    // Intro line
+    if (result.response) {
+    const intro = document.createElement('div');
+    intro.className   = 'response-line';
+    intro.textContent = result.response;
+    content.appendChild(intro);
+}
+
+    // Failed components — comma-separated on one line
+    if (result.faults && result.faults.length > 0) {
+        const faultsLabel = document.createElement('div');
+        faultsLabel.className   = 'response-line';
+        faultsLabel.textContent = 'You have discovered the following failed components:';
+        content.appendChild(faultsLabel);
+
+        const faultsEl = document.createElement('div');
+        faultsEl.className = 'response-line';
+        faultsEl.innerHTML = `&nbsp;&nbsp;<span style="color:var(--col-portable)">${result.faults.join(', ')}</span>`;
+        content.appendChild(faultsEl);
+    }
+
+    // Tools required — comma-separated on one line
+    if (result.tools && result.tools.length > 0) {
+        const toolsLabel = document.createElement('div');
+        toolsLabel.className   = 'response-line';
+        toolsLabel.textContent = result.tools_label || 'You will also require the following tools to make the repair:';
+        content.appendChild(toolsLabel);
+
+        const toolsEl = document.createElement('div');
+        toolsEl.className = 'response-line';
+        toolsEl.innerHTML = `&nbsp;&nbsp;<span style="color:var(--col-portable)">${result.tools.join(', ')}</span>`;
+        content.appendChild(toolsEl);
+    }
+
+    content.scrollTop = content.scrollHeight;
+}
+
 // ── Room image ───────────────────────────────────────────────
 
 function setRoomImage(imagePath) {

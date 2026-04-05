@@ -92,8 +92,15 @@ function refreshExits() {
 }
 
 function handleResult(result) {
-    if (result.response) appendResponse(result.response);
     if (result.ship_time) Loop.updateShipTime(result.ship_time);
+
+    // ── Diagnosis complete — render styled result ─────────────
+    if (result.action_type === 'diagnose_complete' || result.action_type === 'repair_message') {
+        appendRepairMessage(result);
+        return;
+    }
+
+    if (result.response) appendResponse(result.response);
 
     // ── Door locked — show closed hatch image, stay on it ────
     if (result.action_type === 'door_locked') {
@@ -113,7 +120,7 @@ function handleResult(result) {
     // ── Diagnose panel — lock input, wait, call diagnose_complete ──
     if (result.action_type === 'diagnose_panel') {
         setDamagedPanelImage(result.security_level);
-        showRepairAnimation();
+        showDiagnosisAnimation();
         Loop.lockInput(result.real_seconds, async () => {
             hideRepairAnimation();
             const diagResult = await API.completeDiagnosis(

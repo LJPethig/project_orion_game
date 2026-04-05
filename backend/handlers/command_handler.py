@@ -54,8 +54,10 @@ class CommandHandler:
             'lock':              self._door.handle_lock,
             'unlock':            self._door.handle_unlock,
             # Repair
-            'repair panel':      self._repair.handle,
-            'repair':            self._repair.handle,
+            'repair panel':      self._repair.handle_repair,
+            'repair':            self._repair.handle_repair,
+            'diagnose panel':    self._repair.handle_diagnose,
+            'diagnose':          self._repair.handle_diagnose,
             # Items
             'take':              self._item.handle_take,
             'get':               self._item.handle_take,

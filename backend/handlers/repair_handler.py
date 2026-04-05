@@ -59,7 +59,34 @@ class RepairHandler(BaseHandler):
         with open(DOOR_PANEL_TYPES_PATH, 'r', encoding='utf-8') as f:
             self._panel_types = json.load(f)
 
-    def handle(self, args: str) -> dict:
+    def handle_diagnose(self, args: str) -> dict:
+        """Entry point for 'diagnose <target>' command."""
+        current_room = game_manager.get_current_room()
+        broken = game_manager.ship.get_broken_panels_in_room(current_room.id)
+
+        if not broken:
+            return self._instant("There are no damaged door access panels in this room.")
+
+        panel, door, exit_label = self._resolve_target(args, broken, verb='diagnose')
+        if isinstance(panel, dict):
+            return panel  # error or clarification response
+
+        if panel.broken_components:
+            profile     = self._profiles.get(panel.panel_type)
+            fault_names = [self._item_name(c) for c in panel.broken_components]
+            tool_names  = [self._item_name(t) for t in profile['repair_tools_required']]
+            return {
+                'response':     f"The {exit_label} access panel has already been diagnosed.",
+                'action_type':  'repair_message',
+                'lock_input':   False,
+                'room_changed': False,
+                'faults':       fault_names,
+                'tools':        tool_names,
+            }
+
+        return self._begin_diagnosis(panel, door, exit_label)
+
+    def handle_repair(self, args: str) -> dict:
         """Entry point for 'repair <target>' command."""
         current_room = game_manager.get_current_room()
         broken = game_manager.ship.get_broken_panels_in_room(current_room.id)
@@ -67,30 +94,47 @@ class RepairHandler(BaseHandler):
         if not broken:
             return self._instant("There are no damaged door access panels in this room.")
 
-        # ── Resolve target ────────────────────────────────────
-        target = args.strip().lower()
-        noise  = ['door access panel', 'access panel', 'door panel',
-                  'access door', 'access', 'panel', 'hatch', 'door', 'doors']
+        panel, door, exit_label = self._resolve_target(args, broken, verb='repair')
+        if isinstance(panel, dict):
+            return panel  # error or clarification response
+
+        if not panel.broken_components:
+            return self._instant(
+                f"The {exit_label} access panel needs to be diagnosed first "
+                f"to determine any required repairs."
+            )
+
+        return self._begin_next_repair(panel, door, exit_label)
+
+    def _resolve_target(self, args: str, broken: list, verb: str):
+        """
+        Resolve the target panel from args and broken panel list.
+        Returns (panel, door, exit_label) on success.
+        Returns a dict (error or clarification response) on failure.
+        """
+        current_room = game_manager.get_current_room()
+        target  = args.strip().lower()
+        noise   = ['door access panel', 'access panel', 'door panel',
+                   'access door', 'access', 'panel', 'hatch', 'door', 'doors']
         cleaned = target
         for word in sorted(noise, key=len, reverse=True):
             cleaned = cleaned.replace(word, '').strip()
 
         if not target or not cleaned:
             if len(broken) == 1:
-                panel, door, exit_label = broken[0]
-                return self._route_repair(panel, door, exit_label)
+                return broken[0]  # (panel, door, exit_label)
 
             options = [
-                {'label': label, 'command': f"repair panel {label.lower()}"}
+                {'label': label, 'command': f"{verb} panel {label.lower()}"}
                 for _, _, label in broken
             ]
-            return {
-                'response':     f"There are {len(broken)} damaged door access panels here. Which do you want to repair?",
+            return ({
+                'response':     f"There are {len(broken)} damaged door access panels here. Which do you want to {verb}?",
                 'action_type':  'clarification_required',
                 'lock_input':   False,
                 'room_changed': False,
                 'options':      options,
-            }
+            }, None, None)
 
         matched_exit = self._find_exit(current_room, target)
         if matched_exit:
@@ -101,21 +145,13 @@ class RepairHandler(BaseHandler):
                 if panel and panel.is_broken:
                     target_room = game_manager.ship.get_room(door.get_other_room_id(current_room.id))
                     exit_label  = exit_data.get('label') or (target_room.name if target_room else target)
-                    return self._route_repair(panel, door, exit_label)
+                    return panel, door, exit_label
                 elif panel and not panel.is_broken:
                     target_room = game_manager.ship.get_room(door.get_other_room_id(current_room.id))
                     name = target_room.name if target_room else target
-                    return self._instant(f"The {name} door access panel is operational.")
+                    return self._instant(f"The {name} door access panel is operational."), None, None
 
-        return self._instant(f"No damaged door access panel found for '{args.strip()}'.")
-
-    # ── State router ─────────────────────────────────────────
-
-    def _route_repair(self, panel, door, exit_label: str) -> dict:
-        """Route to diagnosis or repair stage based on panel state."""
-        if not panel.broken_components:
-            return self._begin_diagnosis(panel, door, exit_label)
-        return self._begin_next_repair(panel, door, exit_label)
+        return self._instant(f"No damaged door access panel found for '{args.strip()}'."), None, None
 
     # ── Diagnosis stage ───────────────────────────────────────
 
@@ -131,8 +167,15 @@ class RepairHandler(BaseHandler):
         # ── Check diag tools ──────────────────────────────────
         missing_tools = self._check_tools(profile['diag_tools_required'])
         if missing_tools:
-            names = ', '.join(self._item_name(t) for t in missing_tools)
-            return self._instant(f"You need the following tools to diagnose this panel: {names}.")
+            names = [self._item_name(t) for t in missing_tools]
+            return {
+                'response': '',
+                'action_type': 'repair_message',
+                'lock_input': False,
+                'room_changed': False,
+                'tools': names,
+                'tools_label': 'You require the following tools to carry out this diagnosis:',
+            }
 
         # ── Check scan tool has the correct manual ────────────
         manual_check = self._check_scan_tool_manual(panel)
@@ -200,8 +243,15 @@ class RepairHandler(BaseHandler):
         # ── Check repair tools ────────────────────────────────
         missing_tools = self._check_tools(profile['repair_tools_required'])
         if missing_tools:
-            names = ', '.join(self._item_name(t) for t in missing_tools)
-            return self._instant(f"You need the following tools to repair this panel: {names}.")
+            names = [self._item_name(t) for t in missing_tools]
+            return {
+                'response': '',
+                'action_type': 'repair_message',
+                'lock_input': False,
+                'room_changed': False,
+                'tools': names,
+                'tools_label': 'You are missing the following tools required for this repair:',
+            }
 
         # ── Find next unrepaired component ────────────────────
         next_component = self._get_next_component(panel, profile)
@@ -331,17 +381,19 @@ class RepairHandler(BaseHandler):
         parts_str    = '\n'.join(parts_lines)
 
         return {
-            'response':     (
-                f"Scan complete — {panel_model}.\n"
-                f"Faults found: {faults_str}.\n"
-                f"Parts required:\n{parts_str}\n"
-                f"Tools required: {tools_needed}."
-            ),
+            'response':     f"Diagnostic tests on {panel_model} are complete.",
             'action_type':  'diagnose_complete',
             'lock_input':   False,
             'room_changed': False,
             'panel_id':     panel_id,
             'door_id':      door_id,
+            'panel_model':  panel_model,
+            'faults':       fault_names,
+            'tools':        [self._item_name(t) for t in profile['repair_tools_required']],
+            'parts':        [
+                {'name': self._item_name(c['item_id']), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
+                for c in broken
+            ],
         }
 
     def complete_component_repair(self, panel_id: str, door_id: str,
