@@ -73,7 +73,12 @@ class RepairHandler(BaseHandler):
 
         if panel.broken_components:
             profile     = self._profiles.get(panel.panel_type)
-            fault_names = [self._item_name(c) for c in panel.broken_components]
+            fault_names = [
+                self._component_display_name(next(
+                    comp for comp in profile['components'] if comp['item_id'] == c
+                ))
+                for c in panel.broken_components
+            ]
             tool_names  = [self._item_name(t) for t in profile['repair_tools_required']]
             return {
                 'response':     f"The {exit_label} access panel has already been diagnosed.",
@@ -405,7 +410,7 @@ class RepairHandler(BaseHandler):
 
         # ── Build response ────────────────────────────────────
         panel_model  = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
-        fault_names  = [self._item_name(c['item_id']) for c in broken]
+        fault_names  = [self._component_display_name(c) for c in broken]
         faults_str   = ', '.join(fault_names)
 
         # Parts needed
@@ -428,10 +433,10 @@ class RepairHandler(BaseHandler):
             'panel_id':     panel_id,
             'door_id':      door_id,
             'panel_model':  panel_model,
-            'faults':       fault_names,
-            'tools':        [self._item_name(t) for t in profile['repair_tools_required']],
-            'parts':        [
-                {'name': self._item_name(c['item_id']), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
+            'faults': fault_names,
+            'tools': [self._item_name(t) for t in profile['repair_tools_required']],
+            'parts': [
+                {'name': self._component_display_name(c), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
                 for c in broken
             ],
         }
@@ -533,6 +538,13 @@ class RepairHandler(BaseHandler):
         registry = load_item_registry()
         data = registry.get(item_id)
         return data['name'] if data else item_id
+
+    def _component_display_name(self, component: dict) -> str:
+        """Return display name for a profile component, appending length for wire."""
+        name = self._item_name(component['item_id'])
+        if 'length_m' in component:
+            return f"{name} ({component['length_m']}m)"
+        return name
 
 
 repair_handler = RepairHandler()

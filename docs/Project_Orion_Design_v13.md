@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 12.0 — April 2026**
+**Version 13.0 — April 2026**
 
 ---
 
@@ -701,16 +701,31 @@ When a second repairable type is added (machinery, life support):
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session.
 - **Inventory screen item detail** — item display needs `manufacturer` and `model` shown alongside description. Coordinate with examine command implementation.
-- **Inventory screen auto-close** — if inventory panel is open when player initiates a door action (swipe, PIN, repair), it should auto-close so door/panel imagery is visible. Frontend change in `inventory.js` / `ui.js`.
-- **Clarification display for wire spools of different lengths** — e.g. `Low Voltage Wire (5m)` vs `Low Voltage Wire (10m)`. Implement when clarification system is revisited.
 - **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
 - **Dynamic room descriptions** — static prose has had electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
-- **resolver_debug.log** — logging added during Phase 15, now redundant. Remove logger setup from `main.py` and delete the log file during a tidy-up session.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Repair time scaling** — `calc_repair_real_seconds()` and `calc_diagnose_real_seconds()` in `repair_handler.py` currently return fixed stubs. Implement proper scaling with cap. Delete `REPAIR_REAL_SECONDS` and `DIAGNOSE_REAL_SECONDS` from `config.py` when done.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
+
+### Unique instance identifiers — deferred
+Currently all placed items are unique Python instances but share a type-level `item.id`. The command system resolves by `item.id` which causes ambiguity when multiple instances of the same type exist in the same location (e.g. two wire spools of different lengths).
+
+**Current workaround** — `clarified:` prefix in the command bypasses the ambiguity check and takes the first matching instance by container order. This is incorrect when multiple same-type items exist — the player may receive the wrong instance. The player can work around it by repeating the command.
+
+**Correct fix** — unique runtime instance identifiers. Each placed item gets a unique id (e.g. `wire_low_voltage_001`) generated at load time, stored on the instance, usable in clarification commands. Changes required:
+- `item_loader.py` — generate and assign unique instance id at instantiation
+- `command_handler.py` — clarification options use instance id in command, resolution uses instance id directly bypassing ambiguity entirely
+- `game.py` — serialisation includes instance id alongside type id
+
+**Relationship to ship inventory (Phase 19)** — the ship inventory system is NOT a global item manifest. It is a terminal-managed cataloguing system specific to two locations only: the cargo bay and the storage room. Each has an automated storage inventory terminal. Items placed in a tray are automatically stored and catalogued. The terminal displays current inventory and allows automated retrieval. Items not placed via the terminal are not catalogued. This is separate from the unique instance identifier problem.
+
+### Recently completed deferred items
+- ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items. Used in inventory, containers, surfaces, floor items, clarification options, repair/diagnosis responses.
+- ✅ **Clarification display for wire spools of different lengths** — distinct lengths now show as separate options. Partially fixed — see unique instance identifiers above for remaining limitation.
+- ✅ **resolver_debug.log** — logger removed from `main.py` and `command_handler.py`, log file deleted.
+- ✅ **Inventory screen auto-close** — `closeInventoryIfOpen()` added to `setPanelImage()`, `setDamagedPanelImage()`, and `setDoorImage()` in `ui.js`.
 
 ---
 

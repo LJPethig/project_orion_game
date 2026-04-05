@@ -189,7 +189,7 @@ function handleResult(result) {
                 span.textContent = opt.label;
                 span.addEventListener('click', async () => {
                     clearResponse();
-                    const r = await API.sendCommand(opt.command);
+                    const r = await API.sendCommand('clarified:' + opt.command);
                     handleResult(r);
                 });
                 container.appendChild(span);

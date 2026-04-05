@@ -63,6 +63,13 @@ class PortableItem(Interactable):
         self.mass:       float         = getattr(self, 'mass', 0.0)
         self.equip_slot: Optional[str] = getattr(self, 'equip_slot', None)
 
+    def display_name(self) -> str:
+        """Return name with wire length appended if applicable."""
+        length_m = getattr(self, 'length_m', None)
+        if length_m is not None:
+            return f"{self.name} ({length_m}m)"
+        return self.name
+
 
 class UtilityBelt(PortableItem):
     """

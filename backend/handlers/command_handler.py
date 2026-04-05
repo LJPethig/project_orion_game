@@ -110,27 +110,27 @@ class CommandHandler:
         if scope == 'inventory':
             for item in player.get_inventory():
                 if item.id == t or item.matches(t):
-                    matches.append((item.id, item.name))
+                    matches.append((item.id, item.display_name()))
 
         elif scope == 'equipped':
             for slot in player.EQUIP_SLOTS:
                 item = getattr(player, f"{slot}_slot")
                 if item and (item.id == t or item.matches(t)):
-                    matches.append((item.id, item.name))
+                    matches.append((item.id, item.display_name()))
 
         elif scope == 'room_portable':
             for obj in room.objects:
                 if isinstance(obj, Surface):
                     for item in obj.contents:
                         if item.id == t or item.matches(t):
-                            matches.append((item.id, item.name))
+                            matches.append((item.id, item.display_name()))
                 elif isinstance(obj, StorageUnit) and obj.is_open:
                     for item in obj.contents:
                         if item.id == t or item.matches(t):
-                            matches.append((item.id, item.name))
+                            matches.append((item.id, item.display_name()))
             for item in room.floor:
                 if item.id == t or item.matches(t):
-                    matches.append((item.id, item.name))
+                    matches.append((item.id, item.display_name()))
 
         elif scope == 'room_fixed':
             for obj in room.objects:
@@ -351,6 +351,17 @@ class CommandHandler:
 
     def process(self, raw: str) -> dict:
         cmd = raw.strip().lower()
+        # ── Clarification bypass — player already chose, skip ambiguity ──
+        if cmd.startswith('clarified:'):
+            cmd = cmd[len('clarified:'):]
+            words = cmd.split()
+            for i in range(len(words), 0, -1):
+                verb = ' '.join(words[:i])
+                if verb in self.commands:
+                    args = ' '.join(words[i:])
+                    args = self._resolve_for_verb(verb, args)
+                    return self.commands[verb](args)
+            return self._unknown(cmd)
         if not cmd:
             return self._unknown('')
 

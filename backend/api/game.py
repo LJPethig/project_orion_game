@@ -73,7 +73,7 @@ def get_inventory():
         item = getattr(player, f"{slot}_slot")
         equipped[slot] = {
             'id':          item.id                            if item else None,
-            'name':        item.name                          if item else None,
+            'name':        item.display_name()                if item else None,
             'description': item.description                   if item else None,
             'mass':        item.mass                          if item else None,
             'image':       f"images/items/{item.id}.png"      if item else None,
@@ -84,7 +84,7 @@ def get_inventory():
     carried = [
         {
             'id':          item.id,
-            'name':        item.name,
+            'name':        item.display_name(),
             'description': item.description,
             'mass':        item.mass,
             'image':       f"images/items/{item.id}.png",
@@ -118,7 +118,7 @@ def _build_room_data(room) -> dict:
 
     # Portable items on the room floor (safety net — surfaces are primary)
     portable_objects = [
-        {'id': obj.id, 'name': obj.name}
+        {'id': obj.id, 'name': obj.display_name()}
         for obj in room.objects
         if isinstance(obj, PortableItem)
         and not isinstance(obj, StorageUnit)
@@ -135,14 +135,14 @@ def _build_room_data(room) -> dict:
                 'name': obj.name,
                 'is_open': obj.is_open,
                 'has_items': len(obj.contents) > 0,
-                'contents': [{'id': i.id, 'name': i.name} for i in obj.contents] if obj.is_open else [],
+                'contents': [{'id': i.id, 'name': i.display_name()} for i in obj.contents] if obj.is_open else [],
             }
         elif isinstance(obj, Surface):
             object_states[obj.id] = {
                 'type': 'surface',
                 'name': obj.name,
                 'has_items': obj.has_items,
-                'contents': [{'id': i.id, 'name': i.name} for i in obj.contents],
+                'contents': [{'id': i.id, 'name': i.display_name()} for i in obj.contents],
             }
         elif isinstance(obj, Terminal):
             object_states[obj.id] = {
@@ -152,7 +152,7 @@ def _build_room_data(room) -> dict:
             }
 
     # Floor items — only populated when items are present
-    floor_items = [{'id': i.id, 'name': i.name} for i in room.floor]
+    floor_items = [{'id': i.id, 'name': i.display_name()} for i in room.floor]
 
     return {
         'id':               room.id,

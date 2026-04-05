@@ -18,7 +18,9 @@
       "container_id": "engineering_large_parts_storage_unit",
       "items": [
         "electrical_service_kit",
-        {"id": "wire_low_voltage", "length_m": 12.5},
+        {"id": "wire_low_voltage", "length_m": 0.05},
+        {"id": "wire_low_voltage", "length_m": 0.5},
+        {"id": "wire_low_voltage", "length_m": 0.5},
         {"id": "wire_optical", "length_m": 8.0}
       ]
     },
