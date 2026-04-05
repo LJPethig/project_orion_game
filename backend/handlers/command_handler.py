@@ -27,9 +27,6 @@ from backend.handlers.terminal_handler import TerminalHandler
 from backend.models.game_manager import game_manager
 from backend.models.interactable import Surface as SurfaceModel, StorageUnit, Surface
 
-import logging
-resolver_logger = logging.getLogger('resolver')
-
 
 class CommandHandler:
 
@@ -91,10 +88,7 @@ class CommandHandler:
         matches = self._resolve_all(target, scope)
         if matches:
             resolved_id = matches[0][0]
-            if resolved_id != target.strip().lower():
-                resolver_logger.info(f"[RESOLVER] {scope}: '{target.strip().lower()}' → '{resolved_id}'")
             return resolved_id
-        resolver_logger.info(f"[RESOLVER FAIL] scope='{scope}' input='{target.strip().lower()}' — no match found, passing through")
         return target
 
     def _resolve_all(self, target: str, scope: str) -> list:
@@ -111,7 +105,6 @@ class CommandHandler:
         player = game_manager.player
         room   = game_manager.get_current_room()
         t      = target.strip().lower()
-        resolver_logger.info(f"[RESOLVER] scope='{scope}' input='{t}'")
         matches = []
 
         if scope == 'inventory':
@@ -153,7 +146,6 @@ class CommandHandler:
         For preposition commands, resolves both item and target separately.
         Returns resolved args string — ambiguity is handled in process() before this is called.
         """
-        resolver_logger.info(f"[RESOLVER VERB] verb='{verb}' args='{args}'")
         if not args:
             return args
 

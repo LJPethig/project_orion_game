@@ -231,3 +231,12 @@ function refreshInventoryIfOpen() {
         renderInventory();
     }
 }
+
+function closeInventoryIfOpen() {
+    const panel = document.getElementById('panel-inventory');
+    const tab   = document.querySelector('.tab[data-panel="panel-inventory"]');
+    if (panel && panel.classList.contains('open')) {
+        panel.classList.remove('open');
+        if (tab) tab.classList.remove('active');
+    }
+}

@@ -160,16 +160,19 @@ const DAMAGED_PANEL_IMAGES = {
 };
 
 function setPanelImage(securityLevel) {
+    closeInventoryIfOpen()
     const path = PANEL_IMAGES[securityLevel] || PANEL_IMAGES[1];
     setRoomImage(path);
 }
 
 function setDamagedPanelImage(securityLevel) {
+    closeInventoryIfOpen()
     const path = DAMAGED_PANEL_IMAGES[securityLevel] || DAMAGED_PANEL_IMAGES[1];
     setRoomImage(path);
 }
 
 function setDoorImage(state) {
+    closeInventoryIfOpen()
     const path = state === 'open'
         ? '/static/images/doors/open_hatch.png'
         : '/static/images/doors/closed_hatch.png';
