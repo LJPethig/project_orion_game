@@ -116,6 +116,21 @@ class GameManager:
         if self.initialised and self.chronometer:
             self.chronometer.advance(minutes)
 
+    # ── Events ───────────────────────────────────────────────
+
+    def check_for_event(self) -> dict | None:
+        """
+        Check for any pending game events.
+        Called between component repairs to allow event interruption.
+
+        TODO: implement event system — two event types:
+          - Random events: probability-based, checked periodically (micrometeorites, failures)
+          - Scheduled events: game-time threshold triggers (hunger, fatigue, thirst)
+        Scheduled events must interrupt long repairs (e.g. 48hr job interrupted every 8hrs).
+        Returns an event response dict if an event fires, None otherwise.
+        """
+        return None
+
     # ── Room ─────────────────────────────────────────────────
 
     def get_current_room(self):

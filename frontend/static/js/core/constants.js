@@ -3,5 +3,6 @@
 // Change values here to affect behaviour throughout the game.
 
 const CONSTANTS = {
-    DOOR_IMAGE_DISPLAY_MS: 4000,   // How long door/hatch images display before reverting to room
+    DOOR_IMAGE_DISPLAY_MS:      4000,   // How long door/hatch images display before reverting to room
+    REPAIR_COMPONENT_PAUSE_MS:  3000,   // Pause between component repairs so player can read message
 };

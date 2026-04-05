@@ -73,6 +73,15 @@ const API = {
         return r.json();
     },
 
+    async repairNext(panel_id, door_id, exit_label) {
+        const r = await fetch('/api/command/repair_next', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ panel_id, door_id, exit_label }),
+        });
+        return r.json();
+    },
+
     async getInventory() {
         const r = await fetch('/api/game/inventory');
         return r.json();

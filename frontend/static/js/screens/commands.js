@@ -212,15 +212,23 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Repair complete — panel restored or more components remain
+    // Repair complete — panel restored or auto-chain to next component
     if (result.action_type === 'repair_complete') {
         if (result.panel_restored) {
             setPanelImage(result.security_level);
             refreshExits();
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
-            // More components remain — player resumes manually
-            refreshExits();
+            // More components remain — auto-chain after pause for event check
+            setTimeout(async () => {
+                const nextResult = await API.repairNext(
+                    result.panel_id,
+                    result.door_id,
+                    result.exit_label
+                );
+                clearResponse();
+                handleResult(nextResult);
+            }, CONSTANTS.REPAIR_COMPONENT_PAUSE_MS);
         }
         return;
     }
