@@ -93,6 +93,15 @@
     "mass": 0.1
   },
   {
+    "id": "12_pin_interconnect",
+    "name": "12 Pin Interconnect Header",
+    "manufacturer": "AP Interconnects",
+    "model": "63600-12-ND",
+    "description": "Light gauge wiring interconnect.",
+    "keywords": ["12 pin interconnect", "12 pin header", "interconnect header", "interconnect", "header"],
+    "mass": 0.1
+  },
+  {
     "id": "4_pin_interconnect",
     "name": "4 Pin Interconnect Header",
     "manufacturer": "AP Interconnects",

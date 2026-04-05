@@ -1,0 +1,43 @@
+{
+  "vesper_ulock": {
+    "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
+    "components": [
+      {"item_id": "u-lock_door_logic_board",  "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 15},
+      {"item_id": "relay_switch_array",        "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
+      {"item_id": "power_regulator",           "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
+      {"item_id": "4_pin_interconnect",        "qty": 1,          "diag_time_mins": 3,  "repair_time_mins": 8},
+      {"item_id": "12_pin_interconnect",       "qty": 1,          "diag_time_mins": 3,  "repair_time_mins": 8},
+      {"item_id": "wire_low_voltage",          "length_m": 0.5,   "diag_time_mins": 3,  "repair_time_mins": 8}
+    ]
+  },
+  "smc_ts1500": {
+    "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
+    "components": [
+      {"item_id": "ts1500_door_logic_board",   "qty": 1,          "diag_time_mins": 8,  "repair_time_mins": 20},
+      {"item_id": "id_card_scanner_head",      "qty": 1,          "diag_time_mins": 8,  "repair_time_mins": 15},
+      {"item_id": "relay_switch_array",        "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 12},
+      {"item_id": "power_regulator",           "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 12},
+      {"item_id": "22_pin_interconnect",       "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
+      {"item_id": "4_pin_interconnect",        "qty": 1,          "diag_time_mins": 3,  "repair_time_mins": 8},
+      {"item_id": "panel_screen",              "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 15},
+      {"item_id": "wire_low_voltage",          "length_m": 0.5,   "diag_time_mins": 3,  "repair_time_mins": 10}
+    ]
+  },
+  "smc_q_emerald": {
+    "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
+    "components": [
+      {"item_id": "q-emerald_door_logic_board","qty": 1,          "diag_time_mins": 15, "repair_time_mins": 30},
+      {"item_id": "id_card_scanner_head",      "qty": 1,          "diag_time_mins": 10, "repair_time_mins": 20},
+      {"item_id": "relay_switch_array",        "qty": 1,          "diag_time_mins": 8,  "repair_time_mins": 15},
+      {"item_id": "power_regulator",           "qty": 1,          "diag_time_mins": 8,  "repair_time_mins": 15},
+      {"item_id": "22_pin_interconnect",       "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 12},
+      {"item_id": "4_pin_interconnect",        "qty": 1,          "diag_time_mins": 3,  "repair_time_mins": 10},
+      {"item_id": "panel_screen",              "qty": 1,          "diag_time_mins": 8,  "repair_time_mins": 20},
+      {"item_id": "wire_low_voltage",          "length_m": 0.5,   "diag_time_mins": 5,  "repair_time_mins": 12},
+      {"item_id": "wire_optical",              "length_m": 0.5,   "diag_time_mins": 8,  "repair_time_mins": 20}
+    ]
+  }
+}

@@ -47,6 +47,8 @@ class BaseHandler:
         has_low_card  = game_manager.has_low_sec_card
         has_high_card = game_manager.has_high_sec_card
 
+        if level == SecurityLevel.NONE.value:
+            return True, ""
         if level == SecurityLevel.KEYCARD_LOW.value:
             if has_high_card or has_low_card:
                 return True, ""

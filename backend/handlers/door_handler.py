@@ -6,16 +6,19 @@ open <room>   — opens a closed door (instant); card swipe if locked, player st
 close <room>  — closes an open door (instant, no card)
 lock <room>   — card swipe (+ PIN if level 3), door locks, player stays
 unlock <room> — card swipe (+ PIN if level 3), door unlocks and opens, player stays
+
+Security level 0 (vesper_ulock) — no card required, instant open/lock/unlock.
 """
 
 from backend.models.game_manager import game_manager
 from backend.handlers.base_handler import BaseHandler
+from backend.models.door import SecurityLevel
 
 
 class DoorHandler(BaseHandler):
 
     def handle_open(self, args: str) -> dict:
-        """Open a closed door — instant if unlocked, card swipe if locked."""
+        """Open a closed door — instant if unlocked or level 0, card swipe if locked."""
         if not args:
             return self._instant("Open which door?")
 
@@ -36,8 +39,16 @@ class DoorHandler(BaseHandler):
         if door.door_open:
             return self._instant(f"The {target_name} door is already open.")
 
-        # Locked — requires card swipe
         if door.door_locked:
+            # Level 0 — no card required, unlock and open instantly
+            if door.security_level == SecurityLevel.NONE.value:
+                door.unlock()
+                door.open()
+                result = self._instant(f"You open the door to {target_name}.")
+                result['door_image'] = 'open'
+                return result
+
+            # Level 1+ — card swipe required
             has_card, card_msg = self._check_card(door)
             if not has_card:
                 return self._instant(card_msg)
@@ -52,7 +63,7 @@ class DoorHandler(BaseHandler):
         return result
 
     def handle_unlock(self, args: str) -> dict:
-        """Unlock a locked door — card swipe (+ PIN if level 3), player stays."""
+        """Unlock a locked door — instant if level 0, card swipe (+ PIN if level 3) otherwise."""
         if not args:
             return self._instant("Unlock which door?")
 
@@ -76,16 +87,24 @@ class DoorHandler(BaseHandler):
         if not door.door_locked:
             return self._instant(f"The {target_name} door is not locked.")
 
+        # Level 0 — no card required, unlock and open instantly
+        if door.security_level == SecurityLevel.NONE.value:
+            door.unlock()
+            door.open()
+            result = self._instant(f"You unlock and open the door to {target_name}.")
+            result['door_image'] = 'open'
+            return result
+
+        # Level 1+ — card swipe required
         has_card, card_msg = self._check_card(door)
         if not has_card:
             return self._instant(card_msg)
-
         result = self._card_swipe_response(door, action='unlock', pending_move=None)
         result['response'] = f"You swipe the access panel to {target_name}."
         return result
 
     def handle_lock(self, args: str) -> dict:
-        """Lock a closed or open door — card swipe (+ PIN if level 3), player stays."""
+        """Lock a door — instant if level 0, card swipe (+ PIN if level 3) otherwise."""
         if not args:
             return self._instant("Lock which door?")
 
@@ -106,10 +125,17 @@ class DoorHandler(BaseHandler):
         if door.door_locked:
             return self._instant(f"The {target_name} door is already locked.")
 
+        # Level 0 — no card required, lock instantly
+        if door.security_level == SecurityLevel.NONE.value:
+            door.lock()
+            result = self._instant(f"You lock the door to {target_name}.")
+            result['door_image'] = 'closed'
+            return result
+
+        # Level 1+ — card swipe required
         has_card, card_msg = self._check_card(door)
         if not has_card:
             return self._instant(card_msg)
-
         result = self._card_swipe_response(door, action='lock', pending_move=None)
         result['response'] = f"You swipe the access panel to {target_name}."
         return result

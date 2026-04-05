@@ -1,6 +1,6 @@
 {
   "vesper_ulock": {
-    "security_level": 1,
+    "security_level": 0,
     "manufacturer": "Vesper Control",
     "model": "Vesper Control U-LOCK Access Panel",
     "description": "A basic door access panel with no security features other than door side locking"
