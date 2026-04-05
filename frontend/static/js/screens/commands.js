@@ -110,8 +110,24 @@ function handleResult(result) {
         return;
     }
 
-    // ── Repair panel — show damaged image, lock input, wait, complete ──
-    if (result.action_type === 'repair_panel') {
+    // ── Diagnose panel — lock input, wait, call diagnose_complete ──
+    if (result.action_type === 'diagnose_panel') {
+        setDamagedPanelImage(result.security_level);
+        showRepairAnimation();
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const diagResult = await API.completeDiagnosis(
+                result.panel_id,
+                result.door_id
+            );
+            clearResponse();
+            handleResult(diagResult);
+        });
+        return;
+    }
+
+    // ── Repair component — lock input, wait, call repair_complete ──
+    if (result.action_type === 'repair_component') {
         setDamagedPanelImage(result.security_level);
         showRepairAnimation();
         Loop.lockInput(result.real_seconds, async () => {
@@ -119,6 +135,7 @@ function handleResult(result) {
             const repairResult = await API.completeRepair(
                 result.panel_id,
                 result.door_id,
+                result.component_id,
                 result.exit_label
             );
             clearResponse();
@@ -188,11 +205,16 @@ function handleResult(result) {
     pendingPin = null;
     setInputMode('normal');
 
-    // Repair complete — show repaired panel image, then restore room
+    // Repair complete — panel restored or more components remain
     if (result.action_type === 'repair_complete') {
-        setPanelImage(result.security_level);   // ← add this line
-        refreshExits();
-        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        if (result.panel_restored) {
+            setPanelImage(result.security_level);
+            refreshExits();
+            setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        } else {
+            // More components remain — player resumes manually
+            refreshExits();
+        }
         return;
     }
 

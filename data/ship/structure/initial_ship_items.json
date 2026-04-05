@@ -28,7 +28,22 @@
     },
     {
       "container_id": "storage_room_large_storage_unit",
-      "items": ["socket_set_small", "wire_low_voltage", "wire_high_voltage", "wire_optical"]
+      "items": [
+        "socket_set_small",
+        "wire_low_voltage",
+        "wire_high_voltage",
+        "wire_optical",
+        "4_pin_interconnect",
+        "panel_screen",
+        "12_pin_interconnect",
+        "22_pin_interconnect",
+        "power_regulator",
+        "relay_switch_array",
+        "id_card_scanner_head",
+        "q-emerald_door_logic_board",
+        "ts1500_door_logic_board",
+        "u-lock_door_logic_board"
+      ]
     }
   ],
   "surfaces": [

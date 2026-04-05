@@ -8,6 +8,7 @@ POST /api/command/pin    { "door_id": "...", "pin": "1234" }
 
 from flask import Blueprint, jsonify, request
 from backend.handlers.command_handler import command_handler
+from backend.handlers.repair_handler import repair_handler
 from backend.models.game_manager import game_manager
 from backend.models.door import SecurityLevel
 from backend.api.game import _build_room_data
@@ -103,11 +104,11 @@ def _complete_door_action(door, door_action: str):
     })
 
 
-@command_bp.route('/repair_complete', methods=['POST'])
-def complete_repair():
+@command_bp.route('/diagnose_complete', methods=['POST'])
+def diagnose_complete():
     """
-    Called by frontend after the repair wait completes.
-    Marks the panel as repaired, advances ship time.
+    Called by frontend after the diagnosis timed action completes.
+    Populates panel.broken_components and returns diagnosis report.
     """
     if not game_manager.initialised:
         return jsonify({'error': 'Game not initialised'}), 400
@@ -116,31 +117,29 @@ def complete_repair():
     panel_id = data.get('panel_id')
     door_id  = data.get('door_id')
 
-    door = game_manager.ship.get_door_by_id(door_id)
-    if not door:
-        return jsonify({'error': 'Door not found'}), 400
+    result = repair_handler.complete_diagnosis(panel_id, door_id)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
 
-    panel = next(
-        (p for p in door.panels.values() if p.panel_id == panel_id),
-        None
-    )
-    if not panel:
-        return jsonify({'error': 'Panel not found'}), 400
 
-    panel.is_broken       = False
-    panel.repair_progress = 1.0
-    game_manager.advance_time(30)  # TODO: replace with profile-driven time in Phase 18
+@command_bp.route('/repair_complete', methods=['POST'])
+def repair_complete():
+    """
+    Called by frontend after a single component repair timed action completes.
+    Consumes parts, marks component repaired, returns next action or completion.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
 
-    exit_label = data.get('exit_label', 'the door')
-    return jsonify({
-        'response':       f"You repair the door access panel to {exit_label}. It is now operational.",
-        'action_type':    'repair_complete',
-        'lock_input':     False,
-        'room_changed':   False,
-        'security_level': door.security_level,
-        'door_id':        door_id,
-        'ship_time':      game_manager.get_ship_time(),
-    })
+    data         = request.get_json()
+    panel_id     = data.get('panel_id')
+    door_id      = data.get('door_id')
+    component_id = data.get('component_id')
+    exit_label   = data.get('exit_label', 'the door')
+
+    result = repair_handler.complete_component_repair(panel_id, door_id, component_id, exit_label)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
 
 
 @command_bp.route('/pin', methods=['POST'])

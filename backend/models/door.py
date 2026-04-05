@@ -47,8 +47,9 @@ class SecurityPanel:
         self.repair_progress = 0.0   # Runtime state only — not in JSON
 
         # ── Repair state ──────────────────────────────────────
-        self.broken_components    = []   # Component ids broken at break time
-        self.diagnosed_components = []   # Component ids found by diagnosis
+        self.broken_components    = []   # Component item_ids set by scan tool diagnosis
+        self.diagnosed_components = []   # Component item_ids verified (electrical only)
+        self.repaired_components  = []   # Component item_ids successfully replaced
 
     def get_state_label(self) -> str:
         """Return a short display label for the panel state."""
