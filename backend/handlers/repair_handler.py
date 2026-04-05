@@ -233,54 +233,56 @@ class RepairHandler(BaseHandler):
 
     def _begin_next_repair(self, panel, door, exit_label: str) -> dict:
         """
-        Repair stage — find next unrepaired component, check tools and parts,
-        return timed action for that component.
+        Repair stage — check all missing tools and parts across all remaining
+        unrepaired components upfront. Only begins timed action when everything
+        is present.
         """
         profile = self._profiles.get(panel.panel_type)
-        if not profile:
+        if not profile:\
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
         # ── Check repair tools ────────────────────────────────
         missing_tools = self._check_tools(profile['repair_tools_required'])
-        if missing_tools:
-            names = [self._item_name(t) for t in missing_tools]
+
+        # ── Check parts across all remaining components ───────
+        missing_parts = self._check_all_parts(panel, profile)
+
+        # ── If anything missing — return full summary ─────────
+        if missing_tools or missing_parts:
+            tool_names = [self._item_name(t) for t in missing_tools]
             return {
-                'response': '',
-                'action_type': 'repair_message',
-                'lock_input': False,
+                'response':     'You are missing the following items required for this repair:',
+                'action_type':  'repair_message',
+                'lock_input':   False,
                 'room_changed': False,
-                'tools': names,
-                'tools_label': 'You are missing the following tools required for this repair:',
+                'faults':       missing_parts,
+                'faults_label': 'Missing components:',
+                'tools':        tool_names,
+                'tools_label':  'Missing tools:',
             }
 
-        # ── Find next unrepaired component ────────────────────
+        # ── Everything present — begin next component repair ──
         next_component = self._get_next_component(panel, profile)
         if not next_component:
             return self._instant("All diagnosed components have been repaired.")
 
-        # ── Check parts in inventory ──────────────────────────
-        parts_check = self._check_parts(next_component)
-        if parts_check:
-            return parts_check
-
         item_name    = self._item_name(next_component['item_id'])
         repair_mins  = next_component['repair_time_mins']
         real_seconds = calc_repair_real_seconds(repair_mins)
-
-        remaining = len(panel.broken_components) - len(panel.repaired_components) - 1
+        remaining    = len(panel.broken_components) - len(panel.repaired_components) - 1
 
         return {
-            'response':        f"Replacing {item_name}...",
-            'action_type':     'repair_component',
-            'lock_input':      True,
-            'real_seconds':    real_seconds,
-            'game_minutes':    repair_mins,
-            'room_changed':    False,
-            'panel_id':        panel.panel_id,
-            'security_level': panel.security_level.value,
-            'door_id':         door.id,
-            'exit_label':      exit_label,
-            'component_id':    next_component['item_id'],
+            'response':             f"Replacing {item_name}...",
+            'action_type':          'repair_component',
+            'lock_input':           True,
+            'real_seconds':         real_seconds,
+            'game_minutes':         repair_mins,
+            'room_changed':         False,
+            'panel_id':             panel.panel_id,
+            'security_level':       panel.security_level.value,
+            'door_id':              door.id,
+            'exit_label':           exit_label,
+            'component_id':         next_component['item_id'],
             'components_remaining': remaining,
         }
 
@@ -291,6 +293,44 @@ class RepairHandler(BaseHandler):
             if item_id in panel.broken_components and item_id not in panel.repaired_components:
                 return component
         return None
+
+    def _check_all_parts(self, panel, profile) -> list:
+        """
+        Check player has all required parts across all remaining unrepaired components.
+        Returns a list of human-readable missing part descriptions.
+        """
+        missing = []
+        inventory = player = game_manager.player.get_inventory()
+
+        for component in profile['components']:
+            item_id = component['item_id']
+            if item_id not in panel.broken_components:
+                continue
+            if item_id in panel.repaired_components:
+                continue
+
+            name = self._item_name(item_id)
+
+            if 'length_m' in component:
+                required = component['length_m']
+                spool = next(
+                    (item for item in inventory
+                     if getattr(item, 'id', None) == item_id
+                     and getattr(item, 'length_m', 0) >= required),
+                    None
+                )
+                if not spool:
+                    missing.append(f"{required}m {name}")
+            else:
+                qty_required = component.get('qty', 1)
+                matches = [
+                    item for item in inventory
+                    if getattr(item, 'id', None) == item_id
+                ]
+                if len(matches) < qty_required:
+                    missing.append(name if qty_required == 1 else f"{qty_required}x {name}")
+
+        return missing
 
     def _check_parts(self, component: dict) -> dict | None:
         """

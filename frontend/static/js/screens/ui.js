@@ -100,7 +100,7 @@ function appendRepairMessage(result) {
     if (result.faults && result.faults.length > 0) {
         const faultsLabel = document.createElement('div');
         faultsLabel.className   = 'response-line';
-        faultsLabel.textContent = 'You have discovered the following failed components:';
+        faultsLabel.textContent = result.faults_label || 'You have discovered the following failed components:';
         content.appendChild(faultsLabel);
 
         const faultsEl = document.createElement('div');

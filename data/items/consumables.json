@@ -31,7 +31,7 @@
   },
   {
     "id": "u-lock_door_logic_board",
-    "name": "Door Access Panel Logic Board",
+    "name": "U-LOCK Logic Board",
     "manufacturer": "Vesper Control",
     "model": "VC-571-4021",
     "description": "A logic circuit board for the Vesper Control U-LOCK.",
@@ -40,7 +40,7 @@
   },
   {
     "id": "ts1500_door_logic_board",
-    "name": "Door Access Panel Logic Board",
+    "name": "TS1500 Logic Board",
     "manufacturer": "SMC Nova",
     "model": "SMC-82001-87",
     "description": "A logic circuit board for the SMC Nova TS1500.",
@@ -49,7 +49,7 @@
   },
   {
     "id": "q-emerald_door_logic_board",
-    "name": "Door Access Panel Logic Board",
+    "name": "Q-Emerald Logic Board",
     "manufacturer": "SMC Nova",
     "model": "SMC-QE-661",
     "description": "A logic circuit board for the quantum chipped SMC Nova Q-Emerald.",
