@@ -119,6 +119,24 @@ class ContainerHandler(BaseHandler):
             result['room_contents_changed'] = True
             return result
 
+        # Try floor
+        if cont_name in ('floor', 'the floor', 'ground'):
+            room = game_manager.get_current_room()
+            item = next(
+                (i for i in room.floor if
+                 i.instance_id == item_name or i.id == item_name or i.matches(item_name)),
+                None
+            )
+            if not item:
+                return self._instant(f"There is no '{item_name}' on the floor.")
+            success, msg = game_manager.player.add_to_inventory(item)
+            if not success:
+                return self._instant(msg)
+            room.floor.remove(item)
+            result = self._instant(f"You take the {item.display_name()} from the floor.")
+            result['room_contents_changed'] = True
+            return result
+
         return self._instant(f"There is no '{cont_name}' here.")
 
     def handle_put_in(self, args: str) -> dict:

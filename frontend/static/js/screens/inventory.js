@@ -152,17 +152,21 @@ function _renderDetail(col, entry) {
     img.onerror   = () => { img.src = '/static/images/image_missing.png'; img.onerror = null; };
     col.appendChild(img);
 
-    // Name
-    const name = document.createElement('div');
-    name.className   = 'inv-detail-name';
-    name.textContent = item.name;
-    col.appendChild(name);
+    // Model
+    if (item.model) {
+        const model = document.createElement('div');
+        model.className   = 'inv-detail-name';
+        model.textContent = item.model;
+        col.appendChild(model);
+    }
 
-    // Mass
-    const mass = document.createElement('div');
-    mass.className   = 'inv-detail-mass';
-    mass.textContent = `${item.mass.toFixed(1)} kg`;
-    col.appendChild(mass);
+    // Manufacturer
+    if (item.manufacturer) {
+        const mfr = document.createElement('div');
+        mfr.className   = 'inv-detail-manufacturer';
+        mfr.textContent = item.manufacturer;
+        col.appendChild(mfr);
+    }
 
     // Description
     const desc = document.createElement('div');
@@ -197,10 +201,14 @@ function _addAction(container, label, handler) {
 }
 
 async function _invCommand(cmd) {
+    const savedIndex = selectedItemIndex;
     clearResponse();
     const result = await API.sendCommand(cmd);
     handleResult(result);
-    renderInventory();
+    await renderInventory();
+    if (selectedItemList.length > 0) {
+        _selectItem(Math.min(savedIndex, selectedItemList.length - 1));
+    }
 }
 
 // ── Keyboard navigation ──────────────────────────────────────

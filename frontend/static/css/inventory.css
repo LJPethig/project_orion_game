@@ -129,6 +129,12 @@
     font-size: 11px;
 }
 
+.inv-detail-manufacturer {
+    font-size: 11px;
+    color: var(--col-title);
+    margin-bottom: 1px;
+}
+
 .inv-detail-desc {
     color: var(--col-text);
     font-size: 12px;

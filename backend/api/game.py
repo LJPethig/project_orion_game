@@ -77,6 +77,8 @@ def get_inventory():
             'name': item.display_name() if item else None,
             'description': item.description if item else None,
             'mass': item.mass if item else None,
+            'manufacturer': getattr(item, 'manufacturer', None) if item else None,
+            'model': getattr(item, 'model', None) if item else None,
             'image': f"images/items/{item.id}.png" if item else None,
             'equip_slot': getattr(item, 'equip_slot', None) if item else None,
         }
@@ -89,6 +91,8 @@ def get_inventory():
             'name': item.display_name(),
             'description': item.description,
             'mass': item.mass,
+            'manufacturer': getattr(item, 'manufacturer', None),
+            'model': getattr(item, 'model', None),
             'image': f"images/items/{item.id}.png",
             'equip_slot': getattr(item, 'equip_slot', None),
         }

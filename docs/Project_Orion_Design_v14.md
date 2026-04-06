@@ -699,11 +699,9 @@ When a second repairable type is added (machinery, life support):
 
 ## 16. KNOWN ISSUES / DEFERRED
 
-- **`take <item> from floor`** — floor not recognised as a valid source name in `take from` commands. Deferred.
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session.
-- **Inventory screen item detail** — item display needs `manufacturer` and `model` shown alongside description. Coordinate with examine command implementation.
 - **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
 - **Dynamic room descriptions** — static prose needs electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.

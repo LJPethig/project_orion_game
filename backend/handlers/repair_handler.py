@@ -329,7 +329,7 @@ class RepairHandler(BaseHandler):
         Returns a list of human-readable missing part descriptions.
         """
         missing = []
-        inventory = player = game_manager.player.get_inventory()
+        inventory = game_manager.player.get_inventory()
 
         for component in profile['components']:
             item_id = component['item_id']
