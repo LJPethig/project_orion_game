@@ -454,6 +454,8 @@ class CommandHandler:
             )
             if not is_instance_id:
                 item_matches = self._resolve_all(item_part, 'inventory')
+                seen = set()
+                item_matches = [(i, n) for i, n in item_matches if not (n in seen or seen.add(n))]
                 if len(item_matches) > 1:
                     options = [
                         {'label': name, 'command': f"put {item_id} in {cont_part}"}

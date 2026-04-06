@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 13.0 — April 2026**
+**Version 14.0 — April 2026**
 
 ---
 
@@ -47,7 +47,7 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - Floor fallback: items drop to floor when no surface available ✅
 - Player inventory screen: slide-out panel, equipped slots, carried items, actions ✅
 - Smart command parser: ID resolver, verb conflict resolution, clarification system ✅
-- Item registry: unique instances per placement (foundation for consumables) ✅
+- Item registry: unique instances per placement, unique runtime instance_id per item ✅
 - Terminal system: CRT styling, typewriter, keypress nav, sub-menus, terminal mode lockout ✅
 - Electrical system: reactor, panels, breakers, cables, batteries, power tracing ✅
 - Electrical integrated into gameplay: door panels and terminals check room power ✅
@@ -225,10 +225,11 @@ ELECTRICAL_JSON_PATH    = 'data/ship/systems/electrical.json'
 
 ### Resolver architecture
 All typed commands and UI clicks pass through `command_handler.process()`:
-1. Preposition commands intercepted first (`take from`, `put in`, `put on`)
-2. Ambiguity check — `_check_ambiguity()` finds all matches, returns `clarification_required` if multiple distinct items
-3. Resolver — `_resolve_for_verb()` converts keywords to IDs using `_resolve_all()`
-4. Handler receives resolved ID or original keyword
+1. Instance ID direct match — if target matches any item's `instance_id`, returns immediately, no ambiguity possible
+2. Preposition commands intercepted (`take from`, `put in`, `put on`) — clarified preposition commands routed directly, bypassing verb registry
+3. Ambiguity check — `_check_ambiguity()` finds all matches, deduplicates by `display_name()`, returns `clarification_required` if multiple distinct items
+4. Resolver — `_resolve_for_verb()` converts keywords to IDs using `_resolve_all()`
+5. Handler receives resolved `instance_id`, type `id`, or original keyword — all handlers check all three
 
 ### Dual ID and keyword matching in handlers
 Handlers retain both `item.id == target` and `item.matches(target)` checks. This is intentional — the resolver operates upstream but the preposition early-exit blocks in `process()` have their own resolution paths. Removing the keyword fallback was attempted and reverted.
@@ -544,6 +545,7 @@ See Section 15.
 - Ship inventory manifest via storage terminals
 - Cargo bay trading items
 - `PortableContainer` (moveable crate) — floor only
+- Note: ship inventory is NOT a global item manifest. Terminal-managed cataloguing specific to cargo bay and storage room only. Items placed in a tray are automatically stored and catalogued. Items not placed via the terminal are not catalogued.
 
 ### Phase 20 — Life support
 - Binary operational states driven by electrical system
@@ -640,7 +642,7 @@ Wire components use `length_m` instead of `qty`. All other components use `qty`.
 
 **Diagnosis (`diagnose <panel>`)**
 1. Check `diag_tools_required` — if missing, return structured response listing missing tools
-2. Check scan tool `installed_manuals` contains panel `model` — if not, inform player
+2. Check scan tool `installed_manuals` contains panel `model` — if not, display corporate warning message in orange with Yes/No confirmation. Player may proceed without correct manual but risks higher post-repair failure probability (future).
 3. Timed action begins (sum of `diag_time_mins` for all profile components)
 4. On complete: randomly select 1–3 broken components (weighted toward fewer), populate `broken_components`
 5. Return structured response: panel model, failed components (purple), repair tools required (purple)
@@ -697,33 +699,25 @@ When a second repairable type is added (machinery, life support):
 
 ## 16. KNOWN ISSUES / DEFERRED
 
+- **`take <item> from floor`** — floor not recognised as a valid source name in `take from` commands. Deferred.
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session.
 - **Inventory screen item detail** — item display needs `manufacturer` and `model` shown alongside description. Coordinate with examine command implementation.
 - **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
-- **Dynamic room descriptions** — static prose has had electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
+- **Dynamic room descriptions** — static prose needs electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Repair time scaling** — `calc_repair_real_seconds()` and `calc_diagnose_real_seconds()` in `repair_handler.py` currently return fixed stubs. Implement proper scaling with cap. Delete `REPAIR_REAL_SECONDS` and `DIAGNOSE_REAL_SECONDS` from `config.py` when done.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
 
-### Unique instance identifiers — deferred
-Currently all placed items are unique Python instances but share a type-level `item.id`. The command system resolves by `item.id` which causes ambiguity when multiple instances of the same type exist in the same location (e.g. two wire spools of different lengths).
-
-**Current workaround** — `clarified:` prefix in the command bypasses the ambiguity check and takes the first matching instance by container order. This is incorrect when multiple same-type items exist — the player may receive the wrong instance. The player can work around it by repeating the command.
-
-**Correct fix** — unique runtime instance identifiers. Each placed item gets a unique id (e.g. `wire_low_voltage_001`) generated at load time, stored on the instance, usable in clarification commands. Changes required:
-- `item_loader.py` — generate and assign unique instance id at instantiation
-- `command_handler.py` — clarification options use instance id in command, resolution uses instance id directly bypassing ambiguity entirely
-- `game.py` — serialisation includes instance id alongside type id
-
-**Relationship to ship inventory (Phase 19)** — the ship inventory system is NOT a global item manifest. It is a terminal-managed cataloguing system specific to two locations only: the cargo bay and the storage room. Each has an automated storage inventory terminal. Items placed in a tray are automatically stored and catalogued. The terminal displays current inventory and allows automated retrieval. Items not placed via the terminal are not catalogued. This is separate from the unique instance identifier problem.
-
 ### Recently completed deferred items
-- ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items. Used in inventory, containers, surfaces, floor items, clarification options, repair/diagnosis responses.
-- ✅ **Clarification display for wire spools of different lengths** — distinct lengths now show as separate options. Partially fixed — see unique instance identifiers above for remaining limitation.
+- ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items. Used in inventory, containers, surfaces, floor items, clarification options, repair/diagnosis responses, and all take/put/drop/look in response messages.
+- ✅ **Unique instance identifiers** — each placed item now receives a unique runtime `instance_id` (e.g. `wire_low_voltage_001`) at load time. Clarification options use `instance_id` in commands. Resolution checks `instance_id` first, bypassing ambiguity entirely. All handlers, serialisation, and frontend clicks updated. Clarification display for wire spools now shows correct lengths and selects the correct instance.
+- ✅ **`pick up <item> from <container>`** — preposition handling now correctly routes `pick up` alongside `take` for `from` commands.
+- ✅ **Scan tool manual check** — no longer blocks diagnosis. Missing manual shows a corporate warning in orange with Yes/No confirmation. Diagnosis proceeds regardless. Future: missing manual increases post-repair failure probability.
+- ✅ **`display_name()` in all response messages** — wire length now shown correctly in all take/put/drop/look in response messages across `item_handler.py` and `container_handler.py`.
 - ✅ **resolver_debug.log** — logger removed from `main.py` and `command_handler.py`, log file deleted.
 - ✅ **Inventory screen auto-close** — `closeInventoryIfOpen()` added to `setPanelImage()`, `setDamagedPanelImage()`, and `setDoorImage()` in `ui.js`.
 
@@ -830,5 +824,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v12.0*
+*Project Orion Game Design Document v14.0*
 *April 2026*

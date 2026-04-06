@@ -100,6 +100,29 @@ function handleResult(result) {
         return;
     }
 
+    // ── Diagnose panel warning — no manual, ask to confirm ───
+    if (result.action_type === 'diagnose_panel_warning') {
+        appendResponse(result.response, 'alert');
+        const container = document.createElement('div');
+        container.className = 'clarification-options';
+        ['Yes', 'No'].forEach((label, i) => {
+            const span = document.createElement('span');
+            span.className   = 'clarification-option';
+            span.textContent = label;
+            span.addEventListener('click', () => {
+                clearResponse();
+                if (i === 0) {
+                    handleResult(Object.assign({}, result, { action_type: 'diagnose_panel', response: '' }));
+                }
+                document.getElementById('command-input').focus();
+            });
+            container.appendChild(span);
+            if (i === 0) container.appendChild(document.createTextNode('| '));
+        });
+        document.getElementById('response-content').appendChild(container);
+        return;
+    }
+
     if (result.response) appendResponse(result.response);
 
     // ── Door locked — show closed hatch image, stay on it ────
@@ -116,6 +139,7 @@ function handleResult(result) {
         refreshExits();
         return;
     }
+
 
     // ── Diagnose panel — lock input, wait, call diagnose_complete ──
     if (result.action_type === 'diagnose_panel') {

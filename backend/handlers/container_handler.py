@@ -70,7 +70,7 @@ class ContainerHandler(BaseHandler):
         if not unit.contents:
             return self._instant(f"The {unit.name} is empty.")
 
-        names = [item.name for item in unit.contents]
+        names = [item.display_name() for item in unit.contents]
         return self._instant(f"Inside the {unit.name} you see: {', '.join(names)}.")
 
     def handle_take_from(self, args: str) -> dict:
@@ -97,7 +97,7 @@ class ContainerHandler(BaseHandler):
             if not success:
                 return self._instant(msg)
             unit.remove_item(item)
-            result = self._instant(f"You take the {item.name} from the {unit.name}.")
+            result = self._instant(f"You take the {item.display_name()} from the {unit.name}.")
             result['room_contents_changed'] = True
             return result
 
@@ -115,7 +115,7 @@ class ContainerHandler(BaseHandler):
             if not success:
                 return self._instant(msg)
             surface.remove_item(item)
-            result = self._instant(f"You take the {item.name} from the {surface.name}.")
+            result = self._instant(f"You take the {item.display_name()} from the {surface.name}.")
             result['room_contents_changed'] = True
             return result
 
@@ -150,7 +150,7 @@ class ContainerHandler(BaseHandler):
             return self._instant(f"The {unit.name} is too full to hold the {item.name}.")
 
         game_manager.player.remove_from_inventory(item)
-        result = self._instant(f"You put the {item.name} in the {unit.name}.")
+        result = self._instant(f"You put the {item.display_name()} in the {unit.name}.")
         result['room_contents_changed'] = True
         return result
 
@@ -178,7 +178,7 @@ class ContainerHandler(BaseHandler):
 
         game_manager.player.remove_from_inventory(item)
         surface.add_item(item)
-        result = self._instant(f"You put the {item.name} on the {surface.name}.")
+        result = self._instant(f"You put the {item.display_name()} on the {surface.name}.")
         result['room_contents_changed'] = True
         return result
 

@@ -183,19 +183,44 @@ class RepairHandler(BaseHandler):
             }
 
         # ── Check scan tool has the correct manual ────────────
+        manual_warning = ''
         manual_check = self._check_scan_tool_manual(panel)
-        if manual_check:
-            return manual_check
+        if manual_check == 'NO_SCAN_TOOL':
+            return self._instant("You need a scan tool to diagnose this panel.")
+        elif manual_check:
+            manual_warning = (
+                f"WARNING : This scan tool does not have the required software "
+                f"to diagnose {manual_check}. Proceeding with any diagnosis may result in "
+                f"unexpected consequences. Enso VeilTech accepts no responsibility for any resulting damage to property or loss of life. "
+                f"Failure to update this tool before proceeding will result in forfeiture "
+                f"of any and all rights as specified in Section 15 subsection 13c of your employment contract. "
+                f"Resulting in your immediate dismissal and subsequent punitive damages. \n\n"
+            )
 
         # ── Sum diagnosis time across all profile components ──
         total_diag_mins = sum(c['diag_time_mins'] for c in profile['components'])
-        real_seconds    = calc_diagnose_real_seconds(total_diag_mins)
+        real_seconds = calc_diagnose_real_seconds(total_diag_mins)
 
         panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
 
+        if manual_warning:
+            return {
+                'response': manual_warning.strip(),
+                'action_type': 'diagnose_panel_warning',
+                'lock_input': False,
+                'room_changed': False,
+                'panel_id': panel.panel_id,
+                'door_id': door.id,
+                'exit_label': exit_label,
+                'panel_type': panel.panel_type,
+                'security_level': panel.security_level.value,
+                'real_seconds': real_seconds,
+                'game_minutes': total_diag_mins,
+            }
+
         return {
-            'response':        f"Connecting scan tool to {exit_label} access panel. Running diagnostics...",
-            'action_type':     'diagnose_panel',
+            'response': f"Connecting scan tool to {exit_label} access panel. Running diagnostics...",
+            'action_type': 'diagnose_panel',
             'lock_input':      True,
             'real_seconds':    real_seconds,
             'game_minutes':    total_diag_mins,
@@ -205,16 +230,17 @@ class RepairHandler(BaseHandler):
             'exit_label':      exit_label,
             'panel_type':      panel.panel_type,
             'security_level': panel.security_level.value,
-        }
+    }
 
-    def _check_scan_tool_manual(self, panel) -> dict | None:
+    def _check_scan_tool_manual(self, panel) -> str | None:
         """
         Check player carries a scan tool with the correct manual installed.
-        Returns an error response if not, None if OK.
+        Returns the missing manual name if not found, None if OK.
+        Scan tool absence is still a hard block — returned as a string sentinel.
         """
         panel_model = self._panel_types.get(panel.panel_type, {}).get('model')
         if not panel_model:
-            return self._instant(f"Panel type '{panel.panel_type}' has no model definition.")
+            return None  # No model defined — skip manual check
 
         player = game_manager.player
         all_items = player.get_inventory() + player.equipped_items
@@ -224,14 +250,12 @@ class RepairHandler(BaseHandler):
             None
         )
         if not scan_tool:
-            return self._instant("You need a scan tool to diagnose this panel.")
+            return 'NO_SCAN_TOOL'
 
         installed = getattr(scan_tool, 'installed_manuals', [])
         if panel_model not in installed:
-            return self._instant(
-                f"Your scan tool does not have a manual for the {panel_model}. "
-                f"A software update is required."
-            )
+            return panel_model
+
         return None
 
     # ── Repair stage ──────────────────────────────────────────

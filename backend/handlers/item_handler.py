@@ -32,7 +32,7 @@ class ItemHandler(BaseHandler):
 
         self._remove_item_from_room(room, item)
         if source:
-            msg = f"You take the {item.name} from the {source}."
+            msg = f"You take the {item.display_name()} from the {source}."
         result = self._instant(msg)
         result['room_contents_changed'] = True
         return result
