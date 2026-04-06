@@ -43,7 +43,8 @@ class ItemHandler(BaseHandler):
 
         target = args.strip().lower()
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.id == target or i.matches(target)),
+            (i for i in game_manager.player.get_inventory() if
+             i.instance_id == target or i.id == target or i.matches(target)),
             None
         )
 
@@ -77,15 +78,15 @@ class ItemHandler(BaseHandler):
         for obj in room.objects:
             if isinstance(obj, Surface):
                 for item in obj.contents:
-                    if item.id == target or item.matches(target):
+                    if item.instance_id == target or item.id == target or item.matches(target):
                         return item, obj.name
         for obj in room.objects:
             if isinstance(obj, StorageUnit) and obj.is_open:
                 for item in obj.contents:
-                    if item.id == target or item.matches(target):
+                    if item.instance_id == target or item.id == target or item.matches(target):
                         return item, obj.name
         for item in room.floor:
-            if item.id == target or item.matches(target):
+            if item.instance_id == target or item.id == target or item.matches(target):
                 return item, "the floor"
         return None, None
 

@@ -44,7 +44,7 @@ function renderDescription(room) {
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
                         clearResponse();
-                        API.sendCommand(`take ${item.id} from ${id}`).then(result => handleResult(result));
+                        API.sendCommand(`take ${item.instance_id || item.id} from ${id}`).then(result => handleResult(result));
                     });
                     row.appendChild(itemSpan);
                     if (idx < state.contents.length - 1) {
@@ -86,7 +86,7 @@ function renderDescription(room) {
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
                         clearResponse();
-                        API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+                        API.sendCommand(`take ${item.instance_id || item.id}`).then(result => handleResult(result));
                     });
                     row.appendChild(itemSpan);
                     if (idx < state.contents.length - 1) {
@@ -120,7 +120,7 @@ function renderDescription(room) {
             itemSpan.dataset.itemId = item.id;
             itemSpan.addEventListener('click', () => {
                 clearResponse();
-                API.sendCommand(`take ${item.id}`).then(result => handleResult(result));
+                API.sendCommand(`take ${item.instance_id || item.id}`).then(result => handleResult(result));
             });
             row.appendChild(itemSpan);
             if (idx < floorItems.length - 1) {

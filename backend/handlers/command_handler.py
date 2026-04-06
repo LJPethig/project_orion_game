@@ -104,33 +104,50 @@ class CommandHandler:
         """
         player = game_manager.player
         room   = game_manager.get_current_room()
-        t      = target.strip().lower()
+        t = target.strip().lower()
         matches = []
+
+        # ── Instance ID direct match — bypasses keyword resolution ──
+        all_items = list(player.get_inventory())
+        for slot in player.EQUIP_SLOTS:
+            slot_item = getattr(player, f"{slot}_slot")
+            if slot_item:
+                all_items.append(slot_item)
+        if room:
+            for obj in room.objects:
+                if isinstance(obj, Surface):
+                    all_items.extend(obj.contents)
+                elif isinstance(obj, StorageUnit):
+                    all_items.extend(obj.contents)
+            all_items.extend(room.floor)
+        for item in all_items:
+            if item.instance_id and item.instance_id == t:
+                return [(item.instance_id, item.display_name())]
 
         if scope == 'inventory':
             for item in player.get_inventory():
                 if item.id == t or item.matches(t):
-                    matches.append((item.id, item.display_name()))
+                    matches.append((item.instance_id or item.id, item.display_name()))
 
         elif scope == 'equipped':
             for slot in player.EQUIP_SLOTS:
                 item = getattr(player, f"{slot}_slot")
                 if item and (item.id == t or item.matches(t)):
-                    matches.append((item.id, item.display_name()))
+                    matches.append((item.instance_id or item.id, item.display_name()))
 
         elif scope == 'room_portable':
             for obj in room.objects:
                 if isinstance(obj, Surface):
                     for item in obj.contents:
                         if item.id == t or item.matches(t):
-                            matches.append((item.id, item.display_name()))
+                            matches.append((item.instance_id or item.id, item.display_name()))
                 elif isinstance(obj, StorageUnit) and obj.is_open:
                     for item in obj.contents:
                         if item.id == t or item.matches(t):
-                            matches.append((item.id, item.display_name()))
+                            matches.append((item.instance_id or item.id, item.display_name()))
             for item in room.floor:
                 if item.id == t or item.matches(t):
-                    matches.append((item.id, item.display_name()))
+                    matches.append((item.instance_id or item.id, item.display_name()))
 
         elif scope == 'room_fixed':
             for obj in room.objects:
@@ -191,9 +208,15 @@ class CommandHandler:
             return f"{item_part} from {cont_part}"
 
         if verb in ('put in', 'place in') and ' in ' in args.lower():
-            parts     = args.lower().split(' in ', 1)
-            item_part = self._resolve(parts[0].strip(), 'inventory')
+            parts = args.lower().split(' in ', 1)
+            item_part = parts[0].strip()
             cont_part = self._resolve(parts[1].strip(), 'room_fixed')
+            player = game_manager.player
+            is_instance_id = any(
+                i.instance_id == item_part for i in player.get_inventory() if i.instance_id
+            )
+            if not is_instance_id:
+                item_part = self._resolve(item_part, 'inventory')
             return f"{item_part} in {cont_part}"
 
         if verb in ('put on', 'place on'):
@@ -354,6 +377,29 @@ class CommandHandler:
         # ── Clarification bypass — player already chose, skip ambiguity ──
         if cmd.startswith('clarified:'):
             cmd = cmd[len('clarified:'):]
+
+            # ── Preposition commands — route directly, skip ambiguity ──
+            if ' in ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
+                prefix_len = 4 if cmd.startswith('put ') else 6
+                parts = cmd.split(' in ', 1)
+                item_part = parts[0][prefix_len:].strip()
+                cont_part = self._resolve(parts[1].strip(), 'room_fixed')
+                return self._container.handle_put_in(f"{item_part} in {cont_part}")
+
+            if ' on ' in cmd and (cmd.startswith('put ') or cmd.startswith('place ')):
+                prefix_len = 4 if cmd.startswith('put ') else 6
+                parts = cmd.split(' on ', 1)
+                item_part = parts[0][prefix_len:].strip()
+                surf_part = self._resolve(parts[1].strip(), 'room_fixed')
+                return self._container.handle_put_on(f"{item_part} on {surf_part}")
+
+            if ' from ' in cmd and cmd.startswith('take '):
+                parts = cmd.split(' from ', 1)
+                item_part = parts[0][5:].strip()
+                cont_part = self._resolve(parts[1].strip(), 'room_fixed')
+                return self._container.handle_take_from(f"{item_part} from {cont_part}")
+
+            # ── Standard verb registry ────────────────────────────
             words = cmd.split()
             for i in range(len(words), 0, -1):
                 verb = ' '.join(words[:i])
@@ -366,9 +412,10 @@ class CommandHandler:
             return self._unknown('')
 
         # Special handling for preposition commands before verb matching
-        if ' from ' in cmd and cmd.startswith('take '):
+        if ' from ' in cmd and (cmd.startswith('take ') or cmd.startswith('pick up ')):
             parts = cmd.split(' from ', 1)
-            item_part = parts[0][5:].strip()
+            prefix_len = 8 if cmd.startswith('pick up ') else 5
+            item_part = parts[0][prefix_len:].strip()
             cont_part = parts[1].strip()
 
             # Resolve the container first, then check for ambiguous items within it
@@ -382,7 +429,7 @@ class CommandHandler:
             if cont_obj:
                 contents = getattr(cont_obj, 'contents', [])
                 t = item_part.strip().lower()
-                matches = [(i.id, i.name) for i in contents if i.id == t or i.matches(t)]
+                matches = [(i.instance_id or i.id, i.display_name()) for i in contents if i.id == t or i.matches(t)]
                 seen = set()
                 deduped = [(i, n) for i, n in matches if not (n in seen or seen.add(n))]
                 if len(deduped) > 1:
@@ -401,13 +448,19 @@ class CommandHandler:
             parts = cmd.split(' in ', 1)
             item_part = parts[0][prefix_len:].strip()
             cont_part = parts[1].strip()
-            item_matches = self._resolve_all(item_part, 'inventory')
-            if len(item_matches) > 1:
-                options = [
-                    {'label': name, 'command': f"put {item_id} in {cont_part}"}
-                    for item_id, name in item_matches
-                ]
-                return self._clarification_response(f"Which {item_part}?", options)
+            player = game_manager.player
+            is_instance_id = any(
+                i.instance_id == item_part for i in player.get_inventory() if i.instance_id
+            )
+            if not is_instance_id:
+                item_matches = self._resolve_all(item_part, 'inventory')
+                if len(item_matches) > 1:
+                    options = [
+                        {'label': name, 'command': f"put {item_id} in {cont_part}"}
+                        for item_id, name in item_matches
+                    ]
+                    return self._clarification_response(f"Which {item_part}?", options)
+            cont_part = self._resolve(cont_part, 'room_fixed')
             return self._container.handle_put_in(
                 f"{item_part} in {cont_part}"
             )
@@ -418,28 +471,34 @@ class CommandHandler:
             item_part = parts[0][prefix_len:].strip()
             if item_part:
                 surf_part = parts[1].strip()
-                item_matches = self._resolve_all(item_part, 'inventory')
-                seen = set()
-                item_matches = [(i, n) for i, n in item_matches if not (n in seen or seen.add(n))]
-                if len(item_matches) > 1:
-                    options = [
-                        {'label': name, 'command': f"put {item_id} on {surf_part}"}
-                        for item_id, name in item_matches
-                    ]
-                    return self._clarification_response(f"Which {item_part}?", options)
-                resolved = self._resolve(item_part, 'inventory')
-                item_obj = next(
-                    (i for i in game_manager.player.get_inventory() if i.id == resolved),
-                    None
+                player = game_manager.player
+                is_instance_id = any(
+                    i.instance_id == item_part for i in player.get_inventory() if i.instance_id
                 )
-                surface_resolved = self._resolve(surf_part, 'room_fixed')
-                surface_obj = next(
-                    (o for o in game_manager.get_current_room().objects
-                     if isinstance(o, SurfaceModel) and o.id == surface_resolved),
-                    None
-                )
-                if item_obj and getattr(item_obj, 'equip_slot', None) and not surface_obj:
-                    return self._equip.handle_wear(resolved)
+                if not is_instance_id:
+                    item_matches = self._resolve_all(item_part, 'inventory')
+                    seen = set()
+                    item_matches = [(i, n) for i, n in item_matches if not (n in seen or seen.add(n))]
+                    if len(item_matches) > 1:
+                        options = [
+                            {'label': name, 'command': f"put {item_id} on {surf_part}"}
+                            for item_id, name in item_matches
+                        ]
+                        return self._clarification_response(f"Which {item_part}?", options)
+                    resolved = self._resolve(item_part, 'inventory')
+                    item_obj = next(
+                        (i for i in player.get_inventory() if i.id == resolved),
+                        None
+                    )
+                    surface_resolved = self._resolve(surf_part, 'room_fixed')
+                    surface_obj = next(
+                        (o for o in game_manager.get_current_room().objects
+                         if isinstance(o, SurfaceModel) and o.id == surface_resolved),
+                        None
+                    )
+                    if item_obj and getattr(item_obj, 'equip_slot', None) and not surface_obj:
+                        return self._equip.handle_wear(resolved)
+                surf_part = self._resolve(surf_part, 'room_fixed')
                 return self._container.handle_put_on(
                     f"{item_part} on {surf_part}"
                 )

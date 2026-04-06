@@ -175,12 +175,14 @@ function _renderDetail(col, entry) {
     actions.className = 'inv-actions';
 
     if (entry.type === 'carried') {
+        const itemRef = item.instance_id || item.id;
         if (item.equip_slot) {
-            _addAction(actions, 'Wear', () => _invCommand(`wear ${item.id}`));
+            _addAction(actions, 'Wear', () => _invCommand(`wear ${itemRef}`));
         }
-        _addAction(actions, 'Drop', () => _invCommand(`drop ${item.id}`));
+        _addAction(actions, 'Drop', () => _invCommand(`drop ${itemRef}`));
     } else if (entry.type === 'equipped') {
-        _addAction(actions, 'Remove', () => _invCommand(`remove ${item.id}`));
+        const itemRef = item.instance_id || item.id;
+        _addAction(actions, 'Remove', () => _invCommand(`remove ${itemRef}`));
     }
 
     col.appendChild(actions);

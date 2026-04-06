@@ -20,6 +20,22 @@ from backend.models.interactable import PortableItem, UtilityBelt
 from config import ITEM_FILES
 
 
+# ── Instance counters — reset each new game ───────────────────
+_instance_counters: dict = {}
+
+
+def reset_instance_counters() -> None:
+    """Reset all instance counters. Call at new_game() time."""
+    global _instance_counters
+    _instance_counters = {}
+
+def _assign_instance_id(item) -> None:
+    """Assign a unique instance_id to a PortableItem at load time."""
+    type_id = item.id
+    count = _instance_counters.get(type_id, 0) + 1
+    _instance_counters[type_id] = count
+    item.instance_id = f"{type_id}_{count:03d}"
+
 def load_item_registry() -> dict:
     """
     Load all portable item definitions from ITEM_FILES.
@@ -66,6 +82,10 @@ def instantiate_item(data: dict) -> PortableItem:
         kwargs['mass'] = round(length_m * kwargs['mass_per_metre'], 4)
 
     if kwargs.get('id') == 'utility_belt':
-        return UtilityBelt(**kwargs)
+        item = UtilityBelt(**kwargs)
+        _assign_instance_id(item)
+        return item
 
-    return PortableItem(**kwargs)
+    item = PortableItem(**kwargs)
+    _assign_instance_id(item)
+    return item

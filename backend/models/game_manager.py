@@ -26,7 +26,9 @@ class GameManager:
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
-        self.chronometer  = Chronometer()
+        from backend.loaders.item_loader import reset_instance_counters
+        reset_instance_counters()
+        self.chronometer = Chronometer()
         self.ship         = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
         self.player       = Player(PLAYER_NAME)
         self.current_room = self.ship.get_room(STARTING_ROOM)

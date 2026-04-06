@@ -22,7 +22,8 @@ class EquipHandler(BaseHandler):
 
         target = args.strip().lower()
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.id == target or i.matches(target)),
+            (i for i in game_manager.player.get_inventory() if
+             i.instance_id == target or i.id == target or i.matches(target)),
             None
         )
 
@@ -44,7 +45,7 @@ class EquipHandler(BaseHandler):
         matched_slot = None
         for slot in player.EQUIP_SLOTS:
             item = getattr(player, f"{slot}_slot")
-            if item and (item.id == target or item.matches(target)):
+            if item and (item.instance_id == target or item.id == target or item.matches(target)):
                 matched_slot = slot
                 break
 

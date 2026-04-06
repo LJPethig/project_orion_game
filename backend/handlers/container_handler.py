@@ -88,7 +88,7 @@ class ContainerHandler(BaseHandler):
             if not unit.is_open:
                 return self._instant(f"The {unit.name} is closed.")
             item = next(
-                (i for i in unit.contents if i.id == item_name or i.matches(item_name)),
+                (i for i in unit.contents if i.instance_id == item_name or i.id == item_name or i.matches(item_name)),
                 None
             )
             if not item:
@@ -105,7 +105,8 @@ class ContainerHandler(BaseHandler):
         surface = self._find_surface(cont_name)
         if surface:
             item = next(
-                (i for i in surface.contents if i.id == item_name or i.matches(item_name)),
+                (i for i in surface.contents if
+                 i.instance_id == item_name or i.id == item_name or i.matches(item_name)),
                 None
             )
             if not item:
@@ -137,7 +138,8 @@ class ContainerHandler(BaseHandler):
             return self._instant(f"The {unit.name} is closed.")
 
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.id == item_name or i.matches(item_name)),
+            (i for i in game_manager.player.get_inventory() if
+             i.instance_id == item_name or i.id == item_name or i.matches(item_name)),
             None
         )
 
@@ -166,7 +168,8 @@ class ContainerHandler(BaseHandler):
             return self._instant(f"There is no '{surf_name}' here.")
 
         item = next(
-            (i for i in game_manager.player.get_inventory() if i.id == item_name or i.matches(item_name)),
+            (i for i in game_manager.player.get_inventory() if
+             i.instance_id == item_name or i.id == item_name or i.matches(item_name)),
             None
         )
 
