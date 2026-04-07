@@ -149,7 +149,8 @@ function handleResult(result) {
             hideRepairAnimation();
             const diagResult = await API.completeDiagnosis(
                 result.panel_id,
-                result.door_id
+                result.door_id,
+                result.game_minutes
             );
             clearResponse();
             handleResult(diagResult);

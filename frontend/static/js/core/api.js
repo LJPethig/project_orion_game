@@ -55,11 +55,11 @@ const API = {
         return r.json();
     },
 
-    async completeDiagnosis(panel_id, door_id) {
+    async completeDiagnosis(panel_id, door_id, game_minutes) {
         const r = await fetch('/api/command/diagnose_complete', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ panel_id, door_id }),
+            body:    JSON.stringify({ panel_id, door_id, game_minutes }),
         });
         return r.json();
     },

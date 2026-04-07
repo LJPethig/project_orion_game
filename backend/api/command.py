@@ -113,11 +113,12 @@ def diagnose_complete():
     if not game_manager.initialised:
         return jsonify({'error': 'Game not initialised'}), 400
 
-    data     = request.get_json()
+    data = request.get_json()
     panel_id = data.get('panel_id')
-    door_id  = data.get('door_id')
+    door_id = data.get('door_id')
+    game_minutes = data.get('game_minutes', 0)
 
-    result = repair_handler.complete_diagnosis(panel_id, door_id)
+    result = repair_handler.complete_diagnosis(panel_id, door_id, game_minutes)
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 

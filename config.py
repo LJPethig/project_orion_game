@@ -31,6 +31,8 @@ REPAIR_TIME_BASE_SECONDS  = 8
 REPAIR_TIME_SCALE_SECONDS = 8
 REPAIR_TIME_PIVOT_MINUTES = 30
 REPAIR_TIME_CAP_SECONDS   = 20
+DIAG_ACCESS_OVERHEAD      = 0.25  # 25% of component diag time added for panel access
+DIAG_TIME_JITTER          = 0.10  # ±10% random variation on diagnosis time
 
 # ── Debug flags ──────────────────────────────────────────────
 DEBUG_HAS_REPAIR_TOOL = True   # Phase 18: remove when repair system is complete
