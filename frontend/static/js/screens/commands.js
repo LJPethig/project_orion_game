@@ -1,5 +1,5 @@
 // frontend/static/js/screens/commands.js
-// Command handling — handleCommand, handleResult, submitPin, refreshExits.
+// Command handling — handleCommand, handleResult, submitPin, refreshDescription.
 
 function findExitData(exitKey) {
     if (currentExits[exitKey]) return currentExits[exitKey];
@@ -80,9 +80,9 @@ async function handleCommand() {
     handleResult(result);
 }
 
-// TODO: rename to refreshDescription() — now updates exits and object states
 // currentObjects must stay in sync so tooltips (terminals, containers) reflect live state
-function refreshExits() {
+// updates both currentExits and currentObjects
+function refreshDescription() {
     API.getRoom().then(room => {
         if (!room.error) {
             currentExits   = room.exits || {};
@@ -128,7 +128,7 @@ function handleResult(result) {
     // ── Door locked — show closed hatch image, stay on it ────
     if (result.action_type === 'door_locked') {
         setDoorImage('closed');
-        refreshExits();
+        refreshDescription();
         return;
 
     }
@@ -136,7 +136,7 @@ function handleResult(result) {
     // ── Panel damaged — show damaged panel image, stay on it ─
     if (result.action_type === 'panel_damaged') {
         setDamagedPanelImage(result.security_level);
-        refreshExits();
+        refreshDescription();
         return;
     }
 
@@ -240,7 +240,7 @@ function handleResult(result) {
     if (result.action_type === 'repair_complete') {
         if (result.panel_restored) {
             setPanelImage(result.security_level);
-            refreshExits();
+            refreshDescription();
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
             // More components remain — auto-chain after pause for event check
@@ -261,7 +261,7 @@ function handleResult(result) {
     if (result.swipe_complete) {
         const imgState = result.swipe_action === 'lock' ? 'closed' : 'open';
         setDoorImage(imgState);
-        refreshExits();
+        refreshDescription();
         setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         return;
     }
@@ -275,7 +275,7 @@ function handleResult(result) {
     // Instant door image — open or close without card swipe
     if (result.door_image) {
         setDoorImage(result.door_image);
-        refreshExits();
+        refreshDescription();
         setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         return;
     }
@@ -291,7 +291,7 @@ function handleResult(result) {
         if (result.room_contents_changed) {
             loadRoom();
         } else {
-            refreshExits();
+            refreshDescription();
         }
     }
 

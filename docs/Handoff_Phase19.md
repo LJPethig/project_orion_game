@@ -64,7 +64,7 @@ The lead designer wants to work through the deferred list to tidy up before any 
 
 - **Examine command** — `examine <item>` prints name, manufacturer, model, description to response panel. New verb in `command_handler.py`, simple handler.
 - **Inventory screen manufacturer/model** — show in item detail panel. Frontend change in `inventory.js` and `game.py` inventory serialisation. Coordinate with examine command.
-- **`refreshExits()` rename** — mechanical rename to `refreshDescription()`. Many call sites — careful search and replace session.
+- **`refreshDescription()` rename** — mechanical rename to `refreshDescription()`. Many call sites — careful search and replace session.
 - **`take <item> from floor`** — floor not recognised as valid source in `take from` commands.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 
@@ -79,7 +79,7 @@ The lead designer will decide which to tackle first in the new chat.
 - Belt attachment mechanic — deferred until EVA phase.
 - Examine / look at command — deferred.
 - Inventory screen manufacturer/model — deferred.
-- `refreshExits()` rename — deferred refactor session.
+- `refreshDescription()` rename — deferred refactor session.
 - Terminal shutdown on power loss — implement when event system is built.
 - Dynamic room descriptions — planned for Phase 20.
 - Circuit diagram SVG — being built manually in Inkscape.

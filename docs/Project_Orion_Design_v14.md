@@ -507,7 +507,7 @@ propulsion_reactor (120kW) — independent tree
 - **Door panels** — all doors require powered panel to operate. Unpowered: offline message, no door image shown.
 - **Terminals** — terminal access blocked if room unpowered.
 - **Hover tooltips** — exits show Offline state in orange when unpowered.
-- **Description refresh** — `refreshExits()` updates both `currentExits` and `currentObjects` immediately after break/fix.
+- **Description refresh** — `refreshDescription()` updates both `currentExits` and `currentObjects` immediately after break/fix.
 
 ### API endpoints
 | Endpoint | Method | Description |
@@ -702,7 +702,6 @@ When a second repairable type is added (machinery, life support):
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
 - **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session.
-- **`refreshExits()` rename** — function now updates both `currentExits` and `currentObjects`. Should be renamed `refreshDescription()` but touches many call sites — defer to a quiet refactor session.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
 - **Dynamic room descriptions** — static prose needs electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
