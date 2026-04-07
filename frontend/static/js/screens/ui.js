@@ -121,13 +121,13 @@ function appendRepairMessage(result) {
 
     // Intro line
     if (result.response) {
-    const intro = document.createElement('div');
-    intro.className   = 'response-line';
-    intro.textContent = result.response;
-    content.appendChild(intro);
-}
+        const intro = document.createElement('div');
+        intro.className   = 'response-line';
+        intro.textContent = result.response;
+        content.appendChild(intro);
+    }
 
-    // Failed components — comma-separated on one line
+    // Failed components
     if (result.faults && result.faults.length > 0) {
         const faultsLabel = document.createElement('div');
         faultsLabel.className   = 'response-line';
@@ -140,17 +140,30 @@ function appendRepairMessage(result) {
         content.appendChild(faultsEl);
     }
 
-    // Tools required — comma-separated on one line
+    // Tools required
     if (result.tools && result.tools.length > 0) {
         const toolsLabel = document.createElement('div');
         toolsLabel.className   = 'response-line';
-        toolsLabel.textContent = result.tools_label || 'You will also require the following tools to make the repair:';
+        toolsLabel.textContent = result.tools_label || 'The repair will require the following tools:';
         content.appendChild(toolsLabel);
 
         const toolsEl = document.createElement('div');
         toolsEl.className = 'response-line';
         toolsEl.innerHTML = `&nbsp;&nbsp;<span style="color:var(--col-portable)">${result.tools.join(', ')}</span>`;
         content.appendChild(toolsEl);
+    }
+
+    // Missing items — only shown if player is missing something
+    if (result.missing_items && result.missing_items.length > 0) {
+        const missingLabel = document.createElement('div');
+        missingLabel.className   = 'response-line';
+        missingLabel.textContent = 'You need to source these missing items before repairing:';
+        content.appendChild(missingLabel);
+
+        const missingEl = document.createElement('div');
+        missingEl.className = 'response-line';
+        missingEl.innerHTML = `&nbsp;&nbsp;<span style="color:var(--col-alert)">${result.missing_items.join(', ')}</span>`;
+        content.appendChild(missingEl);
     }
 
     content.scrollTop = content.scrollHeight;

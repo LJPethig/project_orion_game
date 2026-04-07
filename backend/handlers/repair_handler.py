@@ -274,7 +274,7 @@ class RepairHandler(BaseHandler):
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
         # ── Check repair tools ────────────────────────────────
-        missing_tools = self._check_tools(profile['repair_tools_required'])
+        missing_tools = [self._item_name(t) for t in self._check_tools(profile['repair_tools_required'])]
 
         # ── Check parts across all remaining components ───────
         missing_parts = self._check_all_parts(panel, profile)
@@ -439,19 +439,28 @@ class RepairHandler(BaseHandler):
         game_manager.advance_time(total_diag_mins)
 
         # ── Build response ────────────────────────────────────
-        panel_model  = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
-        fault_names  = [self._component_display_name(c) for c in broken]
+        panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
+        fault_names = [self._component_display_name(c) for c in broken]
+        duration = self._format_duration(total_diag_mins)
+
+        # Check what the player is missing for the repair
+        missing_parts = self._check_all_parts(panel, profile)
+        missing_tools = [self._item_name(t) for t in self._check_tools(profile['repair_tools_required'])]
+        missing_items = missing_tools + missing_parts
 
         return {
-            'response':     f"Diagnostic tests on {panel_model} are complete.",
-            'action_type':  'diagnose_complete',
-            'lock_input':   False,
+            'response': f"You spent {duration} diagnosing the {panel_model}.",
+            'action_type': 'diagnose_complete',
+            'lock_input': False,
             'room_changed': False,
-            'panel_id':     panel_id,
-            'door_id':      door_id,
-            'panel_model':  panel_model,
+            'panel_id': panel_id,
+            'door_id': door_id,
+            'panel_model': panel_model,
             'faults': fault_names,
+            'faults_label': 'You determined these components are faulty:',
             'tools': [self._item_name(t) for t in profile['repair_tools_required']],
+            'tools_label': 'This repair will require the following tools:',
+            'missing_items': missing_items,
             'parts': [
                 {'name': self._component_display_name(c), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
                 for c in broken
@@ -562,6 +571,16 @@ class RepairHandler(BaseHandler):
         if 'length_m' in component:
             return f"{name} ({component['length_m']}m)"
         return name
+
+    def _format_duration(self, minutes: int) -> str:
+        """Format a duration in minutes as a human-readable string."""
+        hours = minutes // 60
+        mins = minutes % 60
+        if hours and mins:
+            return f"{hours} hour{'s' if hours > 1 else ''} {mins} minute{'s' if mins > 1 else ''}"
+        if hours:
+            return f"{hours} hour{'s' if hours > 1 else ''}"
+        return f"{mins} minute{'s' if mins > 1 else ''}"
 
 
 repair_handler = RepairHandler()
