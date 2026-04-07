@@ -112,7 +112,7 @@ function handleResult(result) {
             span.addEventListener('click', () => {
                 clearResponse();
                 if (i === 0) {
-                    handleResult(Object.assign({}, result, { action_type: 'diagnose_panel', response: '' }));
+                    handleResult(Object.assign({}, result, { action_type: 'diagnose_panel', response: `Connecting scan tool to ${result.exit_label} access panel. Running diagnostics...` }));
                 }
                 document.getElementById('command-input').focus();
             });
