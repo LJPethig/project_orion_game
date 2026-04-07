@@ -69,3 +69,9 @@
     0%, 100% { background: #1a4a1a; }
     20%       { background: var(--col-title); box-shadow: 0 0 6px var(--col-title); }
 }
+
+.scan-progress {
+    color: var(--col-prompt);
+    font-size: 13px;
+    min-width: 36px;
+}

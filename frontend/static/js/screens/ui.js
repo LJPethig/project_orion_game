@@ -1,6 +1,29 @@
 // frontend/static/js/screens/ui.js
 // UI utilities — animations, images, response panel, input mode.
 
+let _progressInterval = null;
+
+function _startProgressCounter(realSeconds, spanId) {
+    const span = document.getElementById(spanId);
+    if (!span) return;
+    let elapsed = 0;
+    const totalMs = realSeconds * 1000;
+    const stepMs  = 200;
+    _progressInterval = setInterval(() => {
+        elapsed += stepMs;
+        const pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
+        span.textContent = `${pct}%`;
+        if (pct >= 100) _stopProgressCounter();
+    }, stepMs);
+}
+
+function _stopProgressCounter() {
+    if (_progressInterval) {
+        clearInterval(_progressInterval);
+        _progressInterval = null;
+    }
+}
+
 function setInputMode(mode) {
     const input = document.getElementById('command-input');
     if (mode === 'pin') {
@@ -29,7 +52,7 @@ function clearResponse() {
 
 // ── Scan animation ───────────────────────────────────────────
 
-function showScanAnimation() {
+function showScanAnimation(realSeconds) {
     const content = document.getElementById('response-content');
     const el      = document.createElement('div');
     el.id         = 'scan-animation';
@@ -39,18 +62,21 @@ function showScanAnimation() {
         <div class="scan-dots">
             <span></span><span></span><span></span><span></span><span></span>
         </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
     `;
     content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
 }
 
 function hideScanAnimation() {
+    _stopProgressCounter();
     const el = document.getElementById('scan-animation');
     if (el) el.remove();
 }
 
 // ── Repair animation ─────────────────────────────────────────
 
-function showRepairAnimation() {
+function showRepairAnimation(realSeconds) {
     const content = document.getElementById('response-content');
     const el      = document.createElement('div');
     el.id         = 'repair-animation';
@@ -60,16 +86,19 @@ function showRepairAnimation() {
         <div class="scan-dots">
             <span></span><span></span><span></span><span></span><span></span>
         </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
     `;
     content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
 }
 
 function hideRepairAnimation() {
+    _stopProgressCounter();
     const el = document.getElementById('repair-animation');
     if (el) el.remove();
 }
 
-function showDiagnosisAnimation() {
+function showDiagnosisAnimation(realSeconds) {
     const content = document.getElementById('response-content');
     const el      = document.createElement('div');
     el.id         = 'repair-animation';
@@ -79,8 +108,10 @@ function showDiagnosisAnimation() {
         <div class="scan-dots">
             <span></span><span></span><span></span><span></span><span></span>
         </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
     `;
     content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
 }
 
 // ── Repair message ────────────────────────────────────────────

@@ -26,26 +26,25 @@ import json
 import random
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
-from config import REPAIR_REAL_SECONDS, DIAGNOSE_REAL_SECONDS, \
-                   REPAIR_PROFILES_PATH, DOOR_PANEL_TYPES_PATH
+from config import REPAIR_PROFILES_PATH, DOOR_PANEL_TYPES_PATH, \
+                   REPAIR_TIME_BASE_SECONDS, REPAIR_TIME_SCALE_SECONDS, \
+                   REPAIR_TIME_PIVOT_MINUTES, REPAIR_TIME_CAP_SECONDS
 
 
 def calc_repair_real_seconds(game_minutes: int) -> int:
-    """
-    Calculate real seconds for a repair action from total game minutes.
-    TODO: implement proper scaling with cap when difficulty system is built.
-    Delete REPAIR_REAL_SECONDS from config.py at that point.
-    """
-    return REPAIR_REAL_SECONDS
+    """Real wait time for a repair action, scaled to game time with cap."""
+    total = round(REPAIR_TIME_BASE_SECONDS + (game_minutes / REPAIR_TIME_PIVOT_MINUTES) * REPAIR_TIME_SCALE_SECONDS)
+    if total > REPAIR_TIME_CAP_SECONDS:
+        total = REPAIR_TIME_CAP_SECONDS
+    return total
 
 
 def calc_diagnose_real_seconds(game_minutes: int) -> int:
-    """
-    Calculate real seconds for a diagnosis action from total game minutes.
-    TODO: implement proper scaling with cap when difficulty system is built.
-    Delete DIAGNOSE_REAL_SECONDS from config.py at that point.
-    """
-    return DIAGNOSE_REAL_SECONDS
+    """Real wait time for a diagnosis action, scaled to game time with cap."""
+    total = round(REPAIR_TIME_BASE_SECONDS + (game_minutes / REPAIR_TIME_PIVOT_MINUTES) * REPAIR_TIME_SCALE_SECONDS)
+    if total > REPAIR_TIME_CAP_SECONDS:
+        total = REPAIR_TIME_CAP_SECONDS
+    return total
 
 
 class RepairHandler(BaseHandler):
@@ -197,11 +196,15 @@ class RepairHandler(BaseHandler):
                 f"Resulting in your immediate dismissal and subsequent punitive damages. \n\n"
             )
 
-        # ── Sum diagnosis time across all profile components ──
+        # ── Sum diagnosis time across ALL profile components ──────────────────
+        # Intentional: the scan tool checks every component regardless of which
+        # ones have actually failed — the technician cannot know what is broken
+        # until the full scan is complete. This also implicitly accounts for
+        # panel disassembly time. Ship time advance in complete_diagnosis must
+        # use the same all-components sum to stay consistent with this wait.
         total_diag_mins = sum(c['diag_time_mins'] for c in profile['components'])
         real_seconds = calc_diagnose_real_seconds(total_diag_mins)
 
-        panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
 
         if manual_warning:
             return {
@@ -429,25 +432,15 @@ class RepairHandler(BaseHandler):
         panel.broken_components = [c['item_id'] for c in broken]
 
         # ── Advance ship time ─────────────────────────────────
-        total_diag_mins = sum(c['diag_time_mins'] for c in broken)
+        # Must sum ALL profile components — not just the broken ones — to match
+        # the real wait time calculated in _begin_diagnosis. The scan tool
+        # checks every component, so the full profile time always elapses.
+        total_diag_mins = sum(c['diag_time_mins'] for c in all_components)
         game_manager.advance_time(total_diag_mins)
 
         # ── Build response ────────────────────────────────────
         panel_model  = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
         fault_names  = [self._component_display_name(c) for c in broken]
-        faults_str   = ', '.join(fault_names)
-
-        # Parts needed
-        parts_lines = []
-        for c in broken:
-            name = self._item_name(c['item_id'])
-            if 'length_m' in c:
-                parts_lines.append(f"  {c['length_m']}m {name}")
-            else:
-                parts_lines.append(f"  {c.get('qty', 1)}x {name}")
-
-        tools_needed = ', '.join(self._item_name(t) for t in profile['repair_tools_required'])
-        parts_str    = '\n'.join(parts_lines)
 
         return {
             'response':     f"Diagnostic tests on {panel_model} are complete.",

@@ -144,7 +144,7 @@ function handleResult(result) {
     // ── Diagnose panel — lock input, wait, call diagnose_complete ──
     if (result.action_type === 'diagnose_panel') {
         setDamagedPanelImage(result.security_level);
-        showDiagnosisAnimation();
+        showDiagnosisAnimation(result.real_seconds);
         Loop.lockInput(result.real_seconds, async () => {
             hideRepairAnimation();
             const diagResult = await API.completeDiagnosis(
@@ -160,7 +160,7 @@ function handleResult(result) {
     // ── Repair component — lock input, wait, call repair_complete ──
     if (result.action_type === 'repair_component') {
         setDamagedPanelImage(result.security_level);
-        showRepairAnimation();
+        showRepairAnimation(result.real_seconds);
         Loop.lockInput(result.real_seconds, async () => {
             hideRepairAnimation();
             const repairResult = await API.completeRepair(
@@ -178,7 +178,7 @@ function handleResult(result) {
     // ── Card swipe — show panel image, scanning animation, lock input ──
     if (result.action_type === 'card_swipe') {
         setPanelImage(result.security_level);
-        showScanAnimation();
+        showScanAnimation(result.real_seconds);
         Loop.lockInput(result.real_seconds, async () => {
             hideScanAnimation();
             const swipeResult = await API.completeSwipe(

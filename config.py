@@ -21,12 +21,16 @@ ROOM_TEMP_PRESETS = {
 }
 
 # ── Timed Actions ────────────────────────────────────────────
-# Real seconds stubs — replaced by calc functions in repair_handler.py
-# when proper time scaling is implemented. Delete these at that point.
-REPAIR_REAL_SECONDS    = 8
-DIAGNOSE_REAL_SECONDS  = 5
-CARD_SWIPE_REAL_SECONDS = 5
-CARD_SWIPE_GAME_MINUTES = 0
+CARD_SWIPE_REAL_SECONDS   = 5
+CARD_SWIPE_GAME_MINUTES   = 0
+
+# Repair/diagnosis real-time scaling
+# real_seconds = REPAIR_TIME_BASE + (game_minutes / REPAIR_TIME_PIVOT) * REPAIR_TIME_SCALE
+# capped at REPAIR_TIME_CAP
+REPAIR_TIME_BASE_SECONDS  = 8
+REPAIR_TIME_SCALE_SECONDS = 8
+REPAIR_TIME_PIVOT_MINUTES = 30
+REPAIR_TIME_CAP_SECONDS   = 20
 
 # ── Debug flags ──────────────────────────────────────────────
 DEBUG_HAS_REPAIR_TOOL = True   # Phase 18: remove when repair system is complete
