@@ -1,7 +1,7 @@
 {
   "vesper_ulock": {
     "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
-    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit", "laser_solderer"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
     "components": [
       {"item_id": "u-lock_door_logic_board",  "qty": 1,          "diag_time_mins": 22,  "repair_time_mins": 30},
       {"item_id": "relay_switch_array",        "qty": 1,          "diag_time_mins": 12,  "repair_time_mins": 15},
@@ -13,7 +13,7 @@
   },
   "smc_ts1500": {
     "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
-    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit", "laser_solderer"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
     "components": [
       {"item_id": "ts1500_door_logic_board",   "qty": 1,          "diag_time_mins": 30,  "repair_time_mins": 35},
       {"item_id": "id_card_scanner_head",      "qty": 1,          "diag_time_mins": 12,  "repair_time_mins": 15},
@@ -27,7 +27,7 @@
   },
   "smc_q_emerald": {
     "diag_tools_required": ["scan_tool", "power_screwdriver_set"],
-    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit", "laser_solderer"],
+    "repair_tools_required": ["scan_tool", "power_screwdriver_set", "electrical_service_kit"],
     "components": [
       {"item_id": "q-emerald_door_logic_board","qty": 1,          "diag_time_mins": 40, "repair_time_mins": 35},
       {"item_id": "id_card_scanner_head",      "qty": 1,          "diag_time_mins": 15, "repair_time_mins": 20},

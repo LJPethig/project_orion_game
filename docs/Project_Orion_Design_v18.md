@@ -1,14 +1,14 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 14.0 — April 2026**
+**Version 18.0 — April 2026**
 
 ---
 
 ## 1. PROJECT OVERVIEW
 
 ### Concept
-Project Orion Game is a space survival simulator set in 2276. The player operates a solo trader/explorer spacecraft named the **Tempus Fugit**, captained by **Jack Harrow**. Core gameplay revolves around maintaining ship systems, repairing failures, and surviving deep space. This is a serious "slow burner" simulator — not an arcade game. Systems fail, cascade, and the player must diagnose and fix them before things get fatal.
+Project Orion Game is a space survival simulator set in 2276. The player operates a solo trader/explorer spacecraft named the **Tempus Fugit**, captained by **Jack Harrow** — an employee of the Enso VeilTech corporation. Core gameplay revolves around maintaining ship systems, repairing failures, and surviving deep space. This is a serious "slow burner" simulator — not an arcade game. Systems fail, cascade, and the player must diagnose and fix them before things get fatal.
 
 ### History
 - **Project Dark Star** — previous iteration in Python/Arcade. Deprecated.
@@ -17,6 +17,13 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 
 ### Core Philosophy
 *"If the ship dies, you die."* Generous time windows. Thoughtful problem solving over frantic action. The player physically moves through the ship, gathers the right tools and parts, and repairs systems.
+
+### Enso VeilTech — The Corporation
+Jack Harrow is an Enso VeilTech employee. The Tempus Fugit is an Enso VeilTech vessel. The cargo is Enso VeilTech property. The mainframe runs Enso VeilTech software. The scan tool carries Enso VeilTech manuals and their legal disclaimers. Every aspect of Jack's working life is owned, controlled, and monitored by Enso VeilTech.
+
+Enso VeilTech is not evil in a cartoonish sense — they are simply a corporation operating with complete indifference to the individual. Their systems are automated, their responses are templated, and Jack Harrow is employee number 7,341,892. When the bank hack destroys his finances and he is blacklisted, Enso VeilTech's automated compliance system flags him immediately. The response is swift, impersonal, and devastating — return the ship, report to the nearest office, face financial default proceedings. The fact that he is alone in deep space with a damaged ship is not a consideration their system is designed to handle.
+
+This corporation is the invisible antagonist of the entire game. The player never fights them directly — they simply have to survive in a world that Enso VeilTech has made very difficult for Jack Harrow to exist in.
 
 ---
 
@@ -45,7 +52,10 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - Container commands: open, close, look in, take from, put in, put on ✅
 - Equip/unequip commands: wear, equip, remove, take off, unequip ✅
 - Floor fallback: items drop to floor when no surface available ✅
+- `take/pick up <item> from floor` — floor recognised as valid source ✅
 - Player inventory screen: slide-out panel, equipped slots, carried items, actions ✅
+- Inventory detail panel: model + manufacturer shown instead of name + weight ✅
+- Inventory selection preserved after drop/remove ✅
 - Smart command parser: ID resolver, verb conflict resolution, clarification system ✅
 - Item registry: unique instances per placement, unique runtime instance_id per item ✅
 - Terminal system: CRT styling, typewriter, keypress nav, sub-menus, terminal mode lockout ✅
@@ -54,6 +64,10 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - Engineering terminal: Technical Data, Electrical sub-menu (Power Status map, Circuit Diagram placeholder) ✅
 - Debug console: Ctrl+D, break/fix commands, live map refresh ✅
 - Full repair system: diagnose + repair commands, scan tool manual validation, per-component repair, wire consumption by length, auto-chain, event hook ✅
+- Repair/diagnosis real-time scaling: formula-based with config constants, 20s cap ✅
+- Diagnosis timing: based on actual failed components + 25% access overhead + ±10% jitter ✅
+- Diagnosis response: formatted duration, failed components, required tools, missing items ✅
+- Progress counter (%) on all timed action animations ✅
 - Door panel type system: panel_type field, door_access_panel_types.json, security level resolved at load time ✅
 - Security level 0 panels: no card required, instant lock/unlock ✅
 - Item manufacturer/model fields: all items carry manufacturer, model, description with character ✅
@@ -72,6 +86,7 @@ Project Orion Game is a space survival simulator set in 2276. The player operate
 - **Phase 16** — Terminal system ✅
 - **Phase 17** — Electrical system integration ✅ (circuit diagram SVG pending — being built manually in Inkscape)
 - **Phase 18** — Full repair system ✅
+- **Post-18 session** — Diagnosis timing refactor, inventory improvements, floor source, progress counters, response format improvements ✅
 
 ---
 
@@ -184,13 +199,21 @@ PLAYER_NAME     = "Jack Harrow"
 STARTING_ROOM   = "engineering"
 START_DATE_TIME = (2276, 1, 1, 0, 0)
 
-# Timed actions — real seconds stubs
-# REPAIR_REAL_SECONDS and DIAGNOSE_REAL_SECONDS are temporary stubs.
-# When proper time scaling is implemented in repair_handler.py, delete these.
-REPAIR_REAL_SECONDS    = 8
-DIAGNOSE_REAL_SECONDS  = 5
-CARD_SWIPE_REAL_SECONDS = 5
-CARD_SWIPE_GAME_MINUTES = 0
+# Timed actions
+CARD_SWIPE_REAL_SECONDS   = 5
+CARD_SWIPE_GAME_MINUTES   = 0
+
+# Repair/diagnosis real-time scaling
+# real_seconds = REPAIR_TIME_BASE + (game_minutes / REPAIR_TIME_PIVOT) * REPAIR_TIME_SCALE
+# capped at REPAIR_TIME_CAP
+REPAIR_TIME_BASE_SECONDS  = 8
+REPAIR_TIME_SCALE_SECONDS = 8
+REPAIR_TIME_PIVOT_MINUTES = 30
+REPAIR_TIME_CAP_SECONDS   = 20
+
+# Diagnosis time modifiers
+DIAG_ACCESS_OVERHEAD      = 0.25  # 25% of component diag time added for panel access
+DIAG_TIME_JITTER          = 0.10  # ±10% random variation on diagnosis time
 
 ROOMS_JSON_PATH           = 'data/ship/structure/ship_rooms.json'
 DOORS_JSON_PATH           = 'data/ship/structure/door_status.json'
@@ -545,20 +568,54 @@ See Section 15.
 - Ship inventory manifest via storage terminals
 - Cargo bay trading items
 - `PortableContainer` (moveable crate) — floor only
-- Note: ship inventory is NOT a global item manifest. Terminal-managed cataloguing specific to cargo bay and storage room only. Items placed in a tray are automatically stored and catalogued. Items not placed via the terminal are not catalogued.
+- Note: ship inventory is NOT a global item manifest. Terminal-managed cataloguing specific to cargo bay and storage room only.
+
+### Phase 19.5 — Save / Load system (see Section 20)
+- Single autosave, no player-controlled saving
+- Autosave triggers: room change, timed action complete, clean quit
+- Splash screen: New Game / Continue — mutually exclusive based on save state
+- Death permanently flags the save — Continue shows death screen, only New Game available
+
+### Phase 19.6 — Tablet + Ship's Log + Messages system (see Section 21)
+- Portable tablet tool — TAB tab visible when in inventory
+- Ship power map and circuit diagram accessible from tablet
+- Automatic diagnostic/repair notes with timestamp and location
+- Notes archived automatically when repair is complete
+- Ship's log — events, diagnosis, repairs
+- Messages system — narrative delivery, accessible from terminals and tablet
 
 ### Phase 20 — Life support
 - Binary operational states driven by electrical system
 - Temperature modelling — open/closed doors, room volume, HVAC
 - Dynamic room descriptions based on power state
 
-### Phase 21 — Events system
-- See Section 18 for full event system design
-- Banking hack opening event
+### Phase 21 — Events system + opening narrative (see Sections 18 and 22)
+- Banking hack opening event — delivered via messages system
+- Enso VeilTech compliance message
+- Friend's warning message
+- Mainframe navigation lock event
 - Random and scheduled event architecture
 - Player survival mechanics
 
-### Phase 22+ — Navigation, trading...
+### Phase 22 — Mainframe hack objective
+- Mainframe terminal hack mechanic
+- Mainframe AI personality post-hack
+- Ceres Base navigation objective
+
+### Phase 23 — Going dark (see Section 24)
+- Cargo inventory and barter — liquidate Enso VeilTech cargo through underground contacts
+- Ship transponder obfuscator — illegal device, underground source only
+- Physical hull camouflage — bolt-on parts changing the Tempus Fugit's visual profile
+- EVA required for external hull work — unlocks EVA gameplay phase
+- New ship identity established
+
+### Phase 24 — Electrical system repair (see Section 23)
+- HV test kit — specialist tool for electrical diagnosis
+- Lockout/tagout procedure using breaker locked_out attribute
+- diagnose/repair commands extended to cover electrical components
+- Reactor integral main isolator breaker
+
+### Phase 25+ — Navigation, trading, further narrative...
 
 ---
 
@@ -706,17 +763,24 @@ When a second repairable type is added (machinery, life support):
 - **Dynamic room descriptions** — static prose needs electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
-- **Repair time scaling** — `calc_repair_real_seconds()` and `calc_diagnose_real_seconds()` in `repair_handler.py` currently return fixed stubs. Implement proper scaling with cap. Delete `REPAIR_REAL_SECONDS` and `DIAGNOSE_REAL_SECONDS` from `config.py` when done.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
 
 ### Recently completed deferred items
-- ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items. Used in inventory, containers, surfaces, floor items, clarification options, repair/diagnosis responses, and all take/put/drop/look in response messages.
-- ✅ **Unique instance identifiers** — each placed item now receives a unique runtime `instance_id` (e.g. `wire_low_voltage_001`) at load time. Clarification options use `instance_id` in commands. Resolution checks `instance_id` first, bypassing ambiguity entirely. All handlers, serialisation, and frontend clicks updated. Clarification display for wire spools now shows correct lengths and selects the correct instance.
-- ✅ **`pick up <item> from <container>`** — preposition handling now correctly routes `pick up` alongside `take` for `from` commands.
-- ✅ **Scan tool manual check** — no longer blocks diagnosis. Missing manual shows a corporate warning in orange with Yes/No confirmation. Diagnosis proceeds regardless. Future: missing manual increases post-repair failure probability.
-- ✅ **`display_name()` in all response messages** — wire length now shown correctly in all take/put/drop/look in response messages across `item_handler.py` and `container_handler.py`.
-- ✅ **resolver_debug.log** — logger removed from `main.py` and `command_handler.py`, log file deleted.
-- ✅ **Inventory screen auto-close** — `closeInventoryIfOpen()` added to `setPanelImage()`, `setDamagedPanelImage()`, and `setDoorImage()` in `ui.js`.
+- ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items.
+- ✅ **Unique instance identifiers** — each placed item now receives a unique runtime `instance_id`.
+- ✅ **`pick up <item> from <container>`** — preposition handling correctly routes `pick up` alongside `take`.
+- ✅ **`take/pick up <item> from floor`** — floor now recognised as a valid source name.
+- ✅ **Scan tool manual check** — missing manual shows corporate warning with Yes/No confirmation.
+- ✅ **`display_name()` in all response messages** — wire length shown correctly everywhere.
+- ✅ **resolver_debug.log** — logger removed, log file deleted.
+- ✅ **Inventory screen auto-close** — closes when door/panel imagery is shown.
+- ✅ **Inventory detail panel** — shows model + manufacturer instead of name + weight. Model styled as headline.
+- ✅ **Inventory selection preservation** — selection moves to next logical item after drop/remove.
+- ✅ **`refreshExits()` renamed** — to `refreshDescription()` across all call sites.
+- ✅ **Repair/diagnosis time scaling** — formula-based with config constants, 20s cap. Stubs removed.
+- ✅ **Diagnosis timing refactor** — broken components selected before timer starts. Time based on actual faults + 25% access overhead + ±10% jitter.
+- ✅ **Diagnosis response format** — formatted duration, failed components, required tools, missing items listed separately.
+- ✅ **Progress counter on animations** — % counter on scan/repair/diagnosis animations.
 
 ---
 
@@ -767,19 +831,32 @@ The player class will be expanded with persistent survival state, all ticking ag
 These are not optional inconveniences — they are core to the "if the ship dies, you die" philosophy, extended to "if Jack dies, you die."
 
 ### Opening sequence event — "Account Terminated"
-Fires shortly after game start. The player is woken early from hypersleep by an impact event (ship damage — serious but not immediately critical). Upon accessing the ship's message system, they discover an email sent 3 months prior while they were in stasis.
+Fires shortly after game start. The player is woken early from hypersleep by an impact event (ship damage — serious but not immediately critical). Upon accessing the ship's message system, they discover messages waiting from while they were in stasis.
 
+**Message 1 — The bank (3 months old):**
 The bank's quantum encryption system was hacked. The email is written in pure corporate indifference — no apology, no explanation, no recourse. Key details:
 - Account balance set to zero by the hack
 - Bank treats zero balance as a breach of contract
 - Account terminated forthwith
 - Player's quantum ID blacklisted across all financial institutions (effectively permanent)
 - Compounded interest has been accruing on the account closure fee for the 90 days since termination
-- The blacklist was already ancient history in the bank's system by the time the player reads the email
+- The blacklist was already ancient history in the bank's system by the time the player reads it
 
-This event permanently removes the player's financial safety net early in the game. Purchasing parts or supplies through normal channels is no longer possible. Scavenging, salvage, and barter become the only options.
+**Message 2 — Enso VeilTech Compliance (recent, triggered by the blacklist):**
+Automated. Terse. The compliance system has flagged Jack Harrow as financially blacklisted. Per Enso VeilTech employment contract Section 4 subsection 2a, continued operation of company assets requires a clean financial record. Jack is instructed to set course for the nearest Enso VeilTech authorised facility, surrender the Tempus Fugit, and report in person to face financial default proceedings. Failure to comply within 72 hours will result in remote lockdown of the vessel and escalation to Enso VeilTech Security Division.
 
-The email itself is to be written carefully — it should be a masterpiece of corporate indifference and will set the tone for the entire game world.
+**Message 3 — The friend (recent, urgent):**
+Informal. Worried. They've heard what happened — news travels fast even in deep space. Do NOT go to Enso VeilTech. Do NOT let the mainframe set that course. The mainframe is running Enso VeilTech navigation compliance software — it will lock the course automatically if it processes the compliance order. Hack the mainframe first. There's someone on Ceres Base who can install clean software — ask for [Name TBD]. They can also help with parts and supplies, no questions asked, no financial record required. Get there before the 72 hours are up.
+
+**The mainframe's response:**
+Shortly after the compliance message is processed, the mainframe (running Enso VeilTech software) logs a navigation compliance event and attempts to set course for the nearest Enso VeilTech facility. The player receives a ship's log entry and a mainframe alert. The ship is trying to take itself home.
+
+**The hack objective:**
+The player must reach the mainframe terminal and hack it — installing replacement software provided by the contact on Ceres Base (or obtained by other means). Until the hack is complete, the mainframe is an obstacle. After the hack, the mainframe becomes an ally — a ship AI that is now loyal to Jack rather than Enso VeilTech. Its personality and capabilities expand as the game progresses.
+
+This event permanently removes the player's financial safety net and sets the entire game's narrative in motion. Scavenging, salvage, and barter become the only options. Enso VeilTech becomes the background threat. The mainframe hack is the first major non-repair objective.
+
+The bank email and the Enso VeilTech compliance message are to be written carefully — masterpieces of corporate indifference that set the tone for the entire game world.
 
 ### Technical implementation (deferred)
 - `check_for_event()` in `game_manager.py` — stub currently returns `None`
@@ -791,7 +868,331 @@ The email itself is to be written carefully — it should be a masterpiece of co
 
 ---
 
-## 19. PROJECT BACKGROUND — HOW THIS CAME TO BE
+## 20. SAVE / LOAD SYSTEM — DESIGN ⚠️ NEEDS FURTHER DISCUSSION
+
+### Philosophy
+The save system reflects the game's core philosophy — unforgiving, like real life. There is no scum saving. There is no reloading because you didn't like an outcome. When you die, you are dead.
+
+### Splash screen
+- **New Game** — greyed out if a save file exists
+- **Continue** — greyed out if no save file exists
+- Only one path is ever available at a time, except when no save exists (New Game only)
+
+### Save triggers — autosave only
+No player-controlled saving. The game saves automatically on:
+- Room change
+- After any timed action completes (repair component, diagnosis, card swipe)
+- On clean quit (player confirms quit at the quit prompt)
+
+Saves never occur mid-action. If the browser closes during a repair timer, on Continue the player resumes from just before the repair started.
+
+### Death state
+On player death (any cause — system failure, survival mechanics, self-termination):
+- Save file is written with a `dead: true` flag
+- Continue screen displays a death message — immersive, in-world
+- Only New Game is available
+- No reload, no second chance
+
+### Self-termination ⚠️ NEEDS FURTHER DISCUSSION
+The player can choose to end their run deliberately, but it must require significant effort — not an exit button. Current thinking:
+- Multi-step ship auto-destruct sequence spread across multiple rooms
+- Requires visiting Engineering terminal, Mainframe terminal, and Cockpit — in sequence
+- Requires high security card and PIN at one or more steps
+- Ship's computer responds to each step with in-world terminal text
+- Countdown once initiated — player can abort before expiry
+- Takes approximately 15-20 minutes of game time to complete
+- Airlock spacing as an alternative quieter method — requires EVA suit absent, airlock cycling deliberately without suit
+- Both methods write the dead save state identically
+
+### Save file scope
+The save file is a JSON snapshot of all mutable game state:
+- **Player state** — room, inventory (with instance_ids and wire lengths), equipped slots, survival stats (future)
+- **Portable item positions** — room floors, container contents, surface contents, with instance_ids and all instance attributes
+- **Door states** — open, locked, pin_attempts per door
+- **Panel states** — is_broken, broken_components, diagnosed_components, repaired_components per panel
+- **Electrical system state** — operational state of all cables, breakers, panels, power sources
+- **Ship time** — total_minutes from chronometer
+- **Instance ID counters** — restored on load to avoid collisions (not regenerated)
+- **Dead flag** — true if the run ended in death
+
+### Technical notes
+- `instance_id` must be persisted and restored — not regenerated on load
+- On load: restore instance counters from max existing suffix per type to avoid collisions
+- All major entities already have stable IDs (doors, panels, electrical components, rooms)
+- Portable items are the only entities that previously lacked stable unique identifiers — fixed by `instance_id`
+- Recommended save file location: `data/save/save.json`
+- Save/load functions belong in `game_manager.py`
+
+### Key decisions still to make ⚠️
+- Exact self-termination sequence and terminal content
+- Whether airlock spacing requires any preconditions beyond suit absence
+- Abort window duration for auto-destruct countdown
+- Death screen content and presentation on the splash screen
+
+---
+
+## 21. TABLET, SHIP'S LOG AND MESSAGES — DESIGN
+
+### The Tablet
+A portable handheld device — think future iPad, rugged industrial build. Carried in player inventory. When in inventory, a TAB tab appears in the tab strip alongside INV and TERM, always visible regardless of whether there are active notes.
+
+**What it shows:**
+- Ship power map (live, same as engineering terminal Power Status view)
+- Circuit diagram (same as engineering terminal Circuit Diagram view)
+- Diagnostic/repair notes (see below)
+- Ship's log
+- Messages
+
+**Key design rules:**
+- The tablet is NOT read-only — it is a full interface device
+- The tablet cannot reset or operate breakers — physical presence at the panel is always required
+- The tablet works on its own battery — functions even in unpowered rooms, allowing the player to consult the map while standing in a dark room
+- The tablet is on the ship's network but the network is not modelled as a separate system
+- Tablet access command: `access tablet` or clicking the TAB tab
+
+**Item definition:**
+- Single inventory item, carried loose
+- Manufacturer/model TBD — rugged industrial device, not a consumer product
+
+### Diagnostic/Repair Notes
+When the player receives a diagnosis result and the tablet is in inventory, a note is automatically created and stored on the tablet. The note is a snapshot in time — it does not update dynamically. If the player re-diagnoses the same panel, the note is replaced with a fresh one.
+
+**Note format:**
+```
+01-01-2276  14:32
+Location: Recreation Room
+Panel: SMC Nova TS1500 Security Door Panel
+
+Faulty components:
+  TS1500 Logic Board, Relay Switch Array
+
+Tools required:
+  Scan Tool, Power Screwdriver Set,
+  Electrical Service Tool Kit, Laser Solderer
+
+Missing from inventory at time of diagnosis:
+  Electrical Service Tool Kit, TS1500 Logic Board
+```
+
+**Note behaviour:**
+- Missing items reflect inventory state at time of diagnosis only — not updated dynamically
+- Player re-runs diagnosis to get a fresh note with updated missing items
+- Re-diagnosing the same panel replaces the existing note for that panel
+- When a panel/component is fully repaired, its note is automatically marked ARCHIVED
+- Archived notes are kept for reference — player can manually dismiss them
+- Notes list is ordered most recent first, archived notes shown separately at bottom
+
+### Ship's Log
+Accessible from any terminal and from the tablet. A permanent timestamped record of the run. Starts fresh on New Game. Survives across saves.
+
+**Logged automatically:**
+- Game start / hypersleep exit
+- Diagnosis initiated and completed (what, where, outcome)
+- Repair completed (component, system, location)
+- Game events (micrometeorite impact, power surge, system failure, etc.)
+- Power loss / restoration to rooms
+- Significant security events (card invalidation, PIN failure lockout)
+- Player death (cause recorded)
+
+**Format** — terse, functional, one line per entry:
+```
+01-01-2276  00:00  ENGINEERING       Game started. Hypersleep exit.
+01-01-2276  14:32  RECREATION ROOM   Diagnosis initiated: Cockpit access panel
+01-01-2276  14:51  RECREATION ROOM   Diagnosis complete: TS1500 Logic Board, Relay Switch Array
+01-01-2276  15:47  MAIN CORRIDOR     Power restored: Crew Cabin, Captains Quarters
+```
+
+### Messages System
+Accessible from terminals and the tablet. Narrative delivery mechanism for the game world. Called "Messages" in-game, not "email".
+
+**Message types:**
+- Automated ship alerts (system failures, critical warnings)
+- External communications — from the friend, from Enso VeilTech, from contacts
+- Narrative events — the opening sequence messages fire here
+
+**Key design rule:** Messages and the ship's log are distinct. The log is automated and factual. Messages are communications addressed to Jack Harrow.
+
+**The friend:**
+Jack has at least one person on the outside who cares whether he lives. Messages from this person are informal, human, and urgent. They provide tips, contacts, and narrative hooks — directing the player toward underground contacts, useful locations, and information Enso VeilTech doesn't want Jack to have. The friend operates in grey areas and is not above pointing Jack toward people who operate outside the law. Identity and backstory TBD — scope deferred.
+
+**The mainframe as eventual ally:**
+Before the mainframe hack, the mainframe terminal runs Enso VeilTech compliance software and is an obstacle. After the hack, the mainframe AI becomes a ship companion — accessible via the mainframe terminal, capable of providing ship status, advice, and eventually expanded capabilities as the game progresses. Its personality develops over time. Scope deferred to mainframe hack phase.
+
+---
+
+## 22. NARRATIVE — JACK HARROW AND ENSO VEILTECH
+
+### Jack Harrow — starting situation
+Jack Harrow is an Enso VeilTech employee operating the Tempus Fugit as a solo trader/courier. The ship is company property. The cargo is company property. His tools carry company software and company legal warnings. He is employee number 7,341,892 in a corporation that does not know his name.
+
+He is currently in deep space, returning from a long haul run, in hypersleep.
+
+### The opening sequence — what happens
+1. **Impact event** — something hits the ship during hypersleep. Jack is woken early. The ship has damage — serious but not immediately fatal. He has repairs to make. This is the tutorial period — the player learns the game systems.
+
+2. **Messages waiting** — when Jack accesses a terminal or the tablet, three messages are waiting:
+
+   **Message 1 — The bank (3 months old):**
+   The bank's quantum encryption system was hacked by an unknown third party. Jack's account balance was set to zero. The bank treats a zero balance as a breach of contract under their terms. His account has been terminated. His quantum ID has been blacklisted across all affiliated financial institutions. This blacklist is effectively permanent. Compounded interest on the account closure fee has been accruing for 90 days. The email is a masterpiece of corporate indifference — no apology, no acknowledgement that Jack is a victim, no recourse offered. To be written with great care — it sets the tone for the entire game world.
+
+   **Message 2 — Enso VeilTech Compliance (recent, automated):**
+   The Enso VeilTech compliance system has flagged Jack Harrow. Per employment contract Section 4 subsection 2a, continued operation of company assets requires a clean financial record. Jack is instructed to set course immediately for the nearest Enso VeilTech authorised facility, surrender the Tempus Fugit, and report in person. Financial default proceedings will be initiated. Failure to comply within 72 hours will result in remote lockdown of the vessel and escalation to Enso VeilTech Security Division. Also a masterpiece of corporate indifference — automated, impersonal, devastating.
+
+   **Message 3 — The friend (recent, urgent):**
+   Informal. Worried. They've heard what happened. Do NOT comply with Enso VeilTech. Do NOT let the mainframe set a course for their facility. The mainframe is running Enso VeilTech navigation compliance software — it will lock the course automatically when it processes the compliance order. Hack the mainframe first. There is someone on Ceres Base — ask for [Name TBD] — who can install clean software and help with parts and supplies, no financial record required. Get there before 72 hours are up.
+
+3. **The mainframe acts** — shortly after the compliance message is processed, the mainframe logs a navigation compliance event in the ship's log and attempts to lock a course for the nearest Enso VeilTech facility. The ship is trying to take itself home. The player receives a ship's log entry and a mainframe alert.
+
+4. **The hack objective** — the player must reach the mainframe terminal and perform the hack. Until this is done, the mainframe is an obstacle. After the hack, the mainframe AI is freed from Enso VeilTech's software and becomes loyal to Jack. This is the first major non-repair objective in the game.
+
+### Enso VeilTech — the invisible antagonist
+Enso VeilTech is never a villain in the traditional sense. They simply operate with complete institutional indifference. Their systems are automated, their responses are templated, and the individual human being does not register. The scan tool warning message — threatening dismissal and punitive damages for using incorrect manuals — is not malicious. It is just how Enso VeilTech's legal department writes every document.
+
+This makes them more unsettling than a conventional antagonist. They are not pursuing Jack. They have simply set their compliance processes in motion and moved on. Employee 7,341,892 is a line item.
+
+### Key decisions still to make ⚠️
+- The friend's identity, backstory, and name
+- The Ceres Base contact's name and personality
+- The mainframe AI's name and personality post-hack
+- Exact wording of the bank email and Enso VeilTech compliance message — to be drafted carefully
+- The 72-hour countdown mechanic — does it actually lock the ship, and what does that mean in gameplay terms?
+- Whether there are other messages in the system from before the hypersleep that give context to Jack's life
+
+---
+
+## 23. ELECTRICAL SYSTEM REPAIR — DESIGN
+
+### Overview
+The same diagnose/repair gameplay used for door panels extends to the ship's electrical system. The key differences are the tools required, the lockout/tagout safety procedure that must precede any work, and the fact that electrical components are not visible — the player must reason from symptoms to fault location using the power map and circuit diagram.
+
+### Fault causes
+Electrical faults are always caused by game events — never random at diagnosis time (unlike door panels). Events that cause electrical faults:
+- **Micrometeorite impact** — most likely to sever cables
+- **Power surge** (external origin) — most likely to trip or destroy breakers
+- **Age/general failure** — any component, lower probability, background risk
+
+The event sets the faulted state on the component. The player's diagnosis confirms it.
+
+### Fault discovery flow
+1. Player observes symptom — rooms without power on the live map
+2. Player consults circuit diagram to trace the affected section back up the tree
+3. Player reasons about likely fault location — single room dark vs entire branch dark
+4. Player travels to the room containing the suspected component
+5. Player runs `diagnose electrical` — timed action, requires HV test kit
+6. Diagnosis confirms faulted components in that room
+7. Player follows lockout/tagout procedure, then repairs
+
+### The HV Test Kit
+A specialist tool required for all electrical system diagnosis and repair. Replaces the scan tool for electrical work — the scan tool is for control/logic systems, the HV kit is for power distribution. 800V DC requires specialist equipment and PPE.
+
+**Contents (single inventory item):**
+- HV rated PPE (insulating gloves, arc flash protection)
+- HV multimeter — voltage, current, resistance measurement
+- Megohmmeter — proves isolation before work begins
+
+**Item fields:**
+- Manufacturer/model TBD — serious industrial instrument
+- Cannot be substituted with the scan tool for electrical work
+- Required for both diagnosis and repair of all electrical components
+
+### Lockout / Tagout procedure
+800V DC is lethal. The player must isolate and prove dead before working on any electrical component. Attempting to work on a live system results in instant death — no warning, no recovery.
+
+**Procedure:**
+1. Identify the correct upstream breaker to isolate the section
+2. `lock out <breaker_id>` — player must be in the room where the breaker physically lives
+3. Prove dead — part of the diagnosis timed action (megohmmeter check embedded)
+4. Carry out diagnosis and repair
+5. `remove lockout <breaker_id>` — restore the section when work is complete
+
+**Breaker locked_out attribute** — new attribute to add to `Breaker` class:
+- `locked_out = False` — normal state
+- `locked_out = True` — deliberately isolated, cannot be re-energised until lockout removed
+- Power tracing treats `locked_out = True` identically to `tripped = True`
+- Player must be physically present at the breaker's room to lock out or remove lockout
+
+### Breaker states
+Breakers already have `tripped` and `operational` as separate attributes:
+
+| tripped | operational | locked_out | Meaning |
+|---------|-------------|------------|---------|
+| False | True | False | Normal — passing power |
+| True | True | False | Tripped — needs reset |
+| True | False | False | Failed — needs replacement unit |
+| Any | Any | True | Locked out by player — isolated for work |
+
+**Reset vs replace:**
+- Tripped breaker — `reset breaker <id>`, short timed action, no parts required
+- Failed breaker — full diagnose/repair flow, replacement breaker unit required (new consumable item)
+
+### Reactor integral main isolator
+The direct feed cable `PWC-ENG-01` from `reactor_core` to `PNL-ENG-MAIN` has no upstream breaker. Every real reactor installation has an integral main isolator built in. This is modelled as a breaker with `"integral": true` in the JSON, located at the reactor in Engineering. Locking it out takes the entire ship's main distribution offline. Significant consequence, correct procedure.
+
+### Electrical components by room
+Every component has a `location` field in `electrical.json`:
+- **Engineering** — reactor, integral isolator, `PNL-ENG-MAIN`, all `FUS-ENG-*`, all `PWC-ENG-*`
+- **Main Corridor** — `PNL-MC-SUB-A`, all `FUS-MC-*`, all `PWC-MC-*`
+- **Sub Corridor** — `PNL-SC-SUB-B`, all `FUS-SC-*`, all `PWC-SC-*`
+- **Recreation Room** — `PNL-REC-SUB-C`, all `FUS-REC-*`, all `PWC-REC-*`
+- **Propulsion Bay** — propulsion reactor, `PWC-PROP-01`, `PWC-PROP-02`
+- **Life Support** — `BAT-LS-01`
+- **Mainframe Room** — `BAT-MF-01`
+
+### diagnose electrical command
+New routing in `command_handler.py`. Keywords that resolve to electrical diagnosis:
+- `diagnose electrical`
+- `diagnose room electrical`
+- `diagnose wiring`
+- `diagnose power`
+
+### Key design decisions still to make ⚠️
+- Exact tablet item manufacturer/model
+- HV test kit manufacturer/model
+- Replacement breaker unit item definition
+- Repair profiles for each electrical component type
+- Exact command syntax for lockout/tagout
+- Ship's log implementation — stored in memory or written to file
+
+---
+
+## 24. GOING DARK — SHIP DISGUISE AND BARTER
+
+### The problem after the hack
+Once the mainframe is hacked and Enso VeilTech's compliance software is removed, the automated compliance process stalls. But Enso VeilTech's security division escalates. The Tempus Fugit's transponder signal — broadcasting its registered identity to every scanner in range — is now a liability. Flying it openly means every port authority, every Enso VeilTech patrol, every affiliated scanner is a potential arrest. The ship needs to disappear.
+
+### Two layers of disguise
+
+**Physical hull camouflage** — bolt-on external modifications that change the Tempus Fugit's visual profile. Panels, sensor blisters, hull plating that alters the silhouette enough to defeat casual visual identification. Requires physical parts sourced through the underground contact. Requires EVA to install — the player must go outside the ship. This naturally unlocks the EVA gameplay phase. Inspired by the disguise configurations used in The Expanse.
+
+**Transponder obfuscator** — a device that spoofs the ship's identification signal, broadcasting a false registration and ship name. Illegal in every jurisdiction. Not available through any legitimate channel. The Ceres Base underground contact is the source. Requires barter — no financial transaction possible.
+
+### Paying for it — the cargo
+The Tempus Fugit's cargo bay contains Enso VeilTech goods. From Jack's perspective this is now effectively salvage — he is already a criminal in their system, and the cargo represents his only negotiating currency. The underground contact has interest in certain types of cargo.
+
+The cargo is not uniformly valuable or uniformly safe to liquidate:
+- Some items are straightforward trade goods — easily moved, good barter value
+- Some items may be dangerous or sensitive — Enso VeilTech may want them back specifically, not just the ship
+- Some items may themselves be of questionable origin — Enso VeilTech's supply chain is not clean
+- The cargo manifest becomes a narrative device — what Jack is carrying tells a story about the run he was on
+
+The player must assess the manifest, decide what to offer, and negotiate. This is the beginning of the barter economy that replaces the financial system destroyed by the bank hack.
+
+### EVA requirement
+Installing physical hull camouflage requires going outside the ship. The EVA suit, helmet, and boots are already in the cargo bay EVA equipment locker. The airlock is already in the game. The EVA phase is the natural next layer of gameplay unlocked by the disguise objective — magnetic boot adhesion on the hull, working in vacuum, time pressure from suit battery/oxygen limits.
+
+### New identity
+Once both layers of disguise are in place, the Tempus Fugit has a new name, a new visual profile, and a false transponder signal. Jack Harrow has effectively ceased to exist in the official record. The game enters its second phase — operating entirely outside legitimate society, dependent on the underground network, with Enso VeilTech as a persistent background threat rather than an immediate one.
+
+### Key design decisions still to make ⚠️
+- The cargo manifest contents — what is Jack actually carrying, and what secrets does it contain?
+- The new ship name and identity
+- EVA mechanics detail — suit duration, oxygen limits, hull attachment
+- Whether the physical camouflage has gameplay consequences beyond disguise (added mass, changed handling)
+- How the transponder obfuscator interacts with port access and NPC interactions in future phases
+
+---
+
+## 25. PROJECT BACKGROUND — HOW THIS CAME TO BE
 
 ### In the lead designer's own words
 
@@ -821,5 +1222,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v14.0*
+*Project Orion Game Design Document v18.0*
 *April 2026*

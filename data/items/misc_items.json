@@ -25,5 +25,14 @@
     "description": "A high security card that appears to have been burnt out. It is unlikely to work.",
     "keywords": ["id card", "access card", "security card", "card", "id", "high security access card", "high sec access card", "high security card", "hi sec card", "damaged hi sec card", "damaged card", "burnt out card", "broken card"],
     "mass": 0.0
+  },
+  {
+    "id": "ships_datapad",
+    "name": "Tempus Fugit Datapad",
+    "manufacturer": "Enso VeilTech",
+    "model": "XB-47800",
+    "description": "A tough looking datapad, which is good because it appears to have been dropped frequently. Used to access some of the Tempus Fugit's systems via the shipwide network.",
+    "keywords": ["tablet", "ships tablet", "ship systems tablet", "datapad", "ships datapad", "ship systems datapad", "tempus fugit datapad", "tempus fugit tablet"],
+    "mass": 1.0
   }
 ]

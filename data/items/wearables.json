@@ -64,7 +64,7 @@
     "name": "EVA Helmet",
     "manufacturer": "Kurogane Corp",
     "model": "VESTRA",
-    "description": "A sealed extravehicular helmet with gold-tinted visor for glare reduction and radiation filtering. Scratched polycarbonate dome and worn neck ring show years of hard use. Integrated comms and HUD overlay provide vital readouts in the black.",
+    "description": "A sealed extravehicular helmet with gold-tinted visor for glare reduction and radiation filtering. The scratched polycarbonate dome show years of hard use. The neck ring has been crudely modified to interface with a Helios brand EVA suit",
     "keywords": ["eva helmet", "spacesuit helmet", "vacuum helmet", "helmet"],
     "mass": 5.5,
     "equip_slot": "head"

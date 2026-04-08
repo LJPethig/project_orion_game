@@ -47,7 +47,7 @@
     "name": "Electrical Service Tool Kit",
     "manufacturer": "AP Interconnects",
     "model": "AP-KIT 1502",
-    "description": "A small case of specialised wire strippers, crimping and interconnect assembly tools.",
+    "description": "A small case of specialised wire strippers, crimping and interconnect assembly tools. A well worn laser solder tool has been jammed inside the case, it is clearly not a part of the original toolkit",
     "keywords": [
       "electrical toolkit",
       "electrical service kit",
@@ -57,17 +57,20 @@
     "mass": 1.5
   },
   {
-    "id": "laser_solderer",
-    "name": "Laser Solderer",
-    "manufacturer": "Atlas Nova",
-    "model": "320W",
-    "description": "A specialist tool for fast and reliable electrical repair.",
+    "id": "hv_service_kit",
+    "name": "High Voltage Tool Kit",
+    "manufacturer": "Matsuri Energy Systems",
+    "model": "HV-KIT-03",
+    "description": "A worn case of insulated hand tools complete with burn marks, including a Megohmmeter, HV multimeter and 1000V insulated gloves. Essential tools to avoid being fried while working on high voltage systems.",
     "keywords": [
-      "solderer",
-      "soldering tool",
-      "laser solderer"
+      "hv toolkit",
+      "high voltage toolkit",
+      "hv service toolkit",
+      "high voltage service toolkit",
+      "hv repair kit",
+      "high voltage repair kit"
     ],
-    "mass": 0.5
+    "mass": 4
   },
   {
     "id": "socket_set_small",

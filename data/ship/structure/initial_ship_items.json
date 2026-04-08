@@ -12,7 +12,7 @@
     },
     {
       "container_id": "engineering_tool_storage_cabinet",
-      "items": ["scan_tool", "wrench", "power_screwdriver_set", "laser_solderer"]
+      "items": ["scan_tool", "wrench", "power_screwdriver_set"]
     },
     {
       "container_id": "engineering_large_parts_storage_unit",
@@ -51,7 +51,11 @@
   "surfaces": [
     {
       "surface_id": "cargo_bay_shelving_unit",
-      "items": ["wire_low_voltage", "wire_high_voltage"]
+      "items": ["wire_low_voltage", "wire_high_voltage", "hv_service_kit"]
+    },
+    {
+      "surface_id": "captains_quarters_metal_desk",
+      "items": ["ships_datapad"]
     }
   ]
 }
