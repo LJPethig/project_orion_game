@@ -61,8 +61,8 @@ class CommandHandler:
             'pick up':           self._item.handle_take,
             'drop':              self._item.handle_drop,
             'debug_inventory':   self._item.handle_debug_inventory,
-            # Terminals
-            'access':            self._terminal.handle_terminal_access,
+            # Terminals, Datapad
+            'access':            self._route_access,
             # Equip/unequip
             'wear':              self._equip.handle_wear,
             'equip':             self._equip.handle_wear,
@@ -369,6 +369,22 @@ class CommandHandler:
         if ' on ' in args:
             return self._container.handle_put_on(args)
         return self._equip.handle_wear(args)
+
+    def _route_access(self, args: str) -> dict:
+        """Route 'access' — datapad or terminal."""
+        if args.strip().lower() in ('datapad', 'tablet', 'ships datapad', 'tempus fugit datapad'):
+            # Check player has the datapad
+            player = game_manager.player
+            has_pad = any(i.id == 'ships_datapad' for i in player.get_inventory())
+            if not has_pad:
+                return self._unknown_action("You don't have the datapad.")
+            return {
+                'response': '',
+                'action_type': 'datapad_open',
+                'lock_input': False,
+                'room_changed': False,
+            }
+        return self._terminal.handle_terminal_access(args)
 
     # ── Main process ─────────────────────────────────────────
 

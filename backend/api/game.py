@@ -18,10 +18,17 @@ game_bp = Blueprint("game", __name__)
 @game_bp.route("/state", methods=["GET"])
 def get_state():
     """Return current game state for frontend polling."""
+    has_datapad = False
+    if game_manager.initialised and game_manager.player:
+        has_datapad = any(
+            i.id == 'ships_datapad'
+            for i in game_manager.player.get_inventory()
+        )
     return jsonify({
         "initialised": game_manager.initialised,
         "ship_name":   game_manager.ship_name,
         "ship_time":   game_manager.get_ship_time(),
+        "has_datapad": has_datapad,
     })
 
 

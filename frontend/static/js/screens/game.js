@@ -74,9 +74,26 @@ function togglePanel(panelId, tab) {
         panel.classList.add('open');
         tab.classList.add('active');
         if (panelId === 'panel-inventory') renderInventory();
+        if (panelId === 'panel-datapad') openDatapadPanel();
         document.getElementById('tab-strip').classList.toggle('term-active', panelId === 'panel-terminal');
     } else {
         document.getElementById('tab-strip').classList.remove('term-active');
+    }
+}
+
+function updateDatapadTab(hasDatapad) {
+    const tab = document.getElementById('tab-pad');
+    if (!tab) return;
+    if (hasDatapad) {
+        tab.classList.remove('hidden');
+    } else {
+        tab.classList.add('hidden');
+        // Close panel if open and datapad removed
+        const panel = document.getElementById('panel-datapad');
+        if (panel && panel.classList.contains('open')) {
+            panel.classList.remove('open');
+            tab.classList.remove('active');
+        }
     }
 }
 
@@ -101,6 +118,10 @@ function updateRoom(room) {
         document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     }
+    // Refresh datapad tab visibility
+    API.getState().then(state => {
+        if (state.has_datapad !== undefined) updateDatapadTab(state.has_datapad);
+    });
 }
 
 // ── Debug console ─────────────────────────────────────────────

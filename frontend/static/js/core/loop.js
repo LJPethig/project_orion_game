@@ -43,6 +43,7 @@ const Loop = (() => {
             const data = await API.getState();
             if (data.ship_time) updateShipTime(data.ship_time);
             if (data.ship_name) updateShipName(data.ship_name);
+            if (typeof updateDatapadTab === 'function') updateDatapadTab(data.has_datapad || false);
         } catch (err) {
             console.error('Poll error:', err);
         }

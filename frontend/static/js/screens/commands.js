@@ -233,6 +233,18 @@ function handleResult(result) {
         return;
     }
 
+    // ── Datapad open ──────────────────────────────────────────
+    if (result.action_type === 'datapad_open') {
+        const panel = document.getElementById('panel-datapad');
+        const tab   = document.querySelector('.tab[data-panel="panel-datapad"]');
+        document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        if (panel) panel.classList.add('open');
+        if (tab)   tab.classList.add('active');
+        openDatapadPanel();
+        return;
+    }
+
     // ── Always clear PIN mode before processing result ────
     pendingPin = null;
     setInputMode('normal');
