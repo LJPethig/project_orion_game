@@ -457,7 +457,11 @@ class RepairHandler(BaseHandler):
         # ── Write ship log and tablet note ────────────────────
         location_str = f"Location: {game_manager.get_current_room().name}  |  {exit_label} door panel  {panel_model}"
         fault_str = ', '.join(fault_names)
-        game_manager.add_log_entry(f"Diagnosis complete  {location_str}  Faults: {fault_str}")
+        game_manager.add_log_entry({
+            'timestamp': game_manager.get_ship_time(),
+            'event': 'Diagnosis complete',
+            'detail': f"{location_str}  Faults: {fault_str}",
+        })
         game_manager.set_tablet_note(panel_id, {
             'timestamp': game_manager.get_ship_time(),
             'location_str': location_str,
@@ -529,7 +533,11 @@ class RepairHandler(BaseHandler):
                 if c['item_id'] in panel.broken_components
             )
             repair_duration = self._format_duration(total_repair_mins)
-            game_manager.add_log_entry(f"Repair complete  {location_str}  Components: {components_str}")
+            game_manager.add_log_entry({
+                'timestamp': game_manager.get_ship_time(),
+                'event': 'Repair complete',
+                'detail': f"{location_str}  Components: {components_str}",
+            })
             game_manager.delete_tablet_note(panel_id)
 
             panel.is_broken = False

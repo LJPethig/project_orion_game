@@ -765,6 +765,9 @@ When a second repairable type is added (machinery, life support):
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
 - **Description panel click lockout during timed actions** — container, surface, terminal and floor item clicks in the description panel should be suppressed when Loop.isLocked() is true (during diagnosis, repair, card swipe). Currently only isTerminalSessionActive() is checked. Add Loop.isLocked() check to all click handlers in description.js.
+- **Ship power map reset key** — add a key (e.g. [0]) that resets the map to initial zoom and position (_mapPanX = 0, _mapPanY = 0, _mapScale = 0.35). Apply to both the datapad power map and the engineering terminal power map.
+- **Ship power map hover tooltips** — hovering over rooms, reactors, and batteries on the SVG map should show status information (powered/unpowered, reactor output, battery charge percentage). Applies to both terminal and datapad map views.
+
 ### Recently completed deferred items
 - ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items.
 - ✅ **Unique instance identifiers** — each placed item now receives a unique runtime `instance_id`.

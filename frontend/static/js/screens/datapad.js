@@ -13,10 +13,18 @@ function isDatapadOpen() {
 }
 
 function openDatapadPanel() {
-    _datapadSubMenu = null;
     _setDatapadMode(true);
-    _renderDatapad();
     _setupDatapadKeys();
+
+    // Restore previous state
+    if (_datapadSubMenu === 'power_map')      { _openPowerMap();       return; }
+    if (_datapadSubMenu === 'circuit_diagram'){ _openCircuitDiagram(); return; }
+    if (_datapadSubMenu === 'notes')          { _openNotes();          return; }
+    if (_datapadSubMenu === 'ship_s_log')     { _openShipLog();        return; }
+    if (_datapadSubMenu === 'messages')       { _openMessages();       return; }
+
+    // Menu states and null all render fine via _renderDatapad
+    _renderDatapad();
 }
 
 function closeDatapadIfOpen() {
@@ -145,17 +153,17 @@ function _handleDatapadKey(key) {
 
     // Map pan/zoom — reuse terminal map constants
     if (_datapadSubMenu === 'power_map') {
-        if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP; _applyMapTransform(); return; }
-        if (key === 'arrowdown')  { _mapPanY -= MAP_PAN_STEP; _applyMapTransform(); return; }
-        if (key === 'arrowleft')  { _mapPanX += MAP_PAN_STEP; _applyMapTransform(); return; }
-        if (key === 'arrowright') { _mapPanX -= MAP_PAN_STEP; _applyMapTransform(); return; }
+        if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP; _applyPadMapTransform(); return; }
+        if (key === 'arrowdown')  { _mapPanY -= MAP_PAN_STEP; _applyPadMapTransform(); return; }
+        if (key === 'arrowleft')  { _mapPanX += MAP_PAN_STEP; _applyPadMapTransform(); return; }
+        if (key === 'arrowright') { _mapPanX -= MAP_PAN_STEP; _applyPadMapTransform(); return; }
         if (key === '+' || key === '=') {
             _mapScale = Math.min(MAP_SCALE_MAX, _mapScale + MAP_SCALE_STEP);
-            _applyMapTransform(); return;
+            _applyPadMapTransform(); return;
         }
         if (key === '-') {
             _mapScale = Math.max(MAP_SCALE_MIN, _mapScale - MAP_SCALE_STEP);
-            _applyMapTransform(); return;
+            _applyPadMapTransform(); return;
         }
     }
 }
@@ -167,6 +175,8 @@ function _closeDatapadFromMenu() {
     if (tab)   tab.classList.remove('active');
     document.removeEventListener('keydown', _datapadKeyHandler);
     _setDatapadMode(false);
+    _datapadSubMenu    = null;
+    _datapadParentMenu = null;
 }
 
 // ── Power map ─────────────────────────────────────────────────
@@ -207,12 +217,30 @@ async function _openPowerMap() {
             _mapPanX  = 0;
             _mapPanY  = 0;
             _mapScale = 0.35;
-            _applyMapTransform();
+            _applyPadMapTransform();
             await _updateRoomColours();
         }
     } catch (e) {
         mapContainer.textContent = 'Map unavailable.';
     }
+}
+
+function _applyPadMapTransform() {
+    if (!_mapSvgEl) return;
+    const container = document.getElementById('pad-map-container');
+    if (container) {
+        const cw = container.clientWidth;
+        const ch = container.clientHeight;
+        const sw = _mapSvgEl.viewBox.baseVal.width  * _mapScale;
+        const sh = _mapSvgEl.viewBox.baseVal.height * _mapScale;
+        const minX = -(sw - cw * 0.25);
+        const maxX =   cw * 0.75;
+        const minY = -(sh - ch * 0.25);
+        const maxY =   ch * 0.75;
+        _mapPanX = Math.max(minX, Math.min(maxX, _mapPanX));
+        _mapPanY = Math.max(minY, Math.min(maxY, _mapPanY));
+    }
+    _mapSvgEl.style.transform = `translate(${_mapPanX}px, ${_mapPanY}px) scale(${_mapScale})`;
 }
 
 // ── Circuit diagram ───────────────────────────────────────────
@@ -274,7 +302,7 @@ function _openNotes() {
                 lines.push({ text: 'Missing at time of diagnosis:', style: 'pad-note-label' });
                 lines.push({ text: '  ' + note.missing.join(', '), style: 'pad-note-missing' });
             }
-            lines.push({ text: '', style: 'pad-log-spacer' });
+            lines.push({ text: '─'.repeat(36), style: 'pad-log-divider' });
         });
         return lines;
     });
@@ -287,7 +315,14 @@ function _openShipLog() {
         const data = await API.getDatapadData();
         const log  = data.ship_log || [];
         if (log.length === 0) return [{ text: 'No log entries.', style: 'pad-empty-line' }];
-        return log.map(entry => ({ text: entry, style: 'pad-log-entry' }));
+        const lines = [];
+        log.forEach((entry, idx) => {
+            lines.push({ text: entry.timestamp, style: 'pad-log-timestamp' });
+            lines.push({ text: entry.event,     style: 'pad-log-event' });
+            lines.push({ text: entry.detail,    style: 'pad-log-detail' });
+            lines.push({ text: '─'.repeat(36),  style: 'pad-log-divider' });
+        });
+        return lines;
     });
 }
 

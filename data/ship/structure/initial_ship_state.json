@@ -1,10 +1,10 @@
 {
   "doors": [
-    { "id": "captains_quarters_main_corridor",   "door_open": false, "door_locked": true  },
+    { "id": "captains_quarters_main_corridor",   "door_open": false, "door_locked": false  },
     { "id": "recreation_room_cockpit",            "door_open": false, "door_locked": false },
     { "id": "recreation_room_med_bay",            "door_open": false, "door_locked": false },
     { "id": "main_corridor_sub_corridor",         "door_open": false, "door_locked": false },
-    { "id": "main_corridor_engineering",          "door_open": false, "door_locked": true  },
+    { "id": "main_corridor_engineering",          "door_open": false, "door_locked": false  },
     { "id": "main_corridor_mainframe_room",       "door_open": false, "door_locked": true  },
     { "id": "sub_corridor_cargo_bay",             "door_open": false, "door_locked": false },
     { "id": "med_bay_hypersleep_chamber",         "door_open": false, "door_locked": false },

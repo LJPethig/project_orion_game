@@ -151,9 +151,8 @@ class GameManager:
 
     # ── Ship log and tablet notes ─────────────────────────────
 
-    def add_log_entry(self, text: str) -> None:
-        """Append a timestamped entry to the ship log."""
-        entry = f"{self.get_ship_time()}  {text}"
+    def add_log_entry(self, entry: dict) -> None:
+        """Append a structured entry to the ship log."""
         self.ship_log.append(entry)
 
     def set_tablet_note(self, panel_id: str, note: dict) -> None:
