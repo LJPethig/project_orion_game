@@ -55,11 +55,11 @@ const API = {
         return r.json();
     },
 
-    async completeDiagnosis(panel_id, door_id, game_minutes) {
+    async completeDiagnosis(panel_id, door_id, game_minutes, exit_label) {
         const r = await fetch('/api/command/diagnose_complete', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ panel_id, door_id, game_minutes }),
+            body:    JSON.stringify({ panel_id, door_id, game_minutes, exit_label }),
         });
         return r.json();
     },
@@ -93,6 +93,11 @@ const API = {
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ terminal_type, action }),
         });
+        return r.json();
+    },
+
+    async getDatapadData() {
+        const r = await fetch('/api/game/datapad');
         return r.json();
     },
 

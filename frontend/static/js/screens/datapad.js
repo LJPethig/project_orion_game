@@ -246,21 +246,52 @@ function _openCircuitDiagram() {
 
 // ── Stub views ────────────────────────────────────────────────
 
-function _openNotes() {
-    _renderStubView('NOTES', 'No active notes.');
-}
-
-function _openShipLog() {
-    _renderStubView("SHIP'S LOG", 'No log entries.');
-}
 
 function _openMessages() {
     _renderStubView('MESSAGES', 'No messages.');
 }
 
-function _renderStubView(title, emptyText) {
+function _openNotes() {
     _datapadParentMenu = 'data';
-    _datapadSubMenu = title.toLowerCase().replace(/[^a-z]/g, '_');
+    _datapadSubMenu    = 'notes';
+    _renderDataView('NOTES', async () => {
+        const data  = await API.getDatapadData();
+        const notes = data.tablet_notes || [];
+        if (notes.length === 0) return [{ text: 'No active notes.', style: 'pad-empty-line' }];
+        const lines = [];
+        notes.forEach(note => {
+            lines.push({ text: note.timestamp, style: 'pad-log-timestamp' });
+            lines.push({ text: note.location_str, style: 'pad-log-location' });
+            if (note.faults && note.faults.length > 0) {
+                lines.push({ text: 'Faulty components:', style: 'pad-note-label' });
+                lines.push({ text: '  ' + note.faults.join(', '), style: 'pad-note-value' });
+            }
+            if (note.tools && note.tools.length > 0) {
+                lines.push({ text: 'Tools required:', style: 'pad-note-label' });
+                lines.push({ text: '  ' + note.tools.join(', '), style: 'pad-note-value' });
+            }
+            if (note.missing && note.missing.length > 0) {
+                lines.push({ text: 'Missing at time of diagnosis:', style: 'pad-note-label' });
+                lines.push({ text: '  ' + note.missing.join(', '), style: 'pad-note-missing' });
+            }
+            lines.push({ text: '', style: 'pad-log-spacer' });
+        });
+        return lines;
+    });
+}
+
+function _openShipLog() {
+    _datapadParentMenu = 'data';
+    _datapadSubMenu    = 'ship_s_log';
+    _renderDataView("SHIP'S LOG", async () => {
+        const data = await API.getDatapadData();
+        const log  = data.ship_log || [];
+        if (log.length === 0) return [{ text: 'No log entries.', style: 'pad-empty-line' }];
+        return log.map(entry => ({ text: entry, style: 'pad-log-entry' }));
+    });
+}
+
+async function _renderDataView(title, dataFn) {
     const inner = document.getElementById('datapad-panel-inner');
     inner.innerHTML = '';
 
@@ -275,14 +306,22 @@ function _renderStubView(title, emptyText) {
     inner.appendChild(subheader);
 
     const content = document.createElement('div');
-    content.className   = 'pad-empty';
-    content.textContent = emptyText;
+    content.className = 'pad-data-content';
     inner.appendChild(content);
 
     const commands = document.createElement('div');
     commands.className   = 'pad-commands';
     commands.textContent = '[R] Return    [X] Close';
     inner.appendChild(commands);
+
+    // Load data and render lines
+    const lines = await dataFn();
+    lines.forEach(line => {
+        const el = document.createElement('div');
+        el.className   = line.style;
+        el.textContent = line.text;
+        content.appendChild(el);
+    });
 }
 
 // ── Keyboard ──────────────────────────────────────────────────

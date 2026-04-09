@@ -117,8 +117,9 @@ def diagnose_complete():
     panel_id = data.get('panel_id')
     door_id = data.get('door_id')
     game_minutes = data.get('game_minutes', 0)
+    exit_label = data.get('exit_label', 'unknown')
 
-    result = repair_handler.complete_diagnosis(panel_id, door_id, game_minutes)
+    result = repair_handler.complete_diagnosis(panel_id, door_id, game_minutes, exit_label)
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 

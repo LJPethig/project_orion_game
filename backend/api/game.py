@@ -223,3 +223,14 @@ def get_terminal_content():
         "title": action_content.get("title", ""),
         "text": action_content.get("text", []),
     })
+
+@game_bp.route("/datapad", methods=["GET"])
+def get_datapad_data():
+    """Return ship log and tablet notes for the datapad."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    return jsonify({
+        'ship_log':     list(reversed(game_manager.ship_log)),   # newest first
+        'tablet_notes': list(game_manager.tablet_notes.values()),
+    })

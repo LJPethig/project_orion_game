@@ -414,7 +414,8 @@ class RepairHandler(BaseHandler):
 
     # ── Completion (called from command.py endpoints) ─────────
 
-    def complete_diagnosis(self, panel_id: str, door_id: str, game_minutes: int) -> dict:
+    def complete_diagnosis(self, panel_id: str, door_id: str, game_minutes: int,
+                               exit_label: str = 'unknown') -> dict:
         """
         Called by /diagnose_complete endpoint after timed action.
         Randomly selects broken components from profile, populates panel.broken_components.
@@ -452,6 +453,20 @@ class RepairHandler(BaseHandler):
         missing_parts = self._check_all_parts(panel, profile)
         missing_tools = [self._item_name(t) for t in self._check_tools(profile['repair_tools_required'])]
         missing_items = missing_tools + missing_parts
+
+        # ── Write ship log and tablet note ────────────────────
+        location_str = f"Location: {game_manager.get_current_room().name}  |  {exit_label} door panel  {panel_model}"
+        fault_str = ', '.join(fault_names)
+        game_manager.add_log_entry(f"Diagnosis complete  {location_str}  Faults: {fault_str}")
+        game_manager.set_tablet_note(panel_id, {
+            'timestamp': game_manager.get_ship_time(),
+            'location_str': location_str,
+            'faults': fault_names,
+            'tools': [self._item_name(t) for t in profile['repair_tools_required']],
+            'missing': missing_items,
+            'panel_id': panel_id,
+            'door_id': door_id,
+        })
 
         return {
             'response': f"You spent {duration} diagnosing the {panel_model}.",
@@ -503,18 +518,32 @@ class RepairHandler(BaseHandler):
         # ── Check if all broken components are repaired ───────
         if set(panel.repaired_components) == set(panel.broken_components):
             # TODO: post-repair failure roll — always succeeds for now
-            panel.is_broken           = False
-            panel.broken_components   = []
+            # ── Write ship log, delete tablet note ────────────
+            # Capture components before clearing panel state
+            panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
+            current_room = game_manager.get_current_room()
+            location_str = f"Location: {current_room.name}  |  {exit_label} door panel  {panel_model}"
+            components_str = ', '.join(self._item_name(c) for c in panel.broken_components)
+            total_repair_mins = sum(
+                c['repair_time_mins'] for c in profile['components']
+                if c['item_id'] in panel.broken_components
+            )
+            repair_duration = self._format_duration(total_repair_mins)
+            game_manager.add_log_entry(f"Repair complete  {location_str}  Components: {components_str}")
+            game_manager.delete_tablet_note(panel_id)
+
+            panel.is_broken = False
+            panel.broken_components = []
             panel.repaired_components = []
 
             return {
-                'response':       f"{item_name} replaced. The {exit_label} access panel is now operational.",
-                'action_type':    'repair_complete',
-                'lock_input':     False,
-                'room_changed':   False,
+                'response': f"You spent {repair_duration} repairing the {panel_model} to {exit_label}. Another successful job completed.",
+                'action_type': 'repair_complete',
+                'lock_input': False,
+                'room_changed': False,
                 'panel_restored': True,
                 'security_level': door.security_level,
-                'door_id':        door_id,
+                'door_id': door_id,
             }
 
         # ── More components to repair ─────────────────────────

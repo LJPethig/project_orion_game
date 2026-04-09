@@ -23,6 +23,8 @@ class GameManager:
         self.player       = None
         self.current_room = None
         self.electrical_system = None
+        self.ship_log = []  # list of timestamped log entry strings
+        self.tablet_notes = {}  # dict keyed by panel_id → note dict
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
@@ -36,6 +38,8 @@ class GameManager:
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
         self.electrical_system.update_battery_states()
         self.initialised  = True
+        self.ship_log = []
+        self.tablet_notes = {}
 
     def _load_player_items(self) -> None:
         """
@@ -145,6 +149,20 @@ class GameManager:
         self.current_room = room
         return True
 
+    # ── Ship log and tablet notes ─────────────────────────────
+
+    def add_log_entry(self, text: str) -> None:
+        """Append a timestamped entry to the ship log."""
+        entry = f"{self.get_ship_time()}  {text}"
+        self.ship_log.append(entry)
+
+    def set_tablet_note(self, panel_id: str, note: dict) -> None:
+        """Create or replace a tablet note for a panel."""
+        self.tablet_notes[panel_id] = note
+
+    def delete_tablet_note(self, panel_id: str) -> None:
+        """Remove a tablet note when repair is complete."""
+        self.tablet_notes.pop(panel_id, None)
 
 # Single shared instance — imported by all API routes and handlers
 game_manager = GameManager()

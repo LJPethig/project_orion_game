@@ -150,7 +150,8 @@ function handleResult(result) {
             const diagResult = await API.completeDiagnosis(
                 result.panel_id,
                 result.door_id,
-                result.game_minutes
+                result.game_minutes,
+                result.exit_label
             );
             clearResponse();
             handleResult(diagResult);
