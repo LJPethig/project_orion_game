@@ -101,4 +101,9 @@ const API = {
         return r.json();
     },
 
+    async terminalClose() {
+        const r = await fetch('/api/game/terminal/close', { method: 'POST' });
+        return r.json();
+    },
+
 };

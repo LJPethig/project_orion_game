@@ -20,9 +20,9 @@ def get_state():
     """Return current game state for frontend polling."""
     has_datapad = False
     if game_manager.initialised and game_manager.player:
-        has_datapad = any(
-            i.id == 'ships_datapad'
-            for i in game_manager.player.get_inventory()
+        has_datapad = (
+                any(i.id == 'ships_datapad' for i in game_manager.player.get_inventory())
+                and not game_manager.datapad_suppressed
         )
     return jsonify({
         "initialised": game_manager.initialised,
@@ -234,3 +234,10 @@ def get_datapad_data():
         'ship_log':     list(reversed(game_manager.ship_log)),   # newest first
         'tablet_notes': list(game_manager.tablet_notes.values()),
     })
+
+@game_bp.route("/terminal/close", methods=["POST"])
+def terminal_close():
+    """Called when player exits a terminal session."""
+    if game_manager.initialised:
+        game_manager.datapad_suppressed = False
+    return jsonify({"success": True})

@@ -48,6 +48,7 @@ class TerminalHandler(BaseHandler):
         if not self._check_room_power(room.id):
             return self._instant(f"The {matched.name} is unresponsive — it looks like it's offline.")
 
+        game_manager.datapad_suppressed = True
         return {
             'response': f"You access the {matched.name}.",
             'action_type': 'terminal_open',

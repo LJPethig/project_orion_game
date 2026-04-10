@@ -79,9 +79,14 @@ function openTerminalPanel(terminalData) {
     terminalSubMenu = null;
     _renderTerminal();
 
-    // Show TERM tab
+    // Show TERM tab, hide PAD tab — mutually exclusive
     const tab = document.getElementById('tab-term');
     tab.classList.remove('hidden');
+    const padTab = document.getElementById('tab-pad');
+    if (padTab) padTab.classList.add('hidden');
+
+    // Close datapad session if open
+    if (typeof _closeDatapadFromMenu === 'function') _closeDatapadFromMenu();
 
     // Open panel, close any others
     document.querySelectorAll('.slide-panel').forEach(p => p.classList.remove('open'));
@@ -113,6 +118,9 @@ function closeTerminalPanel() {
     document.getElementById('tab-strip').classList.remove('term-active');
     document.removeEventListener('keydown', _terminalKeyHandler);
     setTerminalMode(false);
+    API.terminalClose().then(() => {
+        API.getState().then(state => updateDatapadTab(state.has_datapad || false));
+    });
 }
 
 // ── Rendering ─────────────────────────────────────────────────

@@ -767,6 +767,7 @@ When a second repairable type is added (machinery, life support):
 - **Description panel click lockout during timed actions** — container, surface, terminal and floor item clicks in the description panel should be suppressed when Loop.isLocked() is true (during diagnosis, repair, card swipe). Currently only isTerminalSessionActive() is checked. Add Loop.isLocked() check to all click handlers in description.js.
 - **Ship power map reset key** — add a key (e.g. [0]) that resets the map to initial zoom and position (_mapPanX = 0, _mapPanY = 0, _mapScale = 0.35). Apply to both the datapad power map and the engineering terminal power map.
 - **Ship power map hover tooltips** — hovering over rooms, reactors, and batteries on the SVG map should show status information (powered/unpowered, reactor output, battery charge percentage). Applies to both terminal and datapad map views.
+- **Codebase size and structure analysis** — before Phase 23 (electrical system repair), do a full review of all backend and frontend files for size, cohesion, and split candidates. Known targets: repair_handler.py (shared utilities → repair_utils.py), command_handler.py (growing verb registry), game.py (API routes may need splitting as endpoints multiply). Frontend: terminal.js is already large and will grow when mainframe terminal is built.
 
 ### Recently completed deferred items
 - ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items.

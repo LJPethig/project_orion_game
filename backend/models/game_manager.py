@@ -25,6 +25,7 @@ class GameManager:
         self.electrical_system = None
         self.ship_log = []  # list of timestamped log entry strings
         self.tablet_notes = {}  # dict keyed by panel_id → note dict
+        self.datapad_suppressed = False
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
@@ -40,6 +41,7 @@ class GameManager:
         self.initialised  = True
         self.ship_log = []
         self.tablet_notes = {}
+        self.datapad_suppressed = False
 
     def _load_player_items(self) -> None:
         """
