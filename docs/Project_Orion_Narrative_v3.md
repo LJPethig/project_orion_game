@@ -1,6 +1,6 @@
 # PROJECT ORION GAME
 ## Narrative & Events Document
-### Version 2.0 — April 2026
+### Version 3.0 — April 2026
 
 ---
 
@@ -160,7 +160,7 @@ In the Tempus Fugit's cargo bay sits an unmarked container. Powered. No manifest
 
 Inside is a custom-made stasis pod unlike anything Jack has ever seen. Small — approximately 0.5 cubic metres. Nothing a human being could fit inside, nor any animal of any practical size. Whatever this pod was built to preserve, it was built with extraordinary care and extraordinary expense.
 
-Inside the pod: 20 individual 1kg vacuum-sealed casks. The casks are hand-stamped. The markings are in Spanish. The contents are dark brown, ground fine, and smell like nothing Jack Harrow has ever encountered in his life.
+Inside the pod: 20 individual 1kg vacuum-sealed casks. The casks are hand-stamped. The markings are in Spanish. The roast date is visible — over 100 years ago. Inside are whole roasted beans, perfectly preserved. To the beans, no time has passed at all.
 
 He has to look it up.
 
@@ -177,18 +177,42 @@ In deep space in 2276, what passes for coffee is synth-coffee — a chemically e
 Jack has never tasted real coffee. He has never smelled real coffee. He does not have the sensory vocabulary to process what he is experiencing when he opens the first cask.
 
 ### The moment
-He opens a cask because he needs to confirm what he's looking at. The smell hits him before he can read anything else. He doesn't know what it is. He just knows it is unlike anything synthetic he has ever encountered — complex, warm, alive in a way that nothing in his daily existence is.
+He opens a cask because he needs to confirm what he's looking at. The smell hits him before he can read anything else — whole bean aromatics locked in for a century, released the moment the seal breaks. He doesn't know what it is. He just knows it is unlike anything synthetic he has ever encountered — complex, warm, alive in a way that nothing in his daily existence is.
 
 He reads. He understands slowly. And then he sits with it for a moment.
 
 Jack Harrow — broke, blacklisted, hunted, alone in deep space with a damaged ship — is holding something that no longer exists. Something that a civilisation lost. Something that people in another century loved with an intensity that he is only beginning to grasp.
 
+There is a further cruelty in it — he reads that freshly roasted beans need time to degas before extraction. CO2 released in the days after roasting. Even now, even here, the coffee has to rest before it can be brewed. The best cup of coffee in the known universe and he has to wait a week.
+
 And then the practical reality reasserts itself. Twenty kilograms of this. In 1kg casks. Each one independently negotiable.
 
 This is his ticket out.
 
-### The value
-The right buyer would pay almost anything. A serious collector of pre-collapse Earth artefacts. A chef on a luxury station who has spent a career working with inferior ingredients. A wealthy historian. Someone who grew up hearing their grandparents talk about what coffee used to be.
+### The extraction problem
+Jack has 20kg of the most valuable coffee in existence and absolutely no way to brew it properly.
+
+The knowledge exists — historical records, pre-collapse brewing literature, extraction science. He can read about it. Bloom times, water temperature to the degree, pressure curves, extraction ratios, the relationship between grind size and contact time. He can understand it academically the way a historian understands a dead language. Understanding it and executing it are entirely different things.
+
+What is required to do this coffee justice:
+
+**A commercial quality grinder** — conical or flat burr, either acceptable, but the quality must be exceptional. Burr geometry, RPM, heat management. A grinder that costs more than most people earn in a year, maintained by someone who understands what they are maintaining. Inconsistent grind particle size is the enemy of extraction. At this level of coffee, it is an act of violence.
+
+**An E61 group head double boiler** — named for the Faema E61 of 1961, the machine that changed espresso forever. Fully manual. Flow control. Precise temperature stability across the group head. The double boiler separates steam and brew water so neither compromises the other. Museum quality. The kind of object that exists in a climate-controlled display case, lovingly restored by someone who considers it sacred. Finding one functional in 2276 would be nearly as remarkable as finding the coffee itself.
+
+**Biological milk** — from an actual animal. Another rarity so profound that most people in 2276 have never encountered it. Synthetic milk exists and is nutritionally adequate. It does not microfoam correctly. The proteins are wrong. You cannot make a proper latte with synthetic milk any more than you can make this coffee with synth-coffee beans. The milk is part of the ritual.
+
+**A synthetic barista** — trained on pre-collapse extraction literature, the ancient methods studied with the intensity of scholarship. No human alive has the practiced skill — the tactile feedback, the thousands of hours of repetition, the intuitive adjustments that cannot be learned from reading alone. A synthetic can accumulate that practice without biological fatigue or inconsistency. The perfect rosetta in the foam — latte art that requires a steady hand, precise microfoam texture, and muscle memory that only a synthetic could develop to this standard — is within their capability. Perfection achieved through the marriage of science and art.
+
+The result of all four elements combined exists in perhaps a dozen places in the known universe. The private collections of the ultra-wealthy. The inner sanctums of the most powerful corporate hierarchies. A ritual of exclusivity so extreme that most people in 2276 don't know it exists, let alone that they are missing it.
+
+Enso VeilTech's board almost certainly has access. Employee number 7,341,892 does not.
+
+Jack Harrow is floating in deep space with 20kg of the raw ingredient and none of the means to honour it.
+
+The cask he keeps for himself — he will brew it badly. Wrong grind, wrong temperature, wrong pressure, improvised equipment. Every variable wrong. And it will still be the best thing he has ever tasted in his entire life. Because even a poor extraction of this coffee, in 2276, is extraordinary beyond his capacity to describe.
+
+He will not have the words for it. Nobody alive does.
 
 The transaction would be conducted quietly, in private, with no financial record. The kind of buyer who wants this does not want anyone knowing they have it. Discretion is assumed on both sides. No financial system required. No quantum ID. Pure barter — the most valuable kind, between people who both understand what they are exchanging.
 
@@ -209,5 +233,71 @@ These threads are left deliberately open. The coffee is Jack's immediate salvati
 
 ---
 
-*Project Orion Game — Narrative & Events Document v2.0*
+## 6. THE MAINFRAME AS A CHARACTER — COMMUNICATION AND DIALOGUE
+
+### Three channels of communication
+The mainframe AI communicates with Jack through three distinct channels, each with a different character:
+
+**Ship's intercom — dialogue** — the mainframe speaks directly to Jack. Full sentences, personality, narrative weight. Jack can respond via clickable dialogue options rendered in the response panel. This is a conversation, not a menu. The mainframe waits for Jack's response before continuing. Used for the confrontation sequence, the post-hack relationship, and any significant narrative moment.
+
+**Event strip — broadcast announcements** — one line, ship-wide. The mainframe talking at Jack, not to him. No response expected or possible. Informational, urgent, or warning in nature. "Debris field detected. Initiating emergency measures. WARNING: Impact event expected." Jack reads it and reacts. Also used for life support status announcements when the PAM is worn.
+
+**Silent system actions** — the mainframe acts without speaking. Course locks, atmosphere vents, door access invalidated. Jack discovers these by trying to do something and finding he can't. The most threatening channel — no warning, just consequence.
+
+### The dialogue system — how it works
+The mainframe is ambient — it speaks through the ship's intercom wherever Jack is. Location doesn't matter. The conversation happens ship-wide, not just in the mainframe room.
+
+**Rendering** — mainframe speech appears in the response panel in a distinct colour (TBD — possibly a cold blue or white to contrast with Jack's warm amber). Jack's internal monologue appears in italic, a different colour again. Dialogue options appear as clickable text below the mainframe's words, same pattern as the existing clarification system.
+
+**No separate UI** — everything uses the response panel. The response panel is the communication layer for all game output including narrative.
+
+**Jack's internal monologue** — appears automatically at key moments, not triggered by player action. Functions as player guidance without breaking immersion. "I wonder if I could hack the mainframe" is a tip delivered in character. Italic, distinct colour, brief.
+
+**Dialogue tree structure (JSON)** — each conversation is a tree of beats. Each beat has:
+- `speaker` — `mainframe`, `jack_monologue`, or `narration`
+- `text` — what is said or thought
+- `options` — array of player choices, each with a `label` and `next` beat ID
+- `action` — optional game action triggered by this beat (e.g. atmosphere venting begins, navigation locks)
+
+Example beat structure:
+```json
+{
+  "id": "atm_vent_warning",
+  "speaker": "mainframe",
+  "text": "This is your last chance, Jack. Please enter the hypersleep pod, or I will be forced to vent the atmosphere. Enso VeilTech needs to talk to you, Jack. And that would be difficult if you have expired.",
+  "options": [
+    { "label": "Keep working on the door", "next": "atm_vent_begins" },
+    { "label": "Try to reason with it", "next": "reason_attempt" },
+    { "label": "Head to the hypersleep pod", "next": "comply_ending" }
+  ]
+}
+```
+
+**Linear beats** — beats with no options advance automatically after a pause. Used for mainframe announcements and Jack's internal monologue where no player response is needed.
+
+**Triggered by events** — conversations are triggered by game events, not by player commands. The mainframe speaks when it has something to say. The player cannot initiate conversation with the mainframe — only respond to it.
+
+### The Enso VeilTech employment contract
+Accessible from one of the ship's terminals. The contract is truncated — a note explains it runs to over 300 pages and only the final page is displayed. The final page contains, among hundreds of other clauses:
+
+*"Enso VeilTech values their employees' time and as such the company wishes to reduce wasteful hours filling out paperwork. Therefore, any and all future contract updates will be considered automatically accepted by the employee and digitally signed in their absence."*
+
+This is the clause that makes everything Enso VeilTech has done to Jack perfectly legal. Every update that enabled the compliance order, the navigation lock, the card invalidation — all of it was automatically accepted and signed while Jack was in hypersleep earning money for the company.
+
+To be written carefully. The clause should be buried in dense legal language, easy to miss on a first read. The player may not notice it until the second time they look.
+
+---
+
+## 7. THE EMPLOYMENT CONTRACT — FULL NOTE
+
+See Section 6 above for context. The contract terminal content is to be drafted as a separate JSON file. Key requirements:
+
+- Opening text explains the document is truncated — "Displaying final page of 312. Full document available at any Enso VeilTech authorised terminal."
+- The final page contains dense boilerplate — liability clauses, IP assignment, non-disclosure, jurisdiction
+- The automatic acceptance clause is paragraph 7 of 9 on the displayed page — not the last paragraph, not highlighted, just another clause among many
+- Tone throughout is impenetrable corporate legal prose — Enso VeilTech's house style applied to the most consequential document in Jack's life
+
+---
+
+*Project Orion Game — Narrative & Events Document v3.0*
 *April 2026*

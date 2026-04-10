@@ -569,6 +569,9 @@ See Section 15.
 - Cargo bay trading items
 - `PortableContainer` (moveable crate) — floor only
 - Note: ship inventory is NOT a global item manifest. Terminal-managed cataloguing specific to cargo bay and storage room only.
+- New verb pair: `store` and `retrieve` — dedicated to automated storage facilities only
+- Three cargo bay item categories: pallet cargo (immovable, auto-logged), portable containers, normal storage units
+- See **Design Addendum — Phase 19** for full implementation detail
 
 ### Phase 19.5 — Save / Load system (see Section 20)
 - Single autosave, no player-controlled saving
