@@ -67,11 +67,11 @@
 
 .term-submenu-commands {
     color: var(--col-term-dim);
-    font-size: 13px;
+    font-size: 10px;
     letter-spacing: 1px;
     padding-left: 48px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
     border-bottom: 1px solid var(--col-term-border);
 }
 
@@ -171,6 +171,24 @@
 
 .room-unpowered {
     fill: rgba(255, 0, 0, 0.4) !important;
+}
+
+/* ── Map hover tooltip ───────────────────────────────────────── */
+.map-tooltip {
+    position: fixed;
+    background: #0a0a0a;
+    color: var(--col-title);
+    border: 1px solid #333;
+    padding: 4px 10px;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    z-index: 9999;
+    white-space: nowrap;
+}
+
+.map-tooltip.hidden {
+    display: none;
 }
 
 @keyframes term-blink {

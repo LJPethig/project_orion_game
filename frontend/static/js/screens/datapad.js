@@ -153,17 +153,22 @@ function _handleDatapadKey(key) {
 
     // Map pan/zoom — reuse terminal map constants
     if (_datapadSubMenu === 'power_map') {
-        if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP; _applyPadMapTransform(); return; }
-        if (key === 'arrowdown')  { _mapPanY -= MAP_PAN_STEP; _applyPadMapTransform(); return; }
-        if (key === 'arrowleft')  { _mapPanX += MAP_PAN_STEP; _applyPadMapTransform(); return; }
-        if (key === 'arrowright') { _mapPanX -= MAP_PAN_STEP; _applyPadMapTransform(); return; }
+        if (key === 'arrowup')    { _mapPanY += MAP_PAN_STEP;  _applyMapTransformToContainer('pad-map-container'); return; }
+        if (key === 'arrowdown')  { _mapPanY -= MAP_PAN_STEP;  _applyMapTransformToContainer('pad-map-container'); return; }
+        if (key === 'arrowleft')  { _mapPanX += MAP_PAN_STEP;  _applyMapTransformToContainer('pad-map-container'); return; }
+        if (key === 'arrowright') { _mapPanX -= MAP_PAN_STEP;  _applyMapTransformToContainer('pad-map-container'); return; }
         if (key === '+' || key === '=') {
             _mapScale = Math.min(MAP_SCALE_MAX, _mapScale + MAP_SCALE_STEP);
-            _applyPadMapTransform(); return;
+             _applyMapTransformToContainer('pad-map-container'); return;
         }
         if (key === '-') {
             _mapScale = Math.max(MAP_SCALE_MIN, _mapScale - MAP_SCALE_STEP);
-            _applyPadMapTransform(); return;
+             _applyMapTransformToContainer('pad-map-container'); return;
+        }
+        if (key === '0') {
+            resetMapState();
+            _applyMapTransformToContainer('pad-map-container');
+            return;
         }
     }
 }
@@ -199,7 +204,7 @@ async function _openPowerMap() {
 
     const commands = document.createElement('div');
     commands.className   = 'pad-commands';
-    commands.textContent = '[R] Return    [X] Close    Arrow keys pan    [+][-] zoom';
+    commands.textContent = '[R] Return    [X] Close    Arrow keys pan    [+][-] zoom    [0] Reset view';
     inner.appendChild(commands);
 
     const mapContainer = document.createElement('div');
@@ -217,30 +222,13 @@ async function _openPowerMap() {
             _mapPanX  = 0;
             _mapPanY  = 0;
             _mapScale = 0.35;
-            _applyPadMapTransform();
+            _applyMapTransformToContainer('pad-map-container');
             await _updateRoomColours();
+            _initMapHovers();
         }
     } catch (e) {
         mapContainer.textContent = 'Map unavailable.';
     }
-}
-
-function _applyPadMapTransform() {
-    if (!_mapSvgEl) return;
-    const container = document.getElementById('pad-map-container');
-    if (container) {
-        const cw = container.clientWidth;
-        const ch = container.clientHeight;
-        const sw = _mapSvgEl.viewBox.baseVal.width  * _mapScale;
-        const sh = _mapSvgEl.viewBox.baseVal.height * _mapScale;
-        const minX = -(sw - cw * 0.25);
-        const maxX =   cw * 0.75;
-        const minY = -(sh - ch * 0.25);
-        const maxY =   ch * 0.75;
-        _mapPanX = Math.max(minX, Math.min(maxX, _mapPanX));
-        _mapPanY = Math.max(minY, Math.min(maxY, _mapPanY));
-    }
-    _mapSvgEl.style.transform = `translate(${_mapPanX}px, ${_mapPanY}px) scale(${_mapScale})`;
 }
 
 // ── Circuit diagram ───────────────────────────────────────────
