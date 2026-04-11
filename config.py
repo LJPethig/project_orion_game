@@ -46,6 +46,9 @@ INITIAL_STATE_JSON_PATH   = os.path.join('data', 'ship', 'structure', 'initial_s
 SHIP_ITEMS_JSON_PATH      = os.path.join('data', 'ship', 'structure', 'initial_ship_items.json')
 PLAYER_ITEMS_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'player_items.json')
 REPAIR_PROFILES_PATH      = os.path.join('data', 'repair', 'repair_profiles.json')
+CARGO_CONTAINERS_JSON_PATH = os.path.join('data', 'items', 'cargo_containers.json')
+PALLET_PLATFORMS_JSON_PATH = os.path.join('data', 'items', 'pallet_platforms.json')
+CARGO_JSON_PATH = os.path.join('data', 'ship', 'structure', 'initial_cargo.json')
 
 ITEM_FILES = [
     os.path.join('data', 'items', 'tools.json'),

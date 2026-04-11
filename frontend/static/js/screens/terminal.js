@@ -49,6 +49,8 @@ function openTerminalPanel(terminalData) {
 
     if (terminalData.terminal_type === 'storage_room') {
         _openStorageManifest();
+    } else if (terminalData.terminal_type === 'cargo_bay') {
+        _openCargoManifest();
     } else {
         _renderTerminal();
     }
@@ -262,6 +264,25 @@ function _handleMenuKey(key) {
         if (key === 'r' && _storageSelectedIndex >= 0 && _storageManifestData.length > 0) {
             const entry = _storageManifestData[_storageSelectedIndex];
             if (entry) _retrieveFromStorage(entry.instance_id);
+        }
+        return;
+    }
+
+    // ── Cargo bay terminal — X to exit, arrows to navigate ───
+    if (currentTerminal && currentTerminal.terminal_type === 'cargo_bay') {
+        if (key === 'x') {
+            const name = currentTerminal.terminal_name;
+            closeTerminalPanel();
+            clearResponse();
+            appendResponse(`You close the ${name}.`);
+        }
+        if (key === 'arrowdown') {
+            const next = Math.min(_cargoSelectedIndex + 1, _cargoManifestData.length - 1);
+            _cargoSelectItem(next);
+        }
+        if (key === 'arrowup') {
+            const prev = Math.max(_cargoSelectedIndex - 1, 0);
+            _cargoSelectItem(prev);
         }
         return;
     }
@@ -553,4 +574,100 @@ async function _retrieveFromStorage(instanceId) {
     if (_storageManifestData.length > 0) {
         _storageSelectItem(Math.min(savedIndex, _storageManifestData.length - 1));
     }
+}
+
+// ── Cargo manifest ────────────────────────────────────────────
+
+let _cargoManifestData  = [];
+let _cargoSelectedIndex = -1;
+
+async function _openCargoManifest() {
+    const inner = document.getElementById('terminal-panel-inner');
+    inner.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.className   = 'term-title';
+    title.textContent = currentTerminal.terminal_name;
+    inner.appendChild(title);
+
+    const commands = document.createElement('div');
+    commands.className   = 'term-submenu-commands';
+    commands.textContent = 'UP/DOWN arrow keys to navigate    [X] Exit';
+    inner.appendChild(commands);
+
+    const list = document.createElement('div');
+    list.className = 'term-manifest-list';
+    list.id        = 'term-cargo-list';
+    inner.appendChild(list);
+
+    await _renderCargoManifest();
+}
+
+async function _renderCargoManifest() {
+    const data = await API.getCargoManifest();
+    const list = document.getElementById('term-cargo-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const containers     = data.containers || [];
+    const pallets        = data.pallets    || [];
+    const visiblePallets = pallets.filter(p => p.attached_items && p.attached_items.length > 0);
+
+    _cargoManifestData  = [...containers, ...visiblePallets];
+    _cargoSelectedIndex = _cargoManifestData.length > 0 ? 0 : -1;
+
+    if (_cargoManifestData.length === 0) {
+        const empty = document.createElement('div');
+        empty.className   = 'term-content-line';
+        empty.textContent = 'No cargo on manifest.';
+        empty.style.paddingLeft = '24px';
+        list.appendChild(empty);
+        return;
+    }
+
+    containers.forEach((c, idx) => {
+        const row = document.createElement('div');
+        row.className = 'term-manifest-item' + (idx === _cargoSelectedIndex ? ' selected' : '');
+        row.dataset.idx = idx;
+
+        const ref = document.createElement('span');
+        ref.textContent = c.name;
+
+        const contents = document.createElement('span');
+        contents.textContent = c.contents.length > 0
+            ? c.contents.join(', ')
+            : 'Empty';
+
+        row.appendChild(ref);
+        row.appendChild(contents);
+        row.addEventListener('click', () => _cargoSelectItem(idx));
+        list.appendChild(row);
+    });
+
+    visiblePallets.forEach((p, i) => {
+        const idx = containers.length + i;
+        const row = document.createElement('div');
+        row.className = 'term-manifest-item' + (idx === _cargoSelectedIndex ? ' selected' : '');
+        row.dataset.idx = idx;
+
+        const ref = document.createElement('span');
+        ref.textContent = p.name;
+
+        const items = document.createElement('span');
+        items.textContent = p.attached_items.map(a => `${a.item} x${a.quantity}`).join(', ');
+
+        row.appendChild(ref);
+        row.appendChild(items);
+        row.addEventListener('click', () => _cargoSelectItem(idx));
+        list.appendChild(row);
+    });
+}
+
+function _cargoSelectItem(idx) {
+    _cargoSelectedIndex = idx;
+    document.querySelectorAll('#term-cargo-list .term-manifest-item').forEach(row => {
+        row.classList.toggle('selected', parseInt(row.dataset.idx) === idx);
+    });
+    const selectedEl = document.querySelector('#term-cargo-list .term-manifest-item.selected');
+    if (selectedEl) selectedEl.scrollIntoView({ block: 'nearest' });
 }

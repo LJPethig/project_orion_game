@@ -283,3 +283,11 @@ def storage_manifest():
     return jsonify({
         'manifest': game_manager.get_storage_manifest()
     })
+
+@game_bp.route("/cargo/manifest", methods=["GET"])
+def cargo_manifest():
+    """Return the cargo bay manifest for terminal display."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    return jsonify(game_manager.cargo_manifest)

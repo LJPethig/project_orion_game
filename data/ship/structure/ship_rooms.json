@@ -602,7 +602,7 @@
     "description": [
       "The main cargo storage area, stacked with containers and crates.",
       "Loading ramps and cargo handlers stand idle. The bay is spacious but dimly lit to save power.",
-      "On the left wall next to the *airlock* door is an %EVA equipment locker%. On the opposite wall you see a %large cabinet%, a #shelving unit# and the !storage inventory terminal!",
+      "On the left wall next to the *airlock* door is an %EVA equipment locker%. On the opposite wall you see a %large cabinet%, a #shelving unit# and the !cargo manifest terminal!",
       "A large door leads back to *sub corridor CH-2*. At the opposite end of the bay is a hydraulically operated *external door*"
     ],
     "dimensions_m": {
@@ -631,7 +631,7 @@
       }
     },
     "fixed_objects": [
-      "cargo_bay_storage_inventory_terminal",
+      "cargo_bay_cargo_manifest_terminal",
       "cargo_bay_eva_equipment_locker",
       "cargo_bay_large_cabinet",
       "cargo_bay_shelving_unit"

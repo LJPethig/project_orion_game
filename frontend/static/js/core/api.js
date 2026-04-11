@@ -129,4 +129,9 @@ const API = {
         return r.json();
     },
 
+    async getCargoManifest() {
+        const r = await fetch('/api/game/cargo/manifest');
+        return r.json();
+    },
+
 };

@@ -32,7 +32,7 @@
   {
     "id": "storage_room_inventory_terminal",
     "name": "Inventory Terminal",
-    "description": "An inventory management terminal for the ship's storage room.",
+    "description": "A compact inventory management terminal, built into the rear wall beside the automated storage facility.",
     "keywords": ["terminal", "storage terminal", "storage computer", "storage room terminal", "storage room computer", "inventory terminal", "inventory computer", "storage facility terminal", "storage inventory terminal", "storage management terminal", "storage facility computer", "storage inventory computer", "storage management computer", "computer"],
     "terminal_type": "storage_room",
     "menu": [
@@ -40,11 +40,11 @@
     ]
   },
   {
-    "id": "cargo_bay_storage_inventory_terminal",
-    "name": "Storage Terminal",
-    "description": "An inventory management terminal for tracking ship cargo and stores.",
-    "keywords": ["terminal", "cargo bay terminal", "cargo bay computer", "cargo storage terminal", "cargo storage computer", "storage terminal", "inventory terminal", "inventory management terminal", "storage computer", "inventory computer", "inventory management computer", "computer"],
-    "terminal_type": "storage",
+    "id": "cargo_bay_cargo_manifest_terminal",
+    "name": "Inventory Terminal",
+    "description": "A ruggedised cargo manifest terminal, mounted to the wall beside the shelving unit. The screen is scratched but readable.",
+    "keywords": ["terminal", "cargo bay terminal", "manifest terminal", "manifest computer", "cargo bay computer", "cargo storage terminal", "cargo storage computer", "storage terminal", "inventory terminal", "inventory management terminal", "storage computer", "inventory computer", "inventory management computer", "computer"],
+    "terminal_type": "cargo_bay",
     "menu": [
       {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]

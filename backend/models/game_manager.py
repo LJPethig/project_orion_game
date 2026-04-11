@@ -10,7 +10,8 @@ from backend.models.ship import Ship
 from backend.models.player import Player
 from backend.systems.electrical.electrical_system import ElectricalSystem
 from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
-                   PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH
+                   PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH, \
+                   CARGO_JSON_PATH
 
 
 class GameManager:
@@ -27,6 +28,7 @@ class GameManager:
         self.tablet_notes = {}  # dict keyed by panel_id → note dict
         self.datapad_suppressed = False
         self.storage_manifest = {}  # instance_id → PortableItem
+        self.cargo_manifest = {'containers': [], 'pallets': []}  # loaded from initial_cargo.json
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
@@ -38,6 +40,7 @@ class GameManager:
         self.current_room = self.ship.get_room(STARTING_ROOM)
         self._load_player_items()
         self._load_storage_facility()
+        self._load_cargo()
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
         self.electrical_system.update_battery_states()
         self.initialised  = True
@@ -106,6 +109,20 @@ class GameManager:
                 continue
             item = instantiate_item(dict(item_data))
             self.storage_manifest[item.instance_id] = item
+
+    def _load_cargo(self) -> None:
+        """Load initial cargo manifest from initial_cargo.json."""
+        try:
+            with open(CARGO_JSON_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load initial_cargo.json: {e}")
+            return
+
+        self.cargo_manifest = {
+            'containers': data.get('containers', []),
+            'pallets': data.get('pallets', []),
+        }
 
     # ── Card access (real inventory checks) ──────────────────
 

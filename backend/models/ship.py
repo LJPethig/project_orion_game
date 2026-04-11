@@ -8,11 +8,12 @@ import json
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
-from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal
+from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal, PalletContainer, Pallet
 from backend.loaders.item_loader import instantiate_item
 from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, DOOR_PANEL_TYPES_PATH, \
                    INITIAL_STATE_JSON_PATH, TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, \
-                   SURFACES_JSON_PATH, SHIP_ITEMS_JSON_PATH
+                   SURFACES_JSON_PATH, SHIP_ITEMS_JSON_PATH, CARGO_CONTAINERS_JSON_PATH,  \
+                   PALLET_PLATFORMS_JSON_PATH
 
 
 class Ship:
@@ -150,9 +151,11 @@ class Ship:
         definitions = {}   # id → (data_dict, class)
 
         file_class_map = [
-            (TERMINALS_JSON_PATH,     Terminal),
+            (TERMINALS_JSON_PATH, Terminal),
             (STORAGE_UNITS_JSON_PATH, StorageUnit),
-            (SURFACES_JSON_PATH,      Surface),
+            (SURFACES_JSON_PATH, Surface),
+            (CARGO_CONTAINERS_JSON_PATH, PalletContainer),
+            (PALLET_PLATFORMS_JSON_PATH, Pallet),
         ]
 
         for path, cls in file_class_map:

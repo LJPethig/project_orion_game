@@ -1,0 +1,18 @@
+[
+  {
+    "id": "pallet_platform_single",
+    "name": "Single Pallet Platform",
+    "description": "A heavy duty steel pallet platform, 1500x1200x150mm. Requires cargo handler to move.",
+    "keywords": ["pallet", "pallet platform", "single pallet", "single platform"],
+    "movement_equipment": "cargo_handler",
+    "stacks_on": []
+  },
+  {
+    "id": "pallet_platform_double",
+    "name": "Double Pallet Platform",
+    "description": "A heavy duty steel pallet platform, 3000x1200x150mm. Requires cargo handler to move.",
+    "keywords": ["pallet", "pallet platform", "double pallet", "double platform"],
+    "movement_equipment": "cargo_handler",
+    "stacks_on": []
+  }
+]

@@ -1,15 +1,16 @@
 # backend/models/interactable.py
 """
 Interactable object hierarchy.
-Ported from Project Dark Star — Arcade dependencies removed.
 
     Interactable
-    ├── PortableItem      — takeable, carriable, equippable
-    │   └── UtilityBelt   — wearable belt, accepts clipped attachments (PAM etc.)
-    └── FixedObject       — permanently attached to a room, cannot be taken
-        ├── StorageUnit   — fixed container with open/close state, holds PortableItems
-        ├── Surface       — always-open surface (shelf, bench, table), holds PortableItems
-        └── Terminal      — computer terminal (future: login, commands, access levels)
+    ├── PortableItem        — takeable, carriable, equippable
+    │   └── UtilityBelt     — wearable belt, accepts clipped attachments (PAM etc.)
+    ├── FixedObject         — permanently attached to a room, cannot be taken
+    │   ├── StorageUnit     — fixed container with open/close state, holds PortableItems
+    │   │   └── PalletContainer — moveable container, requires equipment to move
+    │   ├── Surface         — always-open surface, holds PortableItems
+    │   │   └── Pallet      — moveable flat platform, requires equipment to move
+    │   └── Terminal        — computer terminal
 """
 
 from typing import List, Optional, Any
@@ -187,3 +188,45 @@ class Terminal(FixedObject):
         self.powered: bool = True  # Future: tied to electrical system
         self.terminal_type: str = getattr(self, 'terminal_type', 'generic')
         self.menu: list = getattr(self, 'menu', [{"label": "Exit", "action": "exit"}])
+
+
+class PalletContainer(StorageUnit):
+    """
+    A moveable cargo container — subclass of StorageUnit.
+    Cannot be carried by hand. Requires equipment to move between rooms.
+
+    Sizes:
+      large  — 1200x800x900mm, cargo handler only
+      medium — 600x800x900mm,  cargo handler only, sits on pallet platform
+      small  — 600x400x900mm,  sack barrow or cargo handler, sits on pallet platform
+
+    movement_equipment: 'cargo_handler' | 'sack_barrow'
+    moveable: True — can be relocated between rooms by appropriate equipment
+    pallet: True — flagged for auto-logging to cargo_manifest at game init
+    declared_value: int — credits, 0 until trading phase assigns real values
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.moveable:            bool  = True
+        self.container_size:      str   = getattr(self, 'container_size', 'small')
+        self.movement_equipment:  str   = getattr(self, 'movement_equipment', 'sack_barrow')
+        self.declared_value:      int   = getattr(self, 'declared_value', 0)
+        self.pallet:              bool  = getattr(self, 'pallet', False)
+
+
+class Pallet(Surface):
+    """
+    A moveable flat pallet platform — subclass of Surface.
+    Cannot be carried by hand. Requires cargo handler to move.
+    Items and containers sit on top — no open/close state, inherited from Surface.
+
+    Dimensions: 1200x800x150mm
+    movement_equipment: always 'cargo_handler'
+    moveable: True — can be relocated by cargo handler
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.moveable:           bool = True
+        self.movement_equipment: str  = 'cargo_handler'

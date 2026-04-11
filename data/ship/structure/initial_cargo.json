@@ -1,0 +1,117 @@
+{
+  "containers": [
+    {
+      "instance_id": "small_container_001",
+      "name": "EVT-SC-001",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "pallet_single_001",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_002",
+      "name": "EVT-SC-002",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "pallet_single_001",
+      "contents": []
+    },
+    {
+      "instance_id": "medium_container_001",
+      "name": "EVT-MC-001",
+      "type_id": "medium_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "pallet_single_001",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_003",
+      "name": "EVT-SC-003",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "small_container_001",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_004",
+      "name": "EVT-SC-004",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "small_container_002",
+      "contents": []
+    },
+    {
+      "instance_id": "medium_container_002",
+      "name": "EVT-MC-002",
+      "type_id": "medium_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "pallet_single_002",
+      "contents": []
+    },
+    {
+      "instance_id": "medium_container_003",
+      "name": "EVT-MC-003",
+      "type_id": "medium_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "pallet_single_002",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_005",
+      "name": "EVT-SC-005",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "medium_container_002",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_006",
+      "name": "EVT-SC-006",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "medium_container_002",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_007",
+      "name": "EVT-SC-007",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "medium_container_003",
+      "contents": []
+    },
+    {
+      "instance_id": "small_container_008",
+      "name": "EVT-SC-008",
+      "type_id": "small_container",
+      "room_id": "cargo_bay",
+      "stacked_on": "medium_container_003",
+      "contents": []
+    }
+  ],
+  "pallets": [
+    {
+      "instance_id": "pallet_single_001",
+      "name": "EVT-PP-001",
+      "type_id": "pallet_platform_single",
+      "room_id": "cargo_bay",
+      "attached_items": []
+    },
+    {
+      "instance_id": "pallet_single_002",
+      "name": "EVT-PP-002",
+      "type_id": "pallet_platform_single",
+      "room_id": "cargo_bay",
+      "attached_items": []
+    },
+    {
+      "instance_id": "pallet_single_003",
+      "name": "EVT-PP-003",
+      "type_id": "pallet_platform_single",
+      "room_id": "cargo_bay",
+      "attached_items": [
+        {"item": "water_recycler", "quantity": 1}
+      ]
+    }
+  ]
+}
