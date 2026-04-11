@@ -263,4 +263,7 @@ async function _storeItem(instanceId) {
     if (selectedItemList.length > 0) {
         _selectItem(Math.min(savedIndex, selectedItemList.length - 1));
     }
+    if (typeof _renderStorageManifest === 'function' && document.getElementById('term-manifest-list')) {
+        await _renderStorageManifest();
+    }
 }

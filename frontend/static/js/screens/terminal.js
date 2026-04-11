@@ -259,6 +259,10 @@ function _handleMenuKey(key) {
             const prev = Math.max(_storageSelectedIndex - 1, 0);
             _storageSelectItem(prev);
         }
+        if (key === 'r' && _storageSelectedIndex >= 0 && _storageManifestData.length > 0) {
+            const entry = _storageManifestData[_storageSelectedIndex];
+            if (entry) _retrieveFromStorage(entry.instance_id);
+        }
         return;
     }
 
@@ -473,7 +477,7 @@ async function _openStorageManifest() {
 
     const commands = document.createElement('div');
     commands.className   = 'term-submenu-commands';
-    commands.textContent = 'Arrow keys to navigate    [X] Exit';
+    commands.textContent = 'UP/DOWN arrow keys to navigate    [R] Retrieve    [X] Exit';
     inner.appendChild(commands);
 
     const list = document.createElement('div');
@@ -540,8 +544,13 @@ function _storageSelectItem(idx) {
 }
 
 async function _retrieveFromStorage(instanceId) {
+    const savedIndex = _storageSelectedIndex;
     const result = await API.retrieveItem(instanceId);
+    clearResponse();
     handleResult(result);
     refreshInventoryIfOpen();
     await _renderStorageManifest();
+    if (_storageManifestData.length > 0) {
+        _storageSelectItem(Math.min(savedIndex, _storageManifestData.length - 1));
+    }
 }
