@@ -220,8 +220,8 @@
     "name": "Storage Room",
     "target_temperature": "cool",
     "description": [
-      "The ships designated small storage room, a %large storage unit% is attached to the wall, and a %small cabinet% is mounted next to it.",
-      "The lighting here is harsh and functional. An automated !storage inventory terminal! is built into rear wall next to a #metal bench#. A hatch leads back to the *recreation room*."
+      "The ships designated storage room for spare parts and crew consumables.",
+      "An automated storage facility is built into the rear wall this can be accessed via the integrated !inventory terminal!. Opposite to this is a #metal bench#. A hatch leads back to the *recreation room*."
     ],
     "dimensions_m": {
       "length": 3.5,
@@ -240,9 +240,7 @@
       }
     },
     "fixed_objects": [
-      "storage_room_storage_inventory_terminal",
-      "storage_room_small_cabinet",
-      "storage_room_large_storage_unit",
+      "storage_room_inventory_terminal",
       "storage_room_metal_bench"
     ],
     "background_image": "images/rooms/storage.png"

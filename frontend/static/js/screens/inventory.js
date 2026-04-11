@@ -184,6 +184,9 @@ function _renderDetail(col, entry) {
             _addAction(actions, 'Wear', () => _invCommand(`wear ${itemRef}`));
         }
         _addAction(actions, 'Drop', () => _invCommand(`drop ${itemRef}`));
+        if (currentRoomId === 'storage_room') {
+            _addAction(actions, 'Store', () => _storeItem(item.instance_id));
+        }
     } else if (entry.type === 'equipped') {
         const itemRef = item.instance_id || item.id;
         _addAction(actions, 'Remove', () => _invCommand(`remove ${itemRef}`));
@@ -248,5 +251,16 @@ function closeInventoryIfOpen() {
     if (panel && panel.classList.contains('open')) {
         panel.classList.remove('open');
         if (tab) tab.classList.remove('active');
+    }
+}
+
+async function _storeItem(instanceId) {
+    const savedIndex = selectedItemIndex;
+    clearResponse();
+    const result = await API.storeItem(instanceId);
+    handleResult(result);
+    await renderInventory();
+    if (selectedItemList.length > 0) {
+        _selectItem(Math.min(savedIndex, selectedItemList.length - 1));
     }
 }

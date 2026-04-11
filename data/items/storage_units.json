@@ -32,22 +32,6 @@
     "open_description": "The cabinet doors slide open, revealing long shelves."
   },
   {
-    "id": "storage_room_small_cabinet",
-    "name": "Small Cabinet",
-    "description": "A compact wall-mounted cabinet.",
-    "keywords": ["cabinet", "small cabinet", "wall cabinet", "small wall cabinet"],
-    "capacity_mass": 80.0,
-    "open_description": "The door swings open to reveal several shelves."
-  },
-  {
-    "id": "storage_room_large_storage_unit",
-    "name": "Large Storage Unit",
-    "description": "A large wall-mounted storage unit with heavy-duty shelving.",
-    "keywords": ["storage unit", "large storage unit", "storage", "wall unit", "large wall unit"],
-    "capacity_mass": 200.0,
-    "open_description": "The twin doors swing open to reveal multiple shelves and parts bins."
-  },
-  {
     "id": "engineering_tool_storage_cabinet",
     "name": "Tool Storage Cabinet",
     "description": "A professional-grade cabinet for organising hand tools and diagnostic equipment.",

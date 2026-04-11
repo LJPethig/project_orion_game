@@ -106,4 +106,27 @@ const API = {
         return r.json();
     },
 
+    async storeItem(instance_id) {
+        const r = await fetch('/api/game/storage/store', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ instance_id }),
+        });
+        return r.json();
+    },
+
+    async retrieveItem(instance_id) {
+        const r = await fetch('/api/game/storage/retrieve', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ instance_id }),
+        });
+        return r.json();
+    },
+
+    async getStorageManifest() {
+        const r = await fetch('/api/game/storage/manifest');
+        return r.json();
+    },
+
 };

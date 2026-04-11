@@ -46,7 +46,12 @@ function isTerminalSessionActive() {
 function openTerminalPanel(terminalData) {
     currentTerminal = terminalData;
     terminalSubMenu = null;
-    _renderTerminal();
+
+    if (terminalData.terminal_type === 'storage_room') {
+        _openStorageManifest();
+    } else {
+        _renderTerminal();
+    }
 
     // Show TERM tab, hide PAD tab — mutually exclusive
     const tab = document.getElementById('tab-term');
@@ -238,6 +243,25 @@ function _typewriteLines(lineDivs, onComplete) {
 // ── Menu interaction ──────────────────────────────────────────
 
 function _handleMenuKey(key) {
+    // ── Storage terminal — X to exit, arrows to navigate ─────
+    if (currentTerminal && currentTerminal.terminal_type === 'storage_room') {
+        if (key === 'x') {
+            const name = currentTerminal.terminal_name;
+            closeTerminalPanel();
+            clearResponse();
+            appendResponse(`You close the ${name}.`);
+        }
+        if (key === 'arrowdown') {
+            const next = Math.min(_storageSelectedIndex + 1, _storageManifestData.length - 1);
+            _storageSelectItem(next);
+        }
+        if (key === 'arrowup') {
+            const prev = Math.max(_storageSelectedIndex - 1, 0);
+            _storageSelectItem(prev);
+        }
+        return;
+    }
+
     if (_typewriterActive) return;
 
     const menu = terminalSubMenu ? null : currentTerminal.menu;
@@ -431,4 +455,93 @@ function _terminalKeyHandler(e) {
 
     const key = e.key.toLowerCase();
     _handleMenuKey(key);
+}
+
+// ── Storage manifest ──────────────────────────────────────────
+
+let _storageManifestData  = [];
+let _storageSelectedIndex = -1;
+
+async function _openStorageManifest() {
+    const inner = document.getElementById('terminal-panel-inner');
+    inner.innerHTML = '';
+
+    const title = document.createElement('div');
+    title.className   = 'term-title';
+    title.textContent = currentTerminal.terminal_name;
+    inner.appendChild(title);
+
+    const commands = document.createElement('div');
+    commands.className   = 'term-submenu-commands';
+    commands.textContent = 'Arrow keys to navigate    [X] Exit';
+    inner.appendChild(commands);
+
+    const list = document.createElement('div');
+    list.className = 'term-manifest-list';
+    list.id        = 'term-manifest-list';
+    inner.appendChild(list);
+
+    await _renderStorageManifest();
+}
+
+async function _renderStorageManifest() {
+    const data = await API.getStorageManifest();
+    _storageManifestData  = data.manifest || [];
+    _storageSelectedIndex = _storageManifestData.length > 0 ? 0 : -1;
+
+    const list = document.getElementById('term-manifest-list');
+    if (!list) return;
+    list.innerHTML = '';
+
+    if (_storageManifestData.length === 0) {
+        const empty = document.createElement('div');
+        empty.className   = 'term-content-line';
+        empty.textContent = 'No items are currently stored or the database is corrupted.';
+        empty.style.paddingLeft = '24px';
+        list.appendChild(empty);
+        return;
+    }
+
+    _storageManifestData.forEach((entry, idx) => {
+        const row = document.createElement('div');
+        row.className = 'term-manifest-item' + (idx === _storageSelectedIndex ? ' selected' : '');
+        row.dataset.idx = idx;
+
+        const name = document.createElement('span');
+        name.textContent = entry.display_name;
+
+        const qty = document.createElement('span');
+        qty.textContent = `x${entry.quantity}`;
+
+        const btn = document.createElement('button');
+        btn.className   = 'term-manifest-retrieve';
+        btn.textContent = 'RETRIEVE';
+        btn.addEventListener('click', () => _retrieveFromStorage(entry.instance_id));
+
+        row.appendChild(name);
+        row.appendChild(qty);
+        row.appendChild(btn);
+        row.addEventListener('click', () => _storageSelectItem(idx));
+        list.appendChild(row);
+    });
+}
+
+function _storageSelectItem(idx) {
+    _storageSelectedIndex = idx;
+    let selectedEl = null;
+    document.querySelectorAll('.term-manifest-item').forEach(row => {
+        const isSelected = parseInt(row.dataset.idx) === idx;
+        row.classList.toggle('selected', isSelected);
+        if (isSelected) selectedEl = row;
+    });
+    if (selectedEl) {
+        selectedEl.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+async function _retrieveFromStorage(instanceId) {
+    const result = await API.retrieveItem(instanceId);
+    handleResult(result);
+    refreshInventoryIfOpen();
+    await _renderStorageManifest();
 }

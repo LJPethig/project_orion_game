@@ -30,11 +30,11 @@
     ]
   },
   {
-    "id": "storage_room_storage_inventory_terminal",
-    "name": "Storage Terminal",
-    "description": "An inventory management terminal for tracking ship cargo and stores.",
+    "id": "storage_room_inventory_terminal",
+    "name": "Inventory Terminal",
+    "description": "An inventory management terminal for the ship's storage room.",
     "keywords": ["terminal", "storage terminal", "storage computer", "storage room terminal", "storage room computer", "inventory terminal", "inventory computer", "storage facility terminal", "storage inventory terminal", "storage management terminal", "storage facility computer", "storage inventory computer", "storage management computer", "computer"],
-    "terminal_type": "storage",
+    "terminal_type": "storage_room",
     "menu": [
       {"label": "[X] Exit", "action": "exit", "key": "x"}
     ]

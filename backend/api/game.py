@@ -241,3 +241,45 @@ def terminal_close():
     if game_manager.initialised:
         game_manager.datapad_suppressed = False
     return jsonify({"success": True})
+
+@game_bp.route("/storage/store", methods=["POST"])
+def storage_store():
+    """Store a carried item in the automated storage facility."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    from backend.handlers.storage_handler import StorageHandler
+    data = request.get_json()
+    instance_id = data.get('instance_id')
+    if not instance_id:
+        return jsonify({"error": "Missing instance_id"}), 400
+
+    result = StorageHandler().handle_store(instance_id)
+    return jsonify(result)
+
+
+@game_bp.route("/storage/retrieve", methods=["POST"])
+def storage_retrieve():
+    """Retrieve a single item from the automated storage facility."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    from backend.handlers.storage_handler import StorageHandler
+    data = request.get_json()
+    instance_id = data.get('instance_id')
+    if not instance_id:
+        return jsonify({"error": "Missing instance_id"}), 400
+
+    result = StorageHandler().handle_retrieve(instance_id)
+    return jsonify(result)
+
+
+@game_bp.route("/storage/manifest", methods=["GET"])
+def storage_manifest():
+    """Return the storage facility manifest for terminal display."""
+    if not game_manager.initialised:
+        return jsonify({"error": "Game not initialised"}), 400
+
+    return jsonify({
+        'manifest': game_manager.get_storage_manifest()
+    })

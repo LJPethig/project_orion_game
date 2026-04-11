@@ -10,7 +10,7 @@ from backend.models.ship import Ship
 from backend.models.player import Player
 from backend.systems.electrical.electrical_system import ElectricalSystem
 from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
-                   PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH
+                   PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH
 
 
 class GameManager:
@@ -26,6 +26,7 @@ class GameManager:
         self.ship_log = []  # list of timestamped log entry strings
         self.tablet_notes = {}  # dict keyed by panel_id → note dict
         self.datapad_suppressed = False
+        self.storage_manifest = {}  # instance_id → PortableItem
 
     def new_game(self) -> None:
         """Initialise a new game. Resets all state."""
@@ -36,6 +37,7 @@ class GameManager:
         self.player       = Player(PLAYER_NAME)
         self.current_room = self.ship.get_room(STARTING_ROOM)
         self._load_player_items()
+        self._load_storage_facility()
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
         self.electrical_system.update_battery_states()
         self.initialised  = True
@@ -80,6 +82,30 @@ class GameManager:
                 setattr(self.player, slot_attr, item)
             else:
                 print(f"Warning: player_items.json references unknown slot '{slot}'")
+
+    def _load_storage_facility(self) -> None:
+        """
+        Load initial storage facility contents from ship_items.json.
+        Instantiates items and populates storage_manifest directly.
+        """
+        from backend.loaders.item_loader import load_item_registry, instantiate_item
+
+        try:
+            with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except Exception as e:
+            print(f"Warning: Could not load ship_items.json for storage facility: {e}")
+            return
+
+        registry = load_item_registry()
+
+        for item_id in data.get('storage_facility', []):
+            item_data = registry.get(item_id)
+            if not item_data:
+                print(f"Warning: storage_facility references unknown item '{item_id}'")
+                continue
+            item = instantiate_item(dict(item_data))
+            self.storage_manifest[item.instance_id] = item
 
     # ── Card access (real inventory checks) ──────────────────
 
@@ -164,6 +190,36 @@ class GameManager:
     def delete_tablet_note(self, panel_id: str) -> None:
         """Remove a tablet note when repair is complete."""
         self.tablet_notes.pop(panel_id, None)
+
+    # ── Storage facility ──────────────────────────────────────
+
+    def store_item(self, item) -> None:
+        """Remove item from player inventory and add to storage manifest."""
+        self.player.remove_from_inventory(item)
+        self.storage_manifest[item.instance_id] = item
+
+    def retrieve_item(self, instance_id: str):
+        """
+        Remove a single item from the storage manifest by instance_id.
+        Returns the PortableItem, or None if not found.
+        """
+        return self.storage_manifest.pop(instance_id, None)
+
+    def get_storage_manifest(self) -> list:
+        """
+        Return storage manifest grouped by display_name for terminal display.
+        Each entry: {'display_name': str, 'quantity': int, 'instance_id': str}
+        instance_id is one representative from the group — used by retrieve button.
+        Items sorted alphabetically by display_name.
+        """
+        groups = {}
+        for item in self.storage_manifest.values():
+            name = item.display_name()
+            if name not in groups:
+                groups[name] = {'display_name': name, 'quantity': 0, 'instance_id': item.instance_id}
+            groups[name]['quantity'] += 1
+
+        return sorted(groups.values(), key=lambda x: x['display_name'])
 
 # Single shared instance — imported by all API routes and handlers
 game_manager = GameManager()

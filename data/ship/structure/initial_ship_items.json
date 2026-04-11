@@ -1,4 +1,33 @@
 {
+  "storage_facility": [
+    "wire_low_voltage",
+    "wire_high_voltage",
+    "wire_optical",
+    "4_pin_interconnect",
+    "panel_screen",
+    "12_pin_interconnect",
+    "22_pin_interconnect",
+    "power_regulator",
+    "wire_optical",
+    "4_pin_interconnect",
+    "panel_screen",
+    "12_pin_interconnect",
+    "22_pin_interconnect",
+    "power_regulator",
+    "relay_switch_array",
+    "id_card_scanner_head",
+    "q-emerald_door_logic_board",
+    "ts1500_door_logic_board",
+    "u-lock_door_logic_board",
+    "mag_boots",
+    "id_card_low_sec",
+    "flight_coveralls",
+    "mag_boots",
+    "pilot_jacket",
+    "eva_suit",
+    "eva_helmet",
+    "eva_boots"
+  ],
   "room_floor": [
     {
       "room_id": "cargo_bay",
@@ -15,37 +44,8 @@
       "items": ["scan_tool", "wrench", "power_screwdriver_set"]
     },
     {
-      "container_id": "engineering_large_parts_storage_unit",
-      "items": [
-        "electrical_service_kit",
-        {"id": "wire_low_voltage", "length_m": 0.05},
-        {"id": "wire_low_voltage", "length_m": 0.5},
-        {"id": "wire_low_voltage", "length_m": 0.5},
-        {"id": "wire_optical", "length_m": 8.0}
-      ]
-    },
-    {
       "container_id": "cargo_bay_eva_equipment_locker",
       "items": ["eva_suit", "eva_helmet", "eva_boots"]
-    },
-    {
-      "container_id": "storage_room_large_storage_unit",
-      "items": [
-        "socket_set_small",
-        "wire_low_voltage",
-        "wire_high_voltage",
-        "wire_optical",
-        "4_pin_interconnect",
-        "panel_screen",
-        "12_pin_interconnect",
-        "22_pin_interconnect",
-        "power_regulator",
-        "relay_switch_array",
-        "id_card_scanner_head",
-        "q-emerald_door_logic_board",
-        "ts1500_door_logic_board",
-        "u-lock_door_logic_board"
-      ]
     }
   ],
   "surfaces": [
@@ -56,6 +56,12 @@
     {
       "surface_id": "captains_quarters_metal_desk",
       "items": ["ships_datapad"]
+    },
+    {
+      "surface_id": "storage_room_metal_bench",
+      "items": [
+        "socket_set_small"
+      ]
     }
   ]
 }
