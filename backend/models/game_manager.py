@@ -55,12 +55,8 @@ class GameManager:
         """
         from backend.loaders.item_loader import load_item_registry, instantiate_item
 
-        try:
-            with open(PLAYER_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
-                player_data = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load player_items.json: {e}")
-            return
+        with open(PLAYER_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+            player_data = json.load(f)
 
         registry = load_item_registry()
 
@@ -93,12 +89,8 @@ class GameManager:
         """
         from backend.loaders.item_loader import load_item_registry, instantiate_item
 
-        try:
-            with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load ship_items.json for storage facility: {e}")
-            return
+        with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
         registry = load_item_registry()
 
@@ -115,22 +107,15 @@ class GameManager:
         Merges type definitions from cargo_containers.json and pallet_platforms.json
         so all type fields are available on each instance.
         """
-        try:
-            with open(CARGO_JSON_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load initial_cargo.json: {e}")
-            return
+        with open(CARGO_JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
         # Build type registry from both type definition files
         type_registry = {}
         for path in (CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH):
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    for entry in json.load(f):
-                        type_registry[entry['id']] = entry
-            except Exception as e:
-                print(f"Warning: Could not load type definitions from '{path}': {e}")
+            with open(path, 'r', encoding='utf-8') as f:
+                for entry in json.load(f):
+                    type_registry[entry['id']] = entry
 
         def _merge(instances):
             merged = []

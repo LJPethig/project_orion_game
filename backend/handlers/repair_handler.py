@@ -41,7 +41,11 @@ def calc_repair_real_seconds(game_minutes: int) -> int:
 
 
 def calc_diagnose_real_seconds(game_minutes: int) -> int:
-    """Real wait time for a diagnosis action, scaled to game time with cap."""
+    """Real wait time for a diagnosis action, scaled to game time with cap.
+    NOTE: Currently identical to calc_repair_real_seconds. Kept separate
+    in anticipation that diagnosis and repair may scale differently in future
+    (e.g. Phase 24 electrical repair). Revisit after Phase 24 is complete.
+    """
     total = round(REPAIR_TIME_BASE_SECONDS + (game_minutes / REPAIR_TIME_PIVOT_MINUTES) * REPAIR_TIME_SCALE_SECONDS)
     if total > REPAIR_TIME_CAP_SECONDS:
         total = REPAIR_TIME_CAP_SECONDS
