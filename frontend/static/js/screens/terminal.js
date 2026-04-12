@@ -609,11 +609,23 @@ async function _renderCargoManifest() {
     if (!list) return;
     list.innerHTML = '';
 
+    // Header row
+    const header = document.createElement('div');
+    header.className = 'term-manifest-header';
+    ['Container', 'Type', 'Contents'].forEach(label => {
+        const span = document.createElement('span');
+        span.textContent = label;
+        header.appendChild(span);
+    });
+    list.appendChild(header);
+
     const containers     = data.containers || [];
     const pallets        = data.pallets    || [];
     const visiblePallets = pallets.filter(p => p.attached_items && p.attached_items.length > 0);
 
     _cargoManifestData  = [...containers, ...visiblePallets];
+    const sizeOrder = { small: 0, medium: 1, large: 2 };
+    containers.sort((a, b) => (sizeOrder[a.container_size] ?? 99) - (sizeOrder[b.container_size] ?? 99));
     _cargoSelectedIndex = _cargoManifestData.length > 0 ? 0 : -1;
 
     if (_cargoManifestData.length === 0) {
@@ -633,12 +645,16 @@ async function _renderCargoManifest() {
         const ref = document.createElement('span');
         ref.textContent = c.name;
 
+        const type = document.createElement('span');
+        type.textContent = c.type_name || '';
+
         const contents = document.createElement('span');
         contents.textContent = c.contents.length > 0
             ? c.contents.join(', ')
             : 'Empty';
 
         row.appendChild(ref);
+        row.appendChild(type);
         row.appendChild(contents);
         row.addEventListener('click', () => _cargoSelectItem(idx));
         list.appendChild(row);
@@ -653,10 +669,14 @@ async function _renderCargoManifest() {
         const ref = document.createElement('span');
         ref.textContent = p.name;
 
+        const type = document.createElement('span');
+        type.textContent = p.type_name || '';
+
         const items = document.createElement('span');
         items.textContent = p.attached_items.map(a => `${a.item} x${a.quantity}`).join(', ');
 
         row.appendChild(ref);
+        row.appendChild(type);
         row.appendChild(items);
         row.addEventListener('click', () => _cargoSelectItem(idx));
         list.appendChild(row);

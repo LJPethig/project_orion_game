@@ -11,7 +11,7 @@ from backend.models.player import Player
 from backend.systems.electrical.electrical_system import ElectricalSystem
 from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
                    PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH, \
-                   CARGO_JSON_PATH
+                   CARGO_JSON_PATH, CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH
 
 
 class GameManager:
@@ -111,7 +111,10 @@ class GameManager:
             self.storage_manifest[item.instance_id] = item
 
     def _load_cargo(self) -> None:
-        """Load initial cargo manifest from initial_cargo.json."""
+        """Load initial cargo manifest from initial_cargo.json.
+        Merges type definitions from cargo_containers.json and pallet_platforms.json
+        so all type fields are available on each instance.
+        """
         try:
             with open(CARGO_JSON_PATH, 'r', encoding='utf-8') as f:
                 data = json.load(f)
@@ -119,9 +122,27 @@ class GameManager:
             print(f"Warning: Could not load initial_cargo.json: {e}")
             return
 
+        # Build type registry from both type definition files
+        type_registry = {}
+        for path in (CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH):
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    for entry in json.load(f):
+                        type_registry[entry['id']] = entry
+            except Exception as e:
+                print(f"Warning: Could not load type definitions from '{path}': {e}")
+
+        def _merge(instances):
+            merged = []
+            for instance in instances:
+                type_id = instance.get('type_id')
+                type_def = type_registry.get(type_id, {})
+                merged.append({**type_def, **instance})
+            return merged
+
         self.cargo_manifest = {
-            'containers': data.get('containers', []),
-            'pallets': data.get('pallets', []),
+            'containers': _merge(data.get('containers', [])),
+            'pallets': _merge(data.get('pallets', [])),
         }
 
     # ── Card access (real inventory checks) ──────────────────

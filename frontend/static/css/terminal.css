@@ -214,9 +214,22 @@
     letter-spacing: 0.5px;
     cursor: default;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 0.5fr auto;
+    grid-template-columns: 1.5fr 2fr 3fr;
     gap: 12px;
     align-items: center;
+}
+
+.term-manifest-header {
+    color: var(--col-term-text);
+    font-size: 11px;
+    padding: 4px 8px 8px 24px;
+    letter-spacing: 2px;
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 3fr;
+    gap: 12px;
+    border-bottom: 1px solid var(--col-term-border);
+    margin-bottom: 4px;
+    text-transform: uppercase;
 }
 
 .term-manifest-item.selected {
