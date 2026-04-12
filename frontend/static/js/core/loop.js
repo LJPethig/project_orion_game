@@ -75,6 +75,8 @@ const Loop = (() => {
         if (desc) desc.style.pointerEvents = 'none';
 
         setTimeout(async () => {
+            // unlockInput fires before the callback so the callback can chain a new lockInput()
+            // without it being immediately cancelled.
             unlockInput();
             if (onComplete) await onComplete();
         }, realSeconds * 1000);

@@ -113,7 +113,7 @@ class RepairHandler(BaseHandler):
                 f"to determine any required repairs."
             )
 
-        return self._begin_next_repair(panel, door, exit_label)
+        return self.begin_next_repair(panel, door, exit_label)
 
     def _resolve_target(self, args: str, broken: list, verb: str):
         """
@@ -167,7 +167,8 @@ class RepairHandler(BaseHandler):
     def _begin_diagnosis(self, panel, door, exit_label: str) -> dict:
         """
         Diagnosis stage — check tools and scan tool manual, return timed action.
-        broken_components is populated by diagnose_complete endpoint.
+        broken_components is populated here before the timer starts, so diagnosis
+        time reflects only what actually failed. diagnose_complete reads it back.
         """
         profile = self._profiles.get(panel.panel_type)
         if not profile:
@@ -280,7 +281,7 @@ class RepairHandler(BaseHandler):
 
     # ── Repair stage ──────────────────────────────────────────
 
-    def _begin_next_repair(self, panel, door, exit_label: str) -> dict:
+    def begin_next_repair(self, panel, door, exit_label: str) -> dict:
         """
         Repair stage — check all missing tools and parts across all remaining
         unrepaired components upfront. Only begins timed action when everything
@@ -526,7 +527,6 @@ class RepairHandler(BaseHandler):
             }
 
         # ── More components to repair ─────────────────────────
-        remaining = len(panel.broken_components) - len(panel.repaired_components)
         return {
             'response':        f"{item_name} replaced. Preparing next component.",
             'action_type':     'repair_complete',

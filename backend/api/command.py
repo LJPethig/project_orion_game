@@ -102,7 +102,7 @@ def _complete_door_action(door, door_action: str):
             'ship_time': game_manager.get_ship_time(),
         })
 
-        # 'open' — unlock and open
+    # 'open' — unlock and open
     door.unlock()
     door.open()
     return jsonify({
@@ -186,7 +186,7 @@ def repair_next():
     if not panel:
         return jsonify({'error': 'Panel not found'}), 400
 
-    result = repair_handler._begin_next_repair(panel, door, exit_label)
+    result = repair_handler.begin_next_repair(panel, door, exit_label)
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 

@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 19.0 — April 2026**
+**Version 19.1 — April 2026**
 
 ---
 
@@ -73,6 +73,11 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Item manufacturer/model fields: all items carry manufacturer, model, description with character ✅
 - Automated storage facility: store/retrieve via UI, manifest on GameManager, CRT terminal display ✅
 - Cargo bay manifest: container/pallet instance data, read-only CRT terminal display ✅
+- Door action distinction: `open` unlocks and opens, `unlock` unlocks only, `lock` locks ✅
+- Input locking during door image display — all paths covered ✅
+- Description panel click lockout during timed actions via pointer-events ✅
+- Ship log structured entries: timestamp, event, location, detail fields ✅
+- Messages system stub — datapad Messages menu functional, shows placeholder ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -207,7 +212,6 @@ START_DATE_TIME = (2276, 1, 1, 0, 0)
 
 # Timed actions
 CARD_SWIPE_REAL_SECONDS   = 5
-CARD_SWIPE_GAME_MINUTES   = 0
 
 # Repair/diagnosis real-time scaling
 REPAIR_TIME_BASE_SECONDS  = 8
@@ -285,6 +289,15 @@ When multiple distinct matches found, returns `clarification_required` with clic
 | `wear`, `equip` | EquipHandler |
 | `remove`, `take off`, `unequip` | EquipHandler |
 | `access` | TerminalHandler |
+
+### Door action values
+The `door_action` field passed through the card swipe flow has three distinct values:
+
+| Value | Behaviour |
+|-------|-----------|
+| `'open'` | Unlock and open the door — sent by `handle_open` when door is locked |
+| `'unlock'` | Unlock only, door stays closed — sent by `handle_unlock` |
+| `'lock'` | Lock the door — sent by `handle_lock` |
 
 ---
 
@@ -650,8 +663,10 @@ When a second repairable type is added, extract common logic to `repair_utils.py
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
-- **Description panel click lockout during timed actions** — container, surface, terminal and floor item clicks in the description panel should be suppressed when Loop.isLocked() is true. Currently only isTerminalSessionActive() is checked.
-- **Codebase size and structure analysis** — before Phase 23, do a full review of all backend and frontend files for size, cohesion, and split candidates. Known targets: repair_handler.py (→ repair_utils.py), command_handler.py, terminal.js.
+- ✅ **Description panel click lockout during timed actions** — implemented via `pointer-events: none` on `description-content` in `Loop.lockInput()` and `Loop.unlockInput()`.
+- **Codebase size and structure analysis** — ✅ completed April 2026. Known remaining targets: `repair_handler.py` (→ `repair_utils.py`) before Phase 24, `terminal.js` split before Phase 22.
+- **`terminal.js` split** — split into `terminal_core.js`, `terminal_engineering.js`, `terminal_manifest.js` before Phase 22 mainframe work begins.
+- **`PalletContainer.pallet` flag** — purpose unclear, appears unused. Resolve before Phase 23.
 - **Cargo contents** — initial_cargo.json containers are currently empty. Cargo contents to be authored when narrative cargo manifest is defined (Phase 23).
 - **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before Phase 25.
 
@@ -679,6 +694,7 @@ is correct — is an open question for a future session.
 - ✅ **Repair/diagnosis time scaling** — formula-based with config constants, 20s cap.
 - ✅ **Progress counter on animations** — % counter on scan/repair/diagnosis animations.
 - ✅ **Phase 19** — Storage room automated facility and cargo bay manifest fully implemented.
+- ✅ **Codebase review and cleanup (April 2026)** — dead code removed, silent fallbacks eliminated, door action logic corrected, input locking hardened, ship log structured, messages stub fixed.
 
 ---
 
@@ -858,6 +874,14 @@ Auto-created when diagnosis completes and tablet is in inventory. Snapshot in ti
 ### Ship's Log
 Permanent timestamped record. Logs: game start, diagnosis, repairs, events, power changes, security events, player death.
 
+Log entries are structured dicts with the following fields:
+- `timestamp` — ship time string at time of entry
+- `event` — short event label (e.g. "Diagnosis complete", "Repair complete")
+- `location` — location string, present on diagnosis and repair entries only (e.g. "Location: Crew Cabin | Main Corridor door panel Model Name")
+- `detail` — detail string (e.g. "Faults: component1, component2" or "Components Replaced: component1")
+
+The `location` field is optional — future log entry types that have no location simply omit it. The frontend renderer checks for its presence before rendering.
+
 ### Messages System
 Narrative delivery mechanism. Distinct from ship's log. Types: automated ship alerts, external communications, narrative events.
 
@@ -964,5 +988,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v19.0*
+*Project Orion Game Design Document v19.1*
 *April 2026*
