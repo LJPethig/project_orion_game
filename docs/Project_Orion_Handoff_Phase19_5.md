@@ -109,6 +109,13 @@ The last session was a codebase review and cleanup. The following changes were m
 - `calc_diagnose_real_seconds()` — note that it is currently identical to `calc_repair_real_seconds()`, kept separate for anticipated Phase 24 divergence
 - Design doc — input lockout behavioural inconsistency documented
 
+### Additional changes (subsequent session)
+- Misplaced `# 'open' — unlock and open` comment in `command.py` moved to correct position in function body
+- `_begin_next_repair` renamed to `begin_next_repair` in `repair_handler.py` — was a private method called from outside the class (`command.py`), now correctly public. All call sites updated.
+- Dead `remaining` variable removed from `complete_component_repair` in `repair_handler.py` — became unused when between-component message was changed to "Preparing next component."
+- Comment added to `loop.js` explaining why `unlockInput()` fires before the callback
+- `_begin_diagnosis` docstring corrected in `repair_handler.py` — `broken_components` is set before the timer starts, not in `diagnose_complete`
+
 ---
 
 ## PHASE 19.5 — SAVE/LOAD SYSTEM
