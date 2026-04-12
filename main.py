@@ -4,7 +4,7 @@
 from flask import Flask, render_template
 from backend.api.game import game_bp
 from backend.api.command import command_bp
-from backend.api.systems import systems_bp, init_systems
+from backend.api.systems import systems_bp
 from backend.models.game_manager import game_manager
 
 
@@ -18,7 +18,6 @@ app = Flask(
 app.register_blueprint(game_bp,     url_prefix="/api/game")
 app.register_blueprint(command_bp,  url_prefix="/api/command")
 app.register_blueprint(systems_bp,  url_prefix="/api/systems")
-init_systems(game_manager)
 
 
 # ── Page routes ──────────────────────────────────────────────

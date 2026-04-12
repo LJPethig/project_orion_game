@@ -8,6 +8,7 @@ Game API routes.
 from flask import Blueprint, jsonify, request
 from backend.models.game_manager import game_manager
 from backend.models.interactable import PortableItem, StorageUnit, Surface, Terminal
+from backend.handlers.storage_handler import storage_handler
 from config import SHIP_NAME
 
 import os
@@ -248,13 +249,12 @@ def storage_store():
     if not game_manager.initialised:
         return jsonify({"error": "Game not initialised"}), 400
 
-    from backend.handlers.storage_handler import StorageHandler
     data = request.get_json()
     instance_id = data.get('instance_id')
     if not instance_id:
         return jsonify({"error": "Missing instance_id"}), 400
 
-    result = StorageHandler().handle_store(instance_id)
+    result = storage_handler.handle_store(instance_id)
     return jsonify(result)
 
 
@@ -264,13 +264,12 @@ def storage_retrieve():
     if not game_manager.initialised:
         return jsonify({"error": "Game not initialised"}), 400
 
-    from backend.handlers.storage_handler import StorageHandler
     data = request.get_json()
     instance_id = data.get('instance_id')
     if not instance_id:
         return jsonify({"error": "Missing instance_id"}), 400
 
-    result = StorageHandler().handle_retrieve(instance_id)
+    result = storage_handler.handle_retrieve(instance_id)
     return jsonify(result)
 
 

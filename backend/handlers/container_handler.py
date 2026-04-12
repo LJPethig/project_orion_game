@@ -33,7 +33,7 @@ class ContainerHandler(BaseHandler):
 
         unit.is_open = True
         response = f"You open the {unit.name}."
-        if unit.open_description:
+        if getattr(unit, 'open_description', None):
             response += f" {unit.open_description}"
 
         result = self._instant(response)

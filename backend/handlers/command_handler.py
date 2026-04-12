@@ -25,7 +25,7 @@ from backend.handlers.container_handler import ContainerHandler
 from backend.handlers.equip_handler import EquipHandler
 from backend.handlers.terminal_handler import TerminalHandler
 from backend.models.game_manager import game_manager
-from backend.models.interactable import Surface as SurfaceModel, StorageUnit, Surface
+from backend.models.interactable import Surface, StorageUnit
 
 
 class CommandHandler:
@@ -273,7 +273,7 @@ class CommandHandler:
             if len(deduped) == 1:
                 item_id, item_name = deduped[0]
                 room = game_manager.get_current_room()
-                surfaces = [o for o in room.objects if isinstance(o, SurfaceModel)]
+                surfaces = [o for o in room.objects if isinstance(o, Surface)]
                 if len(surfaces) > 1:
                     options = [
                         {'label': s.name, 'command': f"put {item_id} on {s.id}"}
@@ -511,7 +511,7 @@ class CommandHandler:
                     surface_resolved = self._resolve(surf_part, 'room_fixed')
                     surface_obj = next(
                         (o for o in game_manager.get_current_room().objects
-                         if isinstance(o, SurfaceModel) and o.id == surface_resolved),
+                         if isinstance(o, Surface) and o.id == surface_resolved),
                         None
                     )
                     if item_obj and getattr(item_obj, 'equip_slot', None) and not surface_obj:

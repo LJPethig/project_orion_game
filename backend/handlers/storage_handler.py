@@ -68,12 +68,4 @@ class StorageHandler(BaseHandler):
         msg = random.choice(_RETRIEVE_RESPONSES).format(name=name)
         return self._instant(msg)
 
-
-    @staticmethod
-    def _instant(msg: str) -> dict:
-        return {
-            'response':     msg,
-            'action_type':  'instant',
-            'lock_input':   False,
-            'room_changed': False,
-        }
+storage_handler = StorageHandler()

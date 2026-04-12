@@ -623,9 +623,9 @@ async function _renderCargoManifest() {
     const pallets        = data.pallets    || [];
     const visiblePallets = pallets.filter(p => p.attached_items && p.attached_items.length > 0);
 
-    _cargoManifestData  = [...containers, ...visiblePallets];
     const sizeOrder = { small: 0, medium: 1, large: 2 };
     containers.sort((a, b) => (sizeOrder[a.container_size] ?? 99) - (sizeOrder[b.container_size] ?? 99));
+    _cargoManifestData  = [...containers, ...visiblePallets];
     _cargoSelectedIndex = _cargoManifestData.length > 0 ? 0 : -1;
 
     if (_cargoManifestData.length === 0) {

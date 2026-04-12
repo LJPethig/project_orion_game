@@ -4,23 +4,15 @@ Systems API routes - ship systems status and control
 """
 
 from flask import Blueprint, jsonify, request
+from backend.models.game_manager import game_manager
 
 systems_bp = Blueprint('systems', __name__)
-
-# Import game_manager at module level (will be set by main.py)
-game_manager = None
-
-
-def init_systems(gm):
-    """Initialize systems with game_manager reference"""
-    global game_manager
-    game_manager = gm
 
 
 @systems_bp.route('/electrical/status', methods=['GET'])
 def get_electrical_status():
     """Get complete electrical system status"""
-    if not game_manager or not game_manager.electrical_system:
+    if not game_manager.electrical_system:
         return jsonify({'error': 'Electrical system not initialized'}), 500
     
     status = game_manager.electrical_system.get_system_status()
@@ -30,7 +22,7 @@ def get_electrical_status():
 @systems_bp.route('/electrical/room/<room_id>', methods=['GET'])
 def get_room_power(room_id):
     """Check if a specific room has power"""
-    if not game_manager or not game_manager.electrical_system:
+    if not game_manager.electrical_system:
         return jsonify({'error': 'Electrical system not initialized'}), 500
     
     has_power = game_manager.electrical_system.check_room_power(room_id)
@@ -48,7 +40,7 @@ def break_component(component_id):
     Handles: cables, breakers, panels, power sources (reactors/batteries).
     Returns updated room_power map so frontend can refresh SVG immediately.
     """
-    if not game_manager or not game_manager.electrical_system:
+    if not game_manager.electrical_system:
         return jsonify({'error': 'Electrical system not initialized'}), 500
 
     sys = game_manager.electrical_system
@@ -142,7 +134,7 @@ def fix_component(component_id):
     Reverses the break state for cables, breakers, panels, power sources.
     Returns updated room_power map so frontend can refresh SVG immediately.
     """
-    if not game_manager or not game_manager.electrical_system:
+    if not game_manager.electrical_system:
         return jsonify({'error': 'Electrical system not initialized'}), 500
 
     sys = game_manager.electrical_system

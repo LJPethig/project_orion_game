@@ -1,8 +1,5 @@
 // frontend/static/js/screens/game.js
-// Main orchestrator — initialisation, room loading, state variables.
-
-// frontend/static/js/screens/game.js
-// Main game screen — thin orchestrator.
+// Main game screen — orchestrator, room loading, state variables.
 
 // Current room exit data — used for door state tooltips
 let currentExits = {};
