@@ -189,7 +189,15 @@ function handleResult(result) {
                 result.door_action
             );
             clearResponse();
-            handleResult(swipeResult);
+            if (swipeResult.swipe_complete) {
+                const imgState = swipeResult.swipe_action === 'open' ? 'open' : 'closed';
+                setDoorImage(imgState);
+                if (swipeResult.ship_time) Loop.updateShipTime(swipeResult.ship_time);
+                refreshDescription();
+                Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
+            } else {
+                handleResult(swipeResult);
+            }
         });
         return;
     }
@@ -273,10 +281,10 @@ function handleResult(result) {
 
     // Swipe completed — show open or closed hatch then restore room
     if (result.swipe_complete) {
-        const imgState = result.swipe_action === 'lock' ? 'closed' : 'open';
+        const imgState = result.swipe_action === 'open' ? 'open' : 'closed';
         setDoorImage(imgState);
         refreshDescription();
-        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
         return;
     }
 
@@ -290,7 +298,7 @@ function handleResult(result) {
     if (result.door_image) {
         setDoorImage(result.door_image);
         refreshDescription();
-        setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
+        Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
         return;
     }
 

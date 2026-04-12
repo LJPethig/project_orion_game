@@ -71,10 +71,12 @@ const Loop = (() => {
 
         inputLocked = true;
         input.disabled = true;
+        const desc = document.getElementById('description-content');
+        if (desc) desc.style.pointerEvents = 'none';
 
         setTimeout(async () => {
-            if (onComplete) await onComplete();
             unlockInput();
+            if (onComplete) await onComplete();
         }, realSeconds * 1000);
     }
 
@@ -85,6 +87,8 @@ const Loop = (() => {
         inputLocked = false;
         input.disabled = false;
         input.focus();
+        const desc = document.getElementById('description-content');
+        if (desc) desc.style.pointerEvents = '';
     }
 
     function isLocked() {

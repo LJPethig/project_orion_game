@@ -40,7 +40,7 @@ def complete_swipe():
     """
     Called by frontend after the card swipe wait completes.
     door_action: 'open'   — unlock and open door, player stays
-    door_action: 'unlock' — unlock and open door, player stays
+    door_action: 'unlock' — unlock door only, player stays
     door_action: 'lock'   — lock door, player stays
     Level 3 doors prompt for PIN before completing the action.
     """
@@ -90,17 +90,29 @@ def _complete_door_action(door, door_action: str):
             'ship_time':      game_manager.get_ship_time(),
         })
 
-    # open or unlock — unlock and open door, player stays
+    if door_action == 'unlock':
+        door.unlock()
+        return jsonify({
+            'response': f"Credentials verified. The {target_name} door is now unlocked.",
+            'action_type': 'instant',
+            'lock_input': False,
+            'room_changed': False,
+            'swipe_complete': True,
+            'swipe_action': 'unlock',
+            'ship_time': game_manager.get_ship_time(),
+        })
+
+        # 'open' — unlock and open
     door.unlock()
     door.open()
     return jsonify({
-        'response':       f"Credentials verified. The {target_name} door is now open.",
-        'action_type':    'instant',
-        'lock_input':     False,
-        'room_changed':   False,
+        'response': f"Credentials verified. The {target_name} door is now open.",
+        'action_type': 'instant',
+        'lock_input': False,
+        'room_changed': False,
         'swipe_complete': True,
-        'swipe_action':   'open',
-        'ship_time':      game_manager.get_ship_time(),
+        'swipe_action': 'open',
+        'ship_time': game_manager.get_ship_time(),
     })
 
 
