@@ -264,7 +264,11 @@ function _openCircuitDiagram() {
 
 
 function _openMessages() {
-    _renderStubView('MESSAGES', 'No messages.');
+    _datapadParentMenu = 'data';
+    _datapadSubMenu    = 'messages';
+    _renderDataView('MESSAGES', async () => {
+        return [{ text: 'No messages.', style: 'pad-empty-line' }];
+    });
 }
 
 function _openNotes() {
@@ -307,6 +311,7 @@ function _openShipLog() {
         log.forEach((entry, idx) => {
             lines.push({ text: entry.timestamp, style: 'pad-log-timestamp' });
             lines.push({ text: entry.event,     style: 'pad-log-event' });
+            if (entry.location) lines.push({ text: entry.location, style: 'pad-log-detail' });
             lines.push({ text: entry.detail,    style: 'pad-log-detail' });
             lines.push({ text: '─'.repeat(36),  style: 'pad-log-divider' });
         });

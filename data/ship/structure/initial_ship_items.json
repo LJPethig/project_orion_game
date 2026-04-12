@@ -44,6 +44,10 @@
       "items": ["scan_tool", "wrench", "power_screwdriver_set"]
     },
     {
+      "container_id": "engineering_large_parts_storage_unit",
+      "items": ["electrical_service_kit"]
+    },
+    {
       "container_id": "cargo_bay_eva_equipment_locker",
       "items": ["eva_suit", "eva_helmet", "eva_boots"]
     }

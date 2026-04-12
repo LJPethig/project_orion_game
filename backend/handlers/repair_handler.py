@@ -283,7 +283,7 @@ class RepairHandler(BaseHandler):
         is present.
         """
         profile = self._profiles.get(panel.panel_type)
-        if not profile:\
+        if not profile:
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
         # ── Check repair tools ────────────────────────────────
@@ -377,41 +377,6 @@ class RepairHandler(BaseHandler):
 
         return missing
 
-    def _check_parts(self, component: dict) -> dict | None:
-        """
-        Check player has required parts for this component.
-        Returns error response if missing, None if OK.
-        """
-        item_id  = component['item_id']
-        player   = game_manager.player
-        all_items = player.get_inventory()
-
-        if 'length_m' in component:
-            required_length = component['length_m']
-            spool = next(
-                (item for item in all_items
-                 if getattr(item, 'id', None) == item_id
-                 and getattr(item, 'length_m', 0) >= required_length),
-                None
-            )
-            if not spool:
-                item_name = self._item_name(item_id)
-                return self._instant(
-                    f"You need at least {required_length}m of {item_name} to complete this repair."
-                )
-        else:
-            qty_required = component.get('qty', 1)
-            matches = [
-                item for item in all_items
-                if getattr(item, 'id', None) == item_id
-            ]
-            if len(matches) < qty_required:
-                item_name = self._item_name(item_id)
-                return self._instant(
-                    f"You need {qty_required}x {item_name} to complete this repair."
-                )
-        return None
-
     # ── Completion (called from command.py endpoints) ─────────
 
     def complete_diagnosis(self, panel_id: str, door_id: str, game_minutes: int,
@@ -460,7 +425,8 @@ class RepairHandler(BaseHandler):
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
             'event': 'Diagnosis complete',
-            'detail': f"{location_str}  Faults: {fault_str}",
+            'location': location_str,
+            'detail': f"Faults: {fault_str}",
         })
         game_manager.set_tablet_note(panel_id, {
             'timestamp': game_manager.get_ship_time(),
@@ -536,7 +502,8 @@ class RepairHandler(BaseHandler):
             game_manager.add_log_entry({
                 'timestamp': game_manager.get_ship_time(),
                 'event': 'Repair complete',
-                'detail': f"{location_str}  Components: {components_str}",
+                'location': location_str,
+                'detail': f"Components Replaced: {components_str}",
             })
             game_manager.delete_tablet_note(panel_id)
 
@@ -557,7 +524,7 @@ class RepairHandler(BaseHandler):
         # ── More components to repair ─────────────────────────
         remaining = len(panel.broken_components) - len(panel.repaired_components)
         return {
-            'response':        f"{item_name} replaced. {remaining} component{'s' if remaining > 1 else ''} remaining.",
+            'response':        f"{item_name} replaced. Preparing next component.",
             'action_type':     'repair_complete',
             'lock_input':      False,
             'room_changed':    False,

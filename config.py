@@ -22,7 +22,6 @@ ROOM_TEMP_PRESETS = {
 
 # ── Timed Actions ────────────────────────────────────────────
 CARD_SWIPE_REAL_SECONDS   = 5
-CARD_SWIPE_GAME_MINUTES   = 0
 
 # Repair/diagnosis real-time scaling
 # real_seconds = REPAIR_TIME_BASE + (game_minutes / REPAIR_TIME_PIVOT) * REPAIR_TIME_SCALE
@@ -33,9 +32,6 @@ REPAIR_TIME_PIVOT_MINUTES = 30
 REPAIR_TIME_CAP_SECONDS   = 20
 DIAG_ACCESS_OVERHEAD      = 0.25  # 25% of component diag time added for panel access
 DIAG_TIME_JITTER          = 0.10  # ±10% random variation on diagnosis time
-
-# ── Debug flags ──────────────────────────────────────────────
-DEBUG_HAS_REPAIR_TOOL = True   # Phase 18: remove when repair system is complete
 
 # ── Data file paths ──────────────────────────────────────────
 import os
