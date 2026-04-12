@@ -655,6 +655,20 @@ When a second repairable type is added, extract common logic to `repair_utils.py
 - **Cargo contents** — initial_cargo.json containers are currently empty. Cargo contents to be authored when narrative cargo manifest is defined (Phase 23).
 - **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before Phase 25.
 
+
+### Input lockout behaviour — known inconsistency
+
+**Terminal active** (`setTerminalMode`) — command input disabled, description panel 
+click handlers blocked via isTerminalSessionActive() checks, hover tooltips remain 
+active.
+
+**Timed action active** (`Loop.lockInput`) — command input disabled, description 
+panel fully blocked via pointer-events: none, hover tooltips also disabled.
+
+These behave differently as a result of how each was implemented rather than 
+intentional design. Whether they should be unified — and if so, which behaviour 
+is correct — is an open question for a future session.
+
 ### Recently completed deferred items
 - ✅ **Wire length display** — `display_name()` method on `PortableItem` appends `(Xm)` for wire items.
 - ✅ **Unique instance identifiers** — each placed item now receives a unique runtime `instance_id`.
