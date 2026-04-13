@@ -45,22 +45,17 @@ def load_item_registry() -> dict:
     registry = {}
 
     for path in ITEM_FILES:
-        try:
-            with open(path, 'r', encoding='utf-8') as f:
-                items = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load item file '{path}': {e}")
-            continue
+        with open(path, 'r', encoding='utf-8') as f:
+            items = json.load(f)
 
-        for data in items:
-            item_id = data.get('id')
-            if not item_id:
-                print(f"Warning: Item in '{path}' has no id — skipped.")
-                continue
-            if item_id in registry:
-                print(f"Warning: Duplicate item id '{item_id}' in '{path}' — overwriting.")
+            for data in items:
+                item_id = data.get('id')
+                if not item_id:
+                    raise ValueError(f"Item in '{path}' has no id field — malformed data.")
+                if item_id in registry:
+                    raise ValueError(f"Duplicate item id '{item_id}' found in '{path}' — fix the data.")
 
-            registry[item_id] = dict(data)   # store raw data, not instance
+                registry[item_id] = dict(data) # store raw data, not instance
 
     return registry
 

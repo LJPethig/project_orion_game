@@ -612,7 +612,7 @@ async function _renderCargoManifest() {
     // Header row
     const header = document.createElement('div');
     header.className = 'term-manifest-header';
-    ['Container', 'Type', 'Contents'].forEach(label => {
+    ['Container', 'Type', 'Item', 'Qty'].forEach(label => {
         const span = document.createElement('span');
         span.textContent = label;
         header.appendChild(span);
@@ -648,14 +648,20 @@ async function _renderCargoManifest() {
         const type = document.createElement('span');
         type.textContent = c.type_name || '';
 
-        const contents = document.createElement('span');
-        contents.textContent = c.contents.length > 0
-            ? c.contents.join(', ')
-            : 'Empty';
+        const item = document.createElement('span');
+        const qty  = document.createElement('span');
+        if (c.contents.length > 0) {
+            item.textContent = c.contents[0].name;
+            qty.textContent  = c.contents[0].quantity;
+        } else {
+            item.textContent = 'Empty';
+            qty.textContent  = '—';
+        }
 
         row.appendChild(ref);
         row.appendChild(type);
-        row.appendChild(contents);
+        row.appendChild(item);
+        row.appendChild(qty);
         row.addEventListener('click', () => _cargoSelectItem(idx));
         list.appendChild(row);
     });
@@ -672,12 +678,20 @@ async function _renderCargoManifest() {
         const type = document.createElement('span');
         type.textContent = p.type_name || '';
 
-        const items = document.createElement('span');
-        items.textContent = p.attached_items.map(a => `${a.item} x${a.quantity}`).join(', ');
+        const item = document.createElement('span');
+        const qty  = document.createElement('span');
+        if (p.attached_items.length > 0) {
+            item.textContent = p.attached_items[0].name;
+            qty.textContent  = p.attached_items[0].quantity;
+        } else {
+            item.textContent = 'Empty';
+            qty.textContent  = '—';
+        }
 
         row.appendChild(ref);
         row.appendChild(type);
-        row.appendChild(items);
+        row.appendChild(item);
+        row.appendChild(qty);
         row.addEventListener('click', () => _cargoSelectItem(idx));
         list.appendChild(row);
     });

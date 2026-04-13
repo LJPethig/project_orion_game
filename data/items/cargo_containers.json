@@ -1,7 +1,7 @@
 [
   {
     "id": "small_container",
-    "type_name": "Small Container",
+    "type_name": "Sm Container",
     "description": "A steel cargo container, 750x600x900mm. Can be moved with a sack barrow.",
     "keywords": ["small container", "container"],
     "container_size": "small",
@@ -11,7 +11,7 @@
   },
   {
     "id": "medium_container",
-    "type_name": "Medium Container",
+    "type_name": "Md Container",
     "description": "A steel cargo container, 750x1200x900mm. Requires cargo handler to move.",
     "keywords": ["medium container", "container"],
     "container_size": "medium",
@@ -21,7 +21,7 @@
   },
   {
     "id": "large_container",
-    "type_name": "Large Container",
+    "type_name": "Lg Container",
     "description": "A steel cargo container, 1500x1200x900mm. Requires cargo handler to move.",
     "keywords": ["large container", "container"],
     "container_size": "large",

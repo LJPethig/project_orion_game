@@ -51,6 +51,7 @@ ITEM_FILES = [
     os.path.join('data', 'items', 'wearables.json'),
     os.path.join('data', 'items', 'misc_items.json'),
     os.path.join('data', 'items', 'consumables.json'),
+    os.path.join('data', 'items', 'trade_items.json'),
 ]
 TERMINALS_JSON_PATH     = os.path.join('data', 'items', 'terminals.json')
 STORAGE_UNITS_JSON_PATH = os.path.join('data', 'items', 'storage_units.json')

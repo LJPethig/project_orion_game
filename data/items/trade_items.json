@@ -1,0 +1,42 @@
+[
+  {
+    "id": "robo_pets_parrot",
+    "name": "RoboPets Parrot",
+    "manufacturer": "AI Companions",
+    "model": "African Grey",
+    "description": "A robotic companion pet in the form of an African Grey Parrot. This is the premium model from AI Companions Genius Series, known for it's high level reasoning abilities and extensive knowledgebase.",
+    "mass": 5.0
+  },
+  {
+    "id": "holographic_display",
+    "name": "Holographic Entertainment System",
+    "manufacturer": "DiKON Systems",
+    "model": "H-80056UZ",
+    "description": "A holographic display system consisting of a base projection unit capable of generating a 360 deg Realvision image 5m in diameter equipped with TouchSense, Scent-gen technology, and Immersion audio",
+    "mass": 32.5
+  },
+  {
+    "id": "auto_welder",
+    "name": "Automated Welding Station",
+    "manufacturer": "LaserFAB Industrial",
+    "model": "AWS-L3500",
+    "description": "An industrial laser welder paired with robotic arms capable of welding pre-fabricated metal panels. Suitable for terrestrial and zero-G operation.",
+    "mass": 485.0
+  },
+  {
+    "id": "pipe_bend_90",
+    "name": "Pre-bent Pipe Section 90",
+    "manufacturer": "Castor Industrial",
+    "model": "90-100x",
+    "description": "90 Degree bend pipe sections 100mm diameter, gas certified.",
+    "mass": 1.5
+  },
+  {
+    "id": "pipe_t_section",
+    "name": "T section pipe",
+    "manufacturer": "Castor Industrial",
+    "model": "3w-100x",
+    "description": "T section pipe, 100mm diameter, gas certified.",
+    "mass": 2.2
+  }
+]

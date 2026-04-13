@@ -285,8 +285,33 @@ def storage_manifest():
 
 @game_bp.route("/cargo/manifest", methods=["GET"])
 def cargo_manifest():
-    """Return the cargo bay manifest for terminal display."""
+    """Return the cargo bay manifest for terminal display.
+    Resolves item IDs to display names for container contents and pallet attached_items.
+    """
     if not game_manager.initialised:
         return jsonify({"error": "Game not initialised"}), 400
 
-    return jsonify(game_manager.cargo_manifest)
+    from backend.loaders.item_loader import load_item_registry
+    registry = load_item_registry()
+
+    def resolve_contents(contents):
+        resolved = []
+        for entry in contents:
+            item_data = registry.get(entry['item'])
+            name = item_data['name'] if item_data else entry['item']
+            resolved.append({'name': name, 'quantity': entry['quantity']})
+        return resolved
+
+    containers = []
+    for c in game_manager.cargo_manifest.get('containers', []):
+        entry = dict(c)
+        entry['contents'] = resolve_contents(c.get('contents', []))
+        containers.append(entry)
+
+    pallets = []
+    for p in game_manager.cargo_manifest.get('pallets', []):
+        entry = dict(p)
+        entry['attached_items'] = resolve_contents(p.get('attached_items', []))
+        pallets.append(entry)
+
+    return jsonify({'containers': containers, 'pallets': pallets})

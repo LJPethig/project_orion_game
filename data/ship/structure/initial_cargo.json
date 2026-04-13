@@ -22,7 +22,9 @@
       "type_id": "medium_container",
       "room_id": "cargo_bay",
       "stacked_on": "pallet_single_001",
-      "contents": []
+      "contents": [
+        {"item": "holographic_display", "quantity": 4}
+      ]
     },
     {
       "instance_id": "small_container_003",
@@ -30,7 +32,9 @@
       "type_id": "small_container",
       "room_id": "cargo_bay",
       "stacked_on": "small_container_001",
-      "contents": []
+      "contents": [
+        {"item": "robo_pets_parrot", "quantity": 20}
+      ]
     },
     {
       "instance_id": "small_container_004",
@@ -46,7 +50,9 @@
       "type_id": "medium_container",
       "room_id": "cargo_bay",
       "stacked_on": "pallet_single_002",
-      "contents": []
+      "contents": [
+        {"item": "pipe_bend_90", "quantity": 250}
+      ]
     },
     {
       "instance_id": "medium_container_003",
@@ -54,7 +60,9 @@
       "type_id": "medium_container",
       "room_id": "cargo_bay",
       "stacked_on": "pallet_single_002",
-      "contents": []
+      "contents": [
+        {"item": "pipe_t_section", "quantity": 175}
+      ]
     },
     {
       "instance_id": "small_container_005",
@@ -110,7 +118,7 @@
       "type_id": "pallet_platform_single",
       "room_id": "cargo_bay",
       "attached_items": [
-        {"item": "water_recycler", "quantity": 1}
+        {"item": "auto_welder", "quantity": 1}
       ]
     }
   ]
