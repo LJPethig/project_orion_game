@@ -94,7 +94,10 @@ const _MAP_HOVER_SOURCES = [
     { svgId: 'icon-reactor_core',       dataId: 'reactor_core',       type: 'reactor' },
     { svgId: 'icon-propulsion_reactor', dataId: 'propulsion_reactor', type: 'reactor' },
     { svgId: 'icon-BAT-LS-01',          dataId: 'BAT-LS-01',          type: 'battery' },
-    { svgId: 'icon-BAT-MF-01',          dataId: 'BAT-MF-01',          type: 'battery' },
+    { svgId: 'icon-BAT-MF-01',      dataId: 'BAT-MF-01',                      type: 'battery' },
+    { svgId: 'icon-sublight_left',  dataId: 'propulsion_bay_sublight_engine', type: 'engine'  },
+    { svgId: 'icon-sublight_right', dataId: 'propulsion_bay_sublight_engine', type: 'engine'  },
+    { svgId: 'icon-ftl_engine',     dataId: 'propulsion_bay_ftl_engine',      type: 'engine'  },
 ];
 
 function _initMapHovers() {
@@ -147,28 +150,48 @@ function _updatePowerSourceColours() {
             else                                         colour = '#ff4444';
         }
 
-        // Batteries: rect and path elements, preserve dark background fill
-        el.querySelectorAll('rect, path').forEach(child => {
-            const id = child.id || '';
-            if (id.endsWith('-body')) {
-                child.style.stroke = colour;
-            } else {
-                child.style.fill = colour;
+        if (source.type === 'battery') {
+            el.querySelectorAll('rect, path').forEach(child => {
+                const id = child.id || '';
+                if (id.endsWith('-body')) {
+                    child.style.stroke = colour;
+                } else {
+                    child.style.fill = colour;
+                }
+            });
+        } else if (source.type === 'reactor') {
+            const ejectEl = _mapSvgEl.getElementById(source.svgId + '-ejected');
+            const reactor = (_lastElectricalStatus.reactors || {})[source.dataId];
+            if (ejectEl) {
+                ejectEl.style.display = (reactor && reactor.ejected) ? '' : 'none';
+                el.style.display      = (reactor && reactor.ejected) ? 'none' : '';
             }
-        });
-
-        // Reactors: circle and line elements
-        el.querySelectorAll('circle').forEach(child => {
-            const fill = child.getAttribute('fill');
-            if (fill === '#001a00') {
+            el.querySelectorAll('circle').forEach(child => {
+                const fill = child.getAttribute('fill');
+                if (fill === '#001a00') { child.style.stroke = colour; }
+                else                   { child.style.fill   = colour; }
+            });
+            el.querySelectorAll('line').forEach(child => {
                 child.style.stroke = colour;
-            } else {
-                child.style.fill = colour;
-            }
-        });
-        el.querySelectorAll('line').forEach(child => {
-            child.style.stroke = colour;
-        });
+            });
+        } else if (source.type === 'engine') {
+            const engines = (_lastElectricalStatus.engines || {});
+            const engine  = engines[source.dataId];
+            colour = (engine && engine.powered) ? '#00ff44' : '#ff4444';
+            el.querySelectorAll('rect').forEach(child => {
+                const fill = child.getAttribute('fill');
+                if (fill === '#001a00' || fill === '#002800') { child.style.stroke = colour; }
+                else                                          { child.style.fill   = colour; }
+            });
+            el.querySelectorAll('circle').forEach(child => {
+                const fill = child.getAttribute('fill');
+                if (fill === '#002800' || fill === '#004400') { child.style.stroke = colour; }
+                else                                          { child.style.fill   = colour; }
+            });
+            el.querySelectorAll('line').forEach(child => {
+                child.style.stroke = colour;
+            });
+        }
     });
 }
 
@@ -189,6 +212,12 @@ function _buildTooltipText(source) {
         if (!battery) return null;
         const state = battery.active ? 'Active' : 'Standby';
         return `${battery.name}  |  ${state}  |  Charge: ${battery.charge_percent}%`;
+    }
+
+    if (source.type === 'engine') {
+        const engine = (_lastElectricalStatus.engines || {})[source.dataId];
+        if (!engine) return null;
+        return `${engine.name}  |  ${engine.powered ? 'Powered' : 'No power'}  |  ${engine.online ? 'Online' : 'Offline'}`;
     }
 
     return null;

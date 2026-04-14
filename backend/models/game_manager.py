@@ -42,7 +42,7 @@ class GameManager:
         self._load_storage_facility()
         self._load_cargo()
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
-        self.electrical_system.update_battery_states()
+        self.update_electrical_states()
         self.initialised  = True
         self.ship_log = []
         self.tablet_notes = {}
@@ -213,6 +213,25 @@ class GameManager:
     def delete_tablet_note(self, panel_id: str) -> None:
         """Remove a tablet note when repair is complete."""
         self.tablet_notes.pop(panel_id, None)
+
+    # ── Electrical helpers ────────────────────────────────────
+
+    def get_all_engines(self) -> list:
+        """Return all Engine instances from all rooms in the ship."""
+        from backend.models.interactable import Engine
+        engines = []
+        for room in self.ship.rooms.values():
+            for obj in room.objects:
+                if isinstance(obj, Engine):
+                    engines.append(obj)
+        return engines
+
+    def update_electrical_states(self) -> None:
+        """Update battery and engine powered states after any electrical change.
+        Call this wherever update_battery_states() was previously called.
+        """
+        self.electrical_system.update_battery_states()
+        self.electrical_system.update_engine_states(self.get_all_engines())
 
     # ── Storage facility ──────────────────────────────────────
 

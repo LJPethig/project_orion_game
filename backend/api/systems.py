@@ -14,8 +14,16 @@ def get_electrical_status():
     """Get complete electrical system status"""
     if not game_manager.electrical_system:
         return jsonify({'error': 'Electrical system not initialized'}), 500
-    
+
     status = game_manager.electrical_system.get_system_status()
+    engines = {}
+    for engine in game_manager.get_all_engines():
+        engines[engine.id] = {
+            'name': engine.name,
+            'powered': engine.powered,
+            'online': engine.online,
+        }
+    status['engines'] = engines
     return jsonify(status)
 
 
@@ -106,8 +114,8 @@ def _room_power(sys):
 
 
 def _break_response(sys, component_type, component_id, action):
-    """Update battery states then build the standard break response"""
-    sys.update_battery_states()
+    """Update battery and engine states then build the standard break response"""
+    game_manager.update_electrical_states()
     return jsonify({
         'success': True,
         'component_type': component_type,
@@ -121,6 +129,7 @@ def _break_response(sys, component_type, component_id, action):
                 'operational': r.operational,
                 'temperature': r.temperature,
                 'output_kw': r.output_kw,
+                'ejected': r.ejected,
             }
             for rid, r in sys.power_sources.items()
             if hasattr(r, 'operational') and not hasattr(r, 'charge_percent')
@@ -189,8 +198,8 @@ def fix_component(component_id):
 
 
 def _fix_response(sys, component_type, component_id, action):
-    """Update battery states then build the standard fix response"""
-    sys.update_battery_states()
+    """Update battery and engine states then build the standard fix response"""
+    game_manager.update_electrical_states()
     return jsonify({
         'success': True,
         'component_type': component_type,
@@ -204,6 +213,7 @@ def _fix_response(sys, component_type, component_id, action):
                 'operational': r.operational,
                 'temperature': r.temperature,
                 'output_kw': r.output_kw,
+                'ejected': r.ejected,
             }
             for rid, r in sys.power_sources.items()
             if hasattr(r, 'operational') and not hasattr(r, 'charge_percent')

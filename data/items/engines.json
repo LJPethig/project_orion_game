@@ -1,0 +1,16 @@
+[
+  {
+    "id": "propulsion_bay_sublight_engine",
+    "name": "Sub-Light Ion Drive",
+    "description": "The ship's primary sub-light propulsion system. Three ion drives mounted in parallel.",
+    "keywords": ["sublight engine", "ion drive", "sub-light", "engines"],
+    "online": true
+  },
+  {
+    "id": "propulsion_bay_ftl_engine",
+    "name": "FTL Jump Drive",
+    "description": "The ship's faster-than-light jump drive. Requires significant power to spool.",
+    "keywords": ["ftl engine", "jump drive", "ftl", "ftl drive"],
+    "online": true
+  }
+]

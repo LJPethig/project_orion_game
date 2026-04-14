@@ -42,10 +42,18 @@
     {
       "id": "PNL-ENG-MAIN",
       "type": "main_circuit_panel",
-      "name": "Main Circuit Panel",
+      "name": "Main Reactor Circuit Panel",
       "location": "engineering",
-      "description": "Main circuit panel mounted on east wall near reactor",
+      "description": "Main reactor circuit panel mounted on wall near reactor",
       "breaker_count": 5
+    },
+    {
+      "id": "PNL-PRO-MAIN",
+      "type": "propulsion_circuit_panel",
+      "name": "Propulsion Reactor Circuit Panel",
+      "location": "propulsion_bay",
+      "description": "Propulsion reactor circuit panel mounted on wall near reactor",
+      "breaker_count": 3
     },
     {
       "id": "PNL-MC-SUB-A",
@@ -74,6 +82,27 @@
   ],
   
   "breakers": [
+    {
+      "id": "FUS-PRO-00",
+      "panel_id": "PNL-PRO-MAIN",
+      "name": "Backup Circuit Breaker",
+      "feeds": "Main Engineering Panel (Backup)",
+      "rating_amps": 400
+    },
+    {
+      "id": "FUS-PRO-01",
+      "panel_id": "PNL-PRO-MAIN",
+      "name": "Sub-Light Engine Circuit Breaker",
+      "feeds": "sub_light_engine",
+      "rating_amps": 600
+    },
+    {
+      "id": "FUS-PRO-02",
+      "panel_id": "PNL-PRO-MAIN",
+      "name": "FTL Engine Circuit Breaker",
+      "feeds": "ftl_engine",
+      "rating_amps": 1200
+    },
     {
       "id": "FUS-ENG-01",
       "panel_id": "PNL-ENG-MAIN",
@@ -197,6 +226,42 @@
   
   "cables": [
     {
+      "id": "PWC-PRO-01",
+      "from": "propulsion_reactor",
+      "to": "PNL-PRO-MAIN",
+      "name": "Propulsion Reactor Main Feed",
+      "location": "propulsion_bay"
+    },
+    {
+      "id": "PWC-PRO-02",
+      "from": "FUS-PRO-01",
+      "to": "propulsion_bay_sublight_engine",
+      "name": "Sub Light Engine Feed",
+      "location": "propulsion_bay"
+    },
+    {
+      "id": "PWC-PRO-03",
+      "from": "FUS-PRO-02",
+      "to": "propulsion_bay_ftl_engine",
+      "name": "FTL Engine Feed",
+      "location": "propulsion_bay"
+    },
+     {
+      "id": "PWC-PRO-04",
+      "from": "FUS-PRO-00",
+      "to": "PWC-ENG-00",
+      "name": "Propulsion Reactor Backup Feed (Propulsion Segment)",
+      "location": "propulsion_bay"
+    },
+    {
+      "id": "PWC-ENG-00",
+      "from": "PWC-PRO-04",
+      "to": "PNL-ENG-MAIN",
+      "name": "Propulsion Reactor Backup Feed (Engineering Segment)",
+      "location": "engineering",
+      "intact": false
+    },
+    {
       "id": "PWC-ENG-01",
       "from": "reactor_core",
       "to": "PNL-ENG-MAIN",
@@ -244,20 +309,6 @@
       "to": "propulsion_bay",
       "name": "Propulsion Room Power Cable",
       "location": "engineering"
-    },
-    {
-      "id": "PWC-PROP-01",
-      "from": "propulsion_reactor",
-      "to": "sublight_engines",
-      "name": "Sublight Engine Power Feed (Heavy Duty)",
-      "location": "propulsion_bay"
-    },
-    {
-      "id": "PWC-PROP-02",
-      "from": "propulsion_reactor",
-      "to": "ftl_drive",
-      "name": "FTL Drive Power Feed (Heavy Duty)",
-      "location": "propulsion_bay"
     },
     {
       "id": "PWC-MC-01",

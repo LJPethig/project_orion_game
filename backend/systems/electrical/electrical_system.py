@@ -171,6 +171,7 @@ class ElectricalSystem:
                 name=cable_data['name'],
                 location=cable_data['location']
             )
+            cable.intact = cable_data.get('intact', True)  # default True unless specified
             system.cables[cable.id] = cable
 
         # Load room power source mappings
@@ -214,16 +215,13 @@ class ElectricalSystem:
             return False
         visited.add(component_id)
 
-        # Check if we've reached the reactor
-        if component_id == 'reactor_core':
-            reactor = self.power_sources.get('reactor_core')
-            return reactor.operational if reactor else False
-
-        # Check if this is a backup battery (alternate power source)
+        # Check if we've reached a power source — any operational reactor terminates successfully
         if component_id in self.power_sources:
-            battery = self.power_sources[component_id]
-            if isinstance(battery, BackupBattery):
-                return battery.active
+            source = self.power_sources[component_id]
+            if isinstance(source, FissionReactor):
+                return source.operational
+            if isinstance(source, BackupBattery):
+                return source.active
 
         # Check if component is a breaker
         if component_id in self.breakers:
@@ -238,14 +236,13 @@ class ElectricalSystem:
             panel = self.panels[component_id]
             if not panel.operational:
                 return False
-            # Find cable feeding this panel
-            feeding_cable = self._find_cable_to(component_id)
-            if not feeding_cable:
-                return False
-            if not feeding_cable.intact:
-                return False
-            # Continue tracing from cable source
-            return self._trace_power_to_source(feeding_cable.from_id, visited)
+            # Try all inbound cables — return True if any path succeeds
+            for feeding_cable in self._find_cables_to(component_id):
+                if not feeding_cable.intact:
+                    continue
+                if self._trace_power_to_source(feeding_cable.from_id, set(visited)):
+                    return True
+            return False
 
         # Check if component is a cable (cable-to-cable connection)
         if component_id in self.cables:
@@ -255,21 +252,17 @@ class ElectricalSystem:
             # Continue tracing from cable source
             return self._trace_power_to_source(cable.from_id, visited)
 
-        # Check if component is a room (need to find feeding cable)
-        feeding_cable = self._find_cable_to(component_id)
-        if not feeding_cable:
-            return False
-        if not feeding_cable.intact:
-            return False
-        # Continue tracing from cable source
-        return self._trace_power_to_source(feeding_cable.from_id, visited)
+        # Check if component is a room or engine (need to find feeding cable)
+        for feeding_cable in self._find_cables_to(component_id):
+            if not feeding_cable.intact:
+                continue
+            if self._trace_power_to_source(feeding_cable.from_id, set(visited)):
+                return True
+        return False
 
-    def _find_cable_to(self, component_id: str) -> Optional[PowerCable]:
-        """Find the cable that feeds power TO a component"""
-        for cable in self.cables.values():
-            if cable.to_id == component_id:
-                return cable
-        return None
+    def _find_cables_to(self, component_id: str) -> list:
+        """Find all cables that feed power TO a component"""
+        return [cable for cable in self.cables.values() if cable.to_id == component_id]
 
     def _find_cable_from_to(self, from_id: str, to_id: str) -> Optional[PowerCable]:
         """Find the cable running from a specific source to a specific destination"""
@@ -298,6 +291,15 @@ class ElectricalSystem:
             mains_ok = self.check_room_power(source.powers_room)
             source.active = not mains_ok
 
+    def update_engine_states(self, engines: list) -> None:
+        """
+        Update the powered state of all engine objects based on electrical trace.
+        engines — list of Engine instances from the ship's propulsion bay.
+        Called after any component state change, alongside update_battery_states().
+        """
+        for engine in engines:
+            engine.powered = self._trace_power_to_source(engine.id)
+
     def get_battery_states(self) -> dict:
         """Return battery states for API responses"""
         result = {}
@@ -320,7 +322,8 @@ class ElectricalSystem:
                     'name': reactor.name,
                     'operational': reactor.operational,
                     'temperature': reactor.temperature,
-                    'output_kw': reactor.output_kw
+                    'output_kw': reactor.output_kw,
+                    'ejected': reactor.ejected
                 }
                 for reactor_id, reactor in self.power_sources.items()
                 if isinstance(reactor, FissionReactor)

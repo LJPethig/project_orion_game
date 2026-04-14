@@ -10,6 +10,7 @@ Interactable object hierarchy.
     │   │   └── PalletContainer — moveable container, requires equipment to move
     │   ├── Surface         — always-open surface, holds PortableItems
     │   │   └── Pallet      — moveable flat platform, requires equipment to move
+    │   ├── Engine          — propulsion engine (sub-light or FTL)
     │   └── Terminal        — computer terminal
 """
 
@@ -189,6 +190,19 @@ class Terminal(FixedObject):
         self.terminal_type: str = getattr(self, 'terminal_type', 'generic')
         self.menu: list = getattr(self, 'menu', [{"label": "Exit", "action": "exit"}])
 
+class Engine(FixedObject):
+    """
+    A ship propulsion engine — sub-light ion drive or FTL jump drive.
+    powered: computed from electrical trace — does the engine have a live feed?
+    online:  manual flag — is the engine undamaged and functional?
+    An engine is only usable when both powered and online are True.
+    Future: repairable with own components and repair profiles (Phase 24).
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.powered: bool = False          # set by electrical system at runtime
+        self.online:  bool = getattr(self, 'online', True)   # default True — undamaged
 
 class PalletContainer(StorageUnit):
     """

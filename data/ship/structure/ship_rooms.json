@@ -538,7 +538,10 @@
         ]
       }
     },
-    "fixed_objects": [],
+    "fixed_objects": [
+      "propulsion_bay_sublight_engine",
+      "propulsion_bay_ftl_engine"
+    ],
     "background_image": "images/rooms/propulsion_bay.png"
   },
   {
