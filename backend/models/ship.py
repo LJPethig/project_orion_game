@@ -160,12 +160,8 @@ class Ship:
         ]
 
         for path, cls in file_class_map:
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    data = json.load(f)
-            except Exception as e:
-                print(f"Warning: Could not load '{path}': {e}")
-                continue
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             for obj in data:
                 obj_id = obj.get('id')
                 if obj_id:
@@ -189,12 +185,8 @@ class Ship:
         """
         from backend.loaders.item_loader import load_item_registry
 
-        try:
-            with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-        except Exception as e:
-            print(f"Warning: Could not load ship_items.json: {e}")
-            return
+        with open(SHIP_ITEMS_JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
         registry = load_item_registry()
 
