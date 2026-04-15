@@ -10,14 +10,24 @@
     "mass_per_metre": 0.05
   },
   {
-    "id": "wire_high_voltage",
-    "name": "High Voltage Wire",
+    "id": "wire_hv_standard",
+    "name": "High Voltage Wire 400 Amp",
     "manufacturer": "Harju Elekter Power",
-    "model": "QZJP21-E",
+    "model": "QZJP400-E",
     "description": "A spool of heavy gauge electrical wire.",
     "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
     "max_length_m": 20.0,
     "mass_per_metre": 0.2
+  },
+  {
+    "id": "wire_hv_heavy_duty",
+    "name": "High Voltage Wire 1500 Amp",
+    "manufacturer": "Harju Elekter Power",
+    "model": "QZKP1500-F",
+    "description": "A spool of super heavy gauge electrical wire.",
+    "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
+    "max_length_m": 15.0,
+    "mass_per_metre": 0.5
   },
   {
     "id": "wire_optical",
@@ -118,5 +128,95 @@
     "description": "A generic display screen for door access panels.",
     "keywords": ["panel screen", "screen", "display", "panel display"],
     "mass": 0.4
+  },
+  {
+    "id": "hv_bus_bar",
+    "name": "High Voltage Bus bar",
+    "manufacturer": "Harju Elekter Power",
+    "model": "TPK130-12",
+    "description": "A multi-tap bus bar for HV electrical systems",
+    "keywords": ["bus bar", "bus-bar"],
+    "mass": 0.5
+  },
+  {
+    "id": "hv_connect_standard",
+    "name": "HV Cable Connector",
+    "manufacturer": "Harju Elekter Power",
+    "model": "CCT550-18",
+    "description": "Bolt style cable connector",
+    "keywords": ["connector", "hv connector", "high voltage connector"],
+    "mass": 0.15
+  },
+  {
+    "id": "hv_connect_heavy",
+    "name": "HV Cable Connector Heavy Duty",
+    "manufacturer": "Harju Elekter Power",
+    "model": "CCT990-35",
+    "description": "Bolt style heavy duty cable connector",
+    "keywords": ["connector", "hv connector", "high voltage connector", "heavy duty connector"],
+    "mass": 0.3
+  },
+  {
+    "id": "hv_logic_board",
+    "name": "High Voltage Logic Board",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-1201G",
+    "description": "A logic circuit board for controlling HV breaker panels.",
+    "keywords": ["logic circuit", "logic circuit board", "circuit board", "circuit"],
+    "mass": 0.2
+  },
+  {
+    "id": "10A_breaker",
+    "name": "10 Amp Circuit Breaker",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-BKC-10A",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "10a breaker", "10 amp breaker", "circuit breaker", "10a circuit breaker", "10 amp circuit breaker"],
+    "mass": 0.2
+  },
+  {
+    "id": "32A_breaker",
+    "name": "32 Amp Circuit Breaker",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-BKC-32A",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "32a breaker", "32 amp breaker", "circuit breaker", "32a circuit breaker", "32 amp circuit breaker"],
+    "mass": 0.2
+  },
+  {
+    "id": "63A_breaker",
+    "name": "63 Amp Circuit Breaker",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-BKC-63A",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "63a breaker", "63 amp breaker", "circuit breaker", "63a circuit breaker", "63 amp circuit breaker"],
+    "mass": 0.2
+  },
+  {
+    "id": "250A_breaker",
+    "name": "250 Amp Circuit Breaker",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-BKC-250A",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "250a breaker", "250 amp breaker", "circuit breaker", "250a circuit breaker", "250 amp circuit breaker"],
+    "mass": 0.3
+  },
+  {
+    "id": "600A_breaker",
+    "name": "600 Amp Circuit Breaker",
+    "manufacturer": "Harju Elekter Power",
+    "model": "EWI-600",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "600a breaker", "600 amp breaker", "circuit breaker", "600a circuit breaker", "600 amp circuit breaker"],
+    "mass": 0.5
+  },
+  {
+    "id": "1200A_breaker",
+    "name": "1200 Amp Circuit Breaker",
+    "manufacturer": "Harju Elekter Power",
+    "model": "EWI-1200",
+    "description": "A resettable circuit breaker for 800V DC systems",
+    "keywords": ["breaker", "1200a breaker", "1200 amp breaker", "circuit breaker", "1200a circuit breaker", "1200 amp circuit breaker"],
+    "mass": 0.8
   }
 ]

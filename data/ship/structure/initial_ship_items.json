@@ -1,7 +1,7 @@
 {
   "storage_facility": [
     "wire_low_voltage",
-    "wire_high_voltage",
+    "wire_hv_standard",
     "wire_optical",
     "4_pin_interconnect",
     "panel_screen",
@@ -15,6 +15,7 @@
     "22_pin_interconnect",
     "power_regulator",
     "relay_switch_array",
+    {"id": "wire_hv_standard", "quantity": 5},
     "id_card_scanner_head",
     "q-emerald_door_logic_board",
     "ts1500_door_logic_board",
@@ -55,7 +56,7 @@
   "surfaces": [
     {
       "surface_id": "cargo_bay_shelving_unit",
-      "items": ["wire_low_voltage", "wire_high_voltage", "hv_service_kit"]
+      "items": ["wire_low_voltage", "wire_hv_standard", "hv_service_kit"]
     },
     {
       "surface_id": "captains_quarters_metal_desk",

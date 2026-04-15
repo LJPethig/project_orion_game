@@ -87,7 +87,7 @@
       "panel_id": "PNL-PRO-MAIN",
       "name": "Backup Circuit Breaker",
       "feeds": "Main Engineering Panel (Backup)",
-      "rating_amps": 400
+      "rating_amps": 250
     },
     {
       "id": "FUS-PRO-01",
@@ -108,119 +108,119 @@
       "panel_id": "PNL-ENG-MAIN",
       "name": "Life Support Circuit Breaker",
       "feeds": "life_support",
-      "rating_amps": 30
+      "rating_amps": 32
     },
     {
       "id": "FUS-ENG-02",
       "panel_id": "PNL-ENG-MAIN",
       "name": "Main Corridor Branch A Feed",
       "feeds": "main_corridor",
-      "rating_amps": 50
+      "rating_amps": 63
     },
     {
       "id": "FUS-ENG-03",
       "panel_id": "PNL-ENG-MAIN",
       "name": "Sub Corridor Feed",
       "feeds": "sub_corridor",
-      "rating_amps": 40
+      "rating_amps": 63
     },
     {
       "id": "FUS-ENG-04",
       "panel_id": "PNL-ENG-MAIN",
       "name": "Recreation Room Feed",
       "feeds": "recreation_room",
-      "rating_amps": 40
+      "rating_amps": 63
     },
     {
       "id": "FUS-ENG-05",
       "panel_id": "PNL-ENG-MAIN",
       "name": "Engineering Local Circuit",
       "feeds": "engineering",
-      "rating_amps": 35
+      "rating_amps": 32
     },
     {
       "id": "FUS-ENG-06",
       "panel_id": "PNL-ENG-MAIN",
       "name": "Propulsion Room Circuit Breaker",
       "feeds": "propulsion_bay",
-      "rating_amps": 20
+      "rating_amps": 32
     },
     {
       "id": "FUS-MC-01",
       "panel_id": "PNL-MC-SUB-A",
       "name": "Crew Cabin Circuit Breaker",
       "feeds": "crew_cabin",
-      "rating_amps": 20
+      "rating_amps": 10
     },
     {
       "id": "FUS-MC-02",
       "panel_id": "PNL-MC-SUB-A",
       "name": "Captains Quarters Circuit Breaker",
       "feeds": "captains_quarters",
-      "rating_amps": 20
+      "rating_amps": 10
     },
     {
       "id": "FUS-MC-03",
       "panel_id": "PNL-MC-SUB-A",
       "name": "Mainframe Room Circuit Breaker",
       "feeds": "mainframe_room",
-      "rating_amps": 25
+      "rating_amps": 32
     },
     {
       "id": "FUS-SC-01",
       "panel_id": "PNL-SC-SUB-B",
       "name": "Bathroom Circuit Breaker",
       "feeds": "head",
-      "rating_amps": 15
+      "rating_amps": 10
     },
     {
       "id": "FUS-SC-02",
       "panel_id": "PNL-SC-SUB-B",
       "name": "Cargo Bay Circuit Breaker",
       "feeds": "cargo_bay",
-      "rating_amps": 30
+      "rating_amps": 32
     },
     {
       "id": "FUS-SC-04",
       "panel_id": "PNL-SC-SUB-B",
       "name": "Airlock Circuit Breaker",
       "feeds": "airlock",
-      "rating_amps": 25
+      "rating_amps": 32
     },
     {
       "id": "FUS-REC-01",
       "panel_id": "PNL-REC-SUB-C",
       "name": "Med-Bay Circuit Breaker",
       "feeds": "med_bay",
-      "rating_amps": 25
+      "rating_amps": 32
     },
     {
       "id": "FUS-REC-02",
       "panel_id": "PNL-REC-SUB-C",
       "name": "Hyper-sleep Chamber Circuit Breaker",
       "feeds": "hypersleep_chamber",
-      "rating_amps": 30
+      "rating_amps": 32
     },
     {
       "id": "FUS-REC-03",
       "panel_id": "PNL-REC-SUB-C",
       "name": "Galley Circuit Breaker",
       "feeds": "galley",
-      "rating_amps": 25
+      "rating_amps": 32
     },
     {
       "id": "FUS-REC-04",
       "panel_id": "PNL-REC-SUB-C",
       "name": "Cockpit Circuit Breaker",
       "feeds": "cockpit",
-      "rating_amps": 30
+      "rating_amps": 32
     },
     {
       "id": "FUS-REC-05",
       "panel_id": "PNL-REC-SUB-C",
       "name": "Storage Room Circuit Breaker",
       "feeds": "storage_room",
-      "rating_amps": 20
+      "rating_amps": 10
     }
   ],
   

@@ -94,13 +94,19 @@ class GameManager:
 
         registry = load_item_registry()
 
-        for item_id in data.get('storage_facility', []):
+        for entry in data.get('storage_facility', []):
+            if isinstance(entry, str):
+                item_id, quantity = entry, 1
+            else:
+                item_id = entry.get('id')
+                quantity = entry.get('quantity', 1)
             item_data = registry.get(item_id)
             if not item_data:
                 print(f"Warning: storage_facility references unknown item '{item_id}'")
                 continue
-            item = instantiate_item(dict(item_data))
-            self.storage_manifest[item.instance_id] = item
+            for _ in range(quantity):
+                item = instantiate_item(dict(item_data))
+                self.storage_manifest[item.instance_id] = item
 
     def _load_cargo(self) -> None:
         """Load initial cargo manifest from initial_cargo.json.
