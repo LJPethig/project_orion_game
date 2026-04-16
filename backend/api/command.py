@@ -155,29 +155,20 @@ def repair_complete():
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 
-
 @command_bp.route('/repair_next', methods=['POST'])
 def repair_next():
     """
     Called by frontend to automatically proceed to the next component repair.
-    Checks for pending events first — if one fires, returns the event instead.
-    Otherwise resolves the panel and begins the next component repair.
+    Event checking is handled by the frontend poll — not here.
     """
     if not game_manager.initialised:
         return jsonify({'error': 'Game not initialised'}), 400
 
-    data       = request.get_json()
-    panel_id   = data.get('panel_id')
-    door_id    = data.get('door_id')
+    data = request.get_json()
+    panel_id = data.get('panel_id')
+    door_id = data.get('door_id')
     exit_label = data.get('exit_label', 'the door')
 
-    # ── Check for pending events first ────────────────────────
-    event = game_manager.check_for_event()
-    if event:
-        event['ship_time'] = game_manager.get_ship_time()
-        return jsonify(event)
-
-    # ── Resolve panel and begin next repair ───────────────────
     door = game_manager.ship.get_door_by_id(door_id)
     if not door:
         return jsonify({'error': 'Door not found'}), 400

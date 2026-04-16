@@ -728,10 +728,15 @@ Two categories of events exist with different triggering mechanisms.
 
 **Scheduled events** — triggered by game-time thresholds. Examples: hunger, thirst, fatigue, atmospheric exposure.
 
-### Event interruption during repairs
-`check_for_event()` is called in `game_manager.py` between each component repair via the `/api/command/repair_next` endpoint. If an event fires, it is returned instead of the next repair action.
+### Event delivery
+Events are delivered by the frontend poll — `loop.js` calls `/api/events/check` every 15 seconds when no timed action, repair chain, or PIN entry is in progress. The backend `EventSystem` checks elapsed ship time against scheduled event thresholds and returns any due events.
 
-Diagnosis is atomic — events cannot interrupt mid-diagnosis.
+Diagnosis and individual component repairs are atomic — events cannot fire during them. The `repairInProgress` flag in `loop.js` covers the brief inter-component gap where `inputLocked` is momentarily false between components.
+
+### Repairs and survival mechanics
+Long repairs (multi-hour component jobs) need a natural break point between components so survival mechanics can fire and the player can choose to rest. This will be addressed by an auto-chain threshold — repairs over N game minutes per component will pause after completion and require the player to explicitly continue rather than auto-chaining. Implement when Phase 21 survival mechanics are built.
+
+Survival events do not interrupt repairs — they impose penalties instead (slower repair, increased failure chance). Jack pushes through and suffers the consequences.
 
 ### Player survival mechanics (Phase 21)
 - **Hunger** — must eat at regular intervals.
@@ -739,10 +744,12 @@ Diagnosis is atomic — events cannot interrupt mid-diagnosis.
 - **Fatigue** — must rest/sleep.
 - **Atmospheric survival** — breathable air, correct temperature, correct pressure.
 
-### Technical implementation (deferred)
-- `check_for_event()` in `game_manager.py` — stub currently returns `None`
-- Random events: probability checked in game loop tick
-- Scheduled events: game-time threshold comparison against `chronometer` state
+### Technical implementation
+- `EventSystem` in `backend/events/event_system.py` — schedule, check, resolve
+- `/api/events/check` — frontend polls this endpoint every 15 seconds
+- Events scheduled in `game_manager._init_events()` with `trigger_minutes` threshold
+- Random events: probability checked in game loop tick (not yet implemented)
+- Scheduled events: ship-time threshold comparison against `chronometer` state
 
 ---
 

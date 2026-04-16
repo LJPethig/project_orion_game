@@ -12,6 +12,12 @@ const Loop = (() => {
     let   tickTimer         = null;
     let   eventTimer        = null;
     let   inputLocked       = false;
+    // repairInProgress covers the brief window between component repairs where
+    // inputLocked is momentarily false (between unlockInput() and the next lockInput()
+    // in the repair chain callback). Without this flag an event could theoretically
+    // fire during that ~50-100ms gap. The flag is set for the entire repair chain.
+    let   repairInProgress = false;
+
 
     // ── Ship time display ────────────────────────────────────
 
@@ -53,6 +59,7 @@ const Loop = (() => {
     async function checkEvents() {
         // Skip if any timed action or PIN entry is in progress
         if (inputLocked) return;
+        if (repairInProgress) return;
         if (typeof pendingPin !== 'undefined' && pendingPin) return;
         try {
             const data = await API.checkEvents();
@@ -131,6 +138,8 @@ const Loop = (() => {
         lockInput:       lockInput,
         unlockInput:     unlockInput,
         isLocked:        isLocked,
+        setRepairInProgress: (v) => { repairInProgress = v; },
+        isRepairInProgress:  () => repairInProgress,
         updateShipTime:  updateShipTime,
         updateShipName:  updateShipName,
     };

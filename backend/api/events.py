@@ -2,7 +2,15 @@
 """
 Events API routes.
 /api/events/check  — check for due events at current ship time
-/api/events/active — return all fired but unresolved events (for page load restore)
+
+Event delivery is frontend-driven — the poll calls /api/events/check every 15 seconds
+when no timed action or repair is in progress.
+
+NOTE: Long repairs (multi-hour component jobs) need a break point between components
+so survival mechanics can fire and the player can choose to rest. This will be addressed
+by an auto-chain threshold — repairs over N game minutes per component pause after
+completion and require the player to explicitly continue rather than auto-chaining.
+Implement when Phase 21 survival mechanics are built.
 """
 
 from flask import Blueprint, jsonify

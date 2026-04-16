@@ -161,6 +161,7 @@ function handleResult(result) {
 
     // ── Repair component — lock input, wait, call repair_complete ──
     if (result.action_type === 'repair_component') {
+        Loop.setRepairInProgress(true);
         setDamagedPanelImage(result.security_level);
         showRepairAnimation(result.real_seconds);
         Loop.lockInput(result.real_seconds, async () => {
@@ -261,6 +262,7 @@ function handleResult(result) {
     // Repair complete — panel restored or auto-chain to next component
     if (result.action_type === 'repair_complete') {
         if (result.panel_restored) {
+            Loop.setRepairInProgress(false);
             setPanelImage(result.security_level);
             refreshDescription();
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
