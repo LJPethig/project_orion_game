@@ -5,11 +5,13 @@
 
 const Loop = (() => {
 
-    const POLL_INTERVAL_MS = 10000;   // 10 seconds — passive event checking
-    const TICK_INTERVAL_MS = 60000;   // 60 seconds — real-time clock advance
-    let   pollTimer        = null;
-    let   tickTimer        = null;
-    let   inputLocked      = false;
+    const POLL_INTERVAL_MS  = 10000;   // 10 seconds — passive state polling
+    const TICK_INTERVAL_MS  = 40000;   // 40 seconds — real-time clock advance (1.5x ship time)
+    const EVENT_INTERVAL_MS = 15000;   // 15 seconds — event check
+    let   pollTimer         = null;
+    let   tickTimer         = null;
+    let   eventTimer        = null;
+    let   inputLocked       = false;
 
     // ── Ship time display ────────────────────────────────────
 
@@ -48,15 +50,37 @@ const Loop = (() => {
         }
     }
 
+    async function checkEvents() {
+        // Skip if any timed action or PIN entry is in progress
+        if (inputLocked) return;
+        if (typeof pendingPin !== 'undefined' && pendingPin) return;
+        try {
+            const data = await API.checkEvents();
+            if (data.events && data.events.length > 0) {
+                data.events.forEach(ev => {
+                    if (ev.message) appendEventStrip(ev.message, ev.event_id);
+                });
+                // Refresh map if currently visible
+                if (typeof _updateRoomColours === 'function' && _mapSvgEl) {
+                    _updateRoomColours();
+                }
+            }
+        } catch (err) {
+            console.error('Event check error:', err);
+        }
+    }
+
     function startPolling() {
-        poll();                                              // Immediate first poll
-        pollTimer = setInterval(poll, POLL_INTERVAL_MS);
-        tickTimer = setInterval(tick, TICK_INTERVAL_MS);    // Real-time clock
+        poll();                                                   // Immediate first poll
+        pollTimer  = setInterval(poll,        POLL_INTERVAL_MS);
+        tickTimer  = setInterval(tick,        TICK_INTERVAL_MS); // Real-time clock
+        eventTimer = setInterval(checkEvents, EVENT_INTERVAL_MS);
     }
 
     function stopPolling() {
-        if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
-        if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+        if (pollTimer)  { clearInterval(pollTimer);  pollTimer  = null; }
+        if (tickTimer)  { clearInterval(tickTimer);  tickTimer  = null; }
+        if (eventTimer) { clearInterval(eventTimer); eventTimer = null; }
     }
 
     // ── Input locking (for timed actions) ───────────────────
@@ -103,6 +127,7 @@ const Loop = (() => {
         start:           startPolling,
         stop:            stopPolling,
         poll:            poll,
+        checkEvents:     checkEvents,
         lockInput:       lockInput,
         unlockInput:     unlockInput,
         isLocked:        isLocked,

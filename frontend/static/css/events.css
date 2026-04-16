@@ -1,0 +1,14 @@
+/* events.css — Event strip message styling */
+
+.event-message {
+    color: var(--col-alert);
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 0 12px;
+    animation: event-blink 1.2s step-start 3;
+}
+
+@keyframes event-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+}

@@ -169,6 +169,28 @@ function appendRepairMessage(result) {
     content.scrollTop = content.scrollHeight;
 }
 
+// ── Event strip ──────────────────────────────────────────────
+
+function appendEventStrip(message, eventId) {
+    const el       = document.getElementById('event-left');
+    if (!el) return;
+    const span     = document.createElement('span');
+    span.className = 'event-message';
+    if (eventId) span.dataset.eventId = eventId;
+    span.textContent = message;
+    el.appendChild(span);
+}
+
+function clearEventStrip(eventId) {
+    const el = document.getElementById('event-left');
+    if (!el) return;
+    if (eventId) {
+        el.querySelectorAll(`[data-event-id="${eventId}"]`).forEach(s => s.remove());
+    } else {
+        el.innerHTML = '';
+    }
+}
+
 // ── Room image ───────────────────────────────────────────────
 
 function setRoomImage(imagePath) {

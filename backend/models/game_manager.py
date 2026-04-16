@@ -9,6 +9,7 @@ from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
 from backend.models.player import Player
 from backend.systems.electrical.electrical_system import ElectricalSystem
+from backend.events.event_system import EventSystem
 from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
                    PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH, \
                    CARGO_JSON_PATH, CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH
@@ -24,6 +25,8 @@ class GameManager:
         self.player       = None
         self.current_room = None
         self.electrical_system = None
+        self.event_system = None
+        self.event_start_minutes = 0  # ship minutes at game start — events trigger relative to this
         self.ship_log = []  # list of timestamped log entry strings
         self.tablet_notes = {}  # dict keyed by panel_id → note dict
         self.datapad_suppressed = False
@@ -43,6 +46,8 @@ class GameManager:
         self._load_cargo()
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
         self.update_electrical_states()
+        self.event_start_minutes = self.chronometer.get_total_minutes()
+        self._init_events()
         self.initialised  = True
         self.ship_log = []
         self.tablet_notes = {}
@@ -219,6 +224,22 @@ class GameManager:
     def delete_tablet_note(self, panel_id: str) -> None:
         """Remove a tablet note when repair is complete."""
         self.tablet_notes.pop(panel_id, None)
+
+    # ── Event system ──────────────────────────────────────────
+
+    def _init_events(self) -> None:
+        """Initialise and schedule all game events."""
+        self.event_system = EventSystem()
+
+        # Impact event — fires 3 ship minutes after game start
+        self.event_system.schedule(
+            event_id='impact_event',
+            trigger_minutes=3,
+            handler=lambda: {
+                'message': '⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics',
+                'log_entry': 'Impact event scheduled',
+            }
+        )
 
     # ── Electrical helpers ────────────────────────────────────
 

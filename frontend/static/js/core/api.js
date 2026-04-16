@@ -134,4 +134,11 @@ const API = {
         return r.json();
     },
 
+    // ── Events ───────────────────────────────────────────────
+
+    async checkEvents() {
+        const r = await fetch('/api/events/check');
+        return r.json();
+    },
+
 };

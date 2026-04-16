@@ -1,33 +1,29 @@
 {
   "storage_facility": [
-    "wire_low_voltage",
-    "wire_hv_standard",
+    {"id": "wire_hv_standard", "quantity": 2},
+    {"id": "wire_low_voltage", "quantity": 2},
+    {"id": "4_pin_interconnect", "quantity": 2},
+    {"id": "12_pin_interconnect", "quantity": 2},
+    {"id": "22_pin_interconnect", "quantity": 2},
+    {"id": "power_regulator", "quantity": 2},
+    {"id": "panel_screen", "quantity": 2},
+    {"id": "relay_switch_array", "quantity": 2},
+    {"id": "hv_connect_standard", "quantity": 5},
+    {"id": "hv_connect_heavy", "quantity": 3},
+    {"id": "10A_breaker", "quantity": 2},
+    {"id": "32A_breaker", "quantity": 2},
+    {"id": "63A_breaker", "quantity": 2},
     "wire_optical",
-    "4_pin_interconnect",
-    "panel_screen",
-    "12_pin_interconnect",
-    "22_pin_interconnect",
-    "power_regulator",
-    "wire_optical",
-    "4_pin_interconnect",
-    "panel_screen",
-    "12_pin_interconnect",
-    "22_pin_interconnect",
-    "power_regulator",
-    "relay_switch_array",
-    {"id": "wire_hv_standard", "quantity": 5},
+    "250A_breaker",
+    "600A_breaker",
+    "1200A_breaker",
+    "hv_logic_board",
+    "hv_bus_bar",
+    "wire_hv_heavy_duty",
     "id_card_scanner_head",
     "q-emerald_door_logic_board",
     "ts1500_door_logic_board",
-    "u-lock_door_logic_board",
-    "mag_boots",
-    "id_card_low_sec",
-    "flight_coveralls",
-    "mag_boots",
-    "pilot_jacket",
-    "eva_suit",
-    "eva_helmet",
-    "eva_boots"
+    "u-lock_door_logic_board"
   ],
   "room_floor": [
     {
@@ -56,7 +52,7 @@
   "surfaces": [
     {
       "surface_id": "cargo_bay_shelving_unit",
-      "items": ["wire_low_voltage", "wire_hv_standard", "hv_service_kit"]
+      "items": ["wire_optical", "wire_hv_standard", "hv_service_kit"]
     },
     {
       "surface_id": "captains_quarters_metal_desk",
