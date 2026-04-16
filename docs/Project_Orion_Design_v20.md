@@ -1,7 +1,9 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 19.1 — April 2026**
+**Version 20.0 — April 2026**
+
+> ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
 ---
 
@@ -47,7 +49,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 ### Core systems
 - Rooms, doors, security panels, command system, chronometer ✅
 - Player, inventory, items ✅
-- Fixed object data structure: terminals, storage units, surfaces, pallet containers, pallet platforms ✅
+- Fixed object data structure: terminals, storage units, surfaces, pallet containers, pallet platforms, engines ✅
 - Description panel: markup parser, hover tooltips, click handlers, Layer 2/3 ✅
 - Container commands: open, close, look in, take from, put in, put on ✅
 - Equip/unequip commands: wear, equip, remove, take off, unequip ✅
@@ -78,6 +80,18 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Description panel click lockout during timed actions via pointer-events ✅
 - Ship log structured entries: timestamp, event, location, detail fields ✅
 - Messages system stub — datapad Messages menu functional, shows placeholder ✅
+- Trade items: `trade_items.json` with 5 items, cargo containers populated ✅
+- Cargo manifest display: four columns (Container, Type, Item, Qty), item names resolved from registry ✅
+- Propulsion bypass electrical path: `PWC-ENG-00` connects propulsion reactor to `PNL-ENG-MAIN` (starts broken) ✅
+- Propulsion circuit panel `PNL-PRO-MAIN` with bypass, sub-light, and FTL breakers ✅
+- Power tracer: any operational `FissionReactor` terminates trace, multiple inbound cables tried ✅
+- Engine fixed objects: `Engine` class with `powered` and `online` flags, propulsion bay engines ✅
+- SVG map: engine icons (sub-light pairs + FTL drive), reactor eject overlays, engine hover tooltips ✅
+- Ship time multiplier: 40 real seconds = 1 ship minute ✅
+- Event system: `EventSystem` class, frontend poll every 15 seconds, `repairInProgress` flag ✅
+- Impact event: fires 3 ship minutes after game start, damages cables and breaker, event strip message ✅
+- Electrical repair parts: circuit breakers (6 sizes), HV wire (2 gauges), HV connectors, bus bars, logic boards, HV service kit ✅
+- Storage facility quantity support: `{"id": "...", "quantity": N}` format in `initial_ship_items.json` ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -95,6 +109,10 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Phase 18** — Full repair system ✅
 - **Post-18 session** — Diagnosis timing refactor, inventory improvements, floor source, progress counters, response format improvements ✅
 - **Phase 19** — Storage room automated facility + cargo bay manifest system ✅
+- **Codebase review (April 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log structure ✅
+- **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer improvements, engine fixed objects, SVG map engine icons, ship time multiplier ✅
+- **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
+- **Electrical repair parts** — HV items, circuit breakers, wire gauges, storage quantity support ✅
 
 ---
 
@@ -109,17 +127,21 @@ project_orion_game/
 │
 ├── backend/
 │   ├── models/
-│   │   ├── game_manager.py        ← owns all game state, storage_manifest, cargo_manifest
+│   │   ├── game_manager.py        ← owns all game state, event_system, storage_manifest, cargo_manifest
 │   │   ├── ship.py
 │   │   ├── room.py
 │   │   ├── door.py                ← panel_type, security_level resolved at load time
-│   │   ├── interactable.py        ← StorageUnit, Surface, Terminal, PalletContainer, Pallet
+│   │   ├── interactable.py        ← StorageUnit, Surface, Terminal, Engine, PalletContainer, Pallet
 │   │   ├── player.py
 │   │   └── chronometer.py
 │   │
 │   ├── systems/
 │   │   └── electrical/
 │   │       └── electrical_system.py
+│   │
+│   ├── events/
+│   │   ├── __init__.py
+│   │   └── event_system.py        ← EventSystem class, schedule/check/resolve
 │   │
 │   ├── handlers/
 │   │   ├── base_handler.py
@@ -131,15 +153,16 @@ project_orion_game/
 │   │   ├── container_handler.py
 │   │   ├── equip_handler.py
 │   │   ├── terminal_handler.py
-│   │   └── storage_handler.py     ← store/retrieve for automated storage facility
+│   │   └── storage_handler.py
 │   │
 │   ├── loaders/
 │   │   └── item_loader.py
 │   │
 │   └── api/
-│       ├── game.py                ← storage and cargo manifest endpoints added
+│       ├── game.py
 │       ├── command.py
-│       └── systems.py
+│       ├── systems.py
+│       └── events.py              ← /api/events/check endpoint
 │
 ├── frontend/
 │   ├── templates/
@@ -153,51 +176,56 @@ project_orion_game/
 │       │   ├── description.css
 │       │   ├── inventory.css
 │       │   ├── response.css
-│       │   └── terminal.css       ← storage/cargo manifest styles added
+│       │   ├── terminal.css
+│       │   ├── datapad.css
+│       │   └── events.css         ← event strip message styling
 │       ├── js/
 │       │   ├── core/
 │       │   │   ├── constants.js
-│       │   │   ├── api.js         ← storeItem, retrieveItem, getStorageManifest, getCargoManifest
-│       │   │   └── loop.js
+│       │   │   ├── api.js
+│       │   │   └── loop.js        ← event poll, repairInProgress flag, 40s tick
 │       │   └── screens/
 │       │       ├── splash.js
-│       │       ├── ui.js
+│       │       ├── ui.js          ← appendEventStrip, clearEventStrip
 │       │       ├── commands.js
 │       │       ├── description.js
-│       │       ├── inventory.js   ← Store button added
-│       │       ├── terminal.js    ← storage_room and cargo_bay terminal types added
+│       │       ├── inventory.js
+│       │       ├── terminal.js
+│       │       ├── map.js         ← engine icons, eject state, engine tooltips
 │       │       └── game.js
 │       └── images/
 │           ├── rooms/
 │           ├── doors/
-│           └── ship_layout.svg
+│           └── ship_layout.svg    ← engine icons, eject overlays added
 │
 └── data/
     ├── items/
-    │   ├── tools.json
+    │   ├── tools.json             ← hv_service_kit added
     │   ├── wearables.json
     │   ├── misc_items.json
-    │   ├── consumables.json
+    │   ├── consumables.json       ← HV parts, circuit breakers, wire gauges added
+    │   ├── trade_items.json       ← trade item definitions
     │   ├── terminals.json
     │   ├── storage_units.json
     │   ├── surfaces.json
-    │   ├── cargo_containers.json  ← PalletContainer type definitions
-    │   └── pallet_platforms.json  ← Pallet type definitions
+    │   ├── engines.json           ← sub-light and FTL engine definitions
+    │   ├── cargo_containers.json
+    │   └── pallet_platforms.json
     ├── terminals/
     │   └── engineering.json
     ├── repair/
     │   └── repair_profiles.json
     └── ship/
         ├── structure/
-        │   ├── ship_rooms.json
+        │   ├── ship_rooms.json    ← engines added to propulsion_bay
         │   ├── door_status.json
         │   ├── door_access_panel_types.json
-        │   ├── initial_ship_state.json
-        │   ├── initial_ship_items.json   ← storage_facility section added
-        │   ├── initial_cargo.json        ← cargo bay instance data
+        │   ├── initial_ship_state.json  ← PWC-ENG-00 intact:false
+        │   ├── initial_ship_items.json  ← quantity support, HV parts in storage
+        │   ├── initial_cargo.json       ← trade items in containers
         │   └── player_items.json
         └── systems/
-            └── electrical.json
+            └── electrical.json    ← propulsion bypass, PNL-PRO-MAIN, corrected amp ratings
 ```
 
 ---
@@ -527,65 +555,69 @@ propulsion_reactor (120kW) — independent tree
 
 ---
 
-## 14. BUILD PLAN — NEXT PHASES
+## 14. BUILD PLAN — FUTURE WORK
 
-### Phase 19 — Ship inventory + cargo (COMPLETE)
-See Section 19.
+> ⚠️ **Phases below are not in strict order.** The sequence changes frequently. The suggested next order is listed but should be treated as a guide only.
 
-### Phase 19.5 — Save / Load system (see Section 20)
-- Single autosave, no player-controlled saving
-- Autosave triggers: room change, timed action complete, clean quit
-- Splash screen: New Game / Continue — mutually exclusive based on save state
-- Death permanently flags the save — Continue shows death screen, only New Game available
+### Suggested next order
+1. **File splits** — carefully split oversized files one at a time, fully tested before moving to next
+2. **Electrical repair system** — diagnose/repair for cables, breakers, panels via circuit panel access
+3. **Fixed object repair** — engines and reactors using same pattern as door panel repair
+4. **Event system expansion** — move hardcoded events to JSON, add more event types
+5. **Codebase review** — before save/load, clean baseline
+6. **Save/load system** — autosave only, JSON format, full state serialisation
 
-### Phase 19.6 — Tablet + Ship's Log + Messages system (see Section 21)
-- Portable tablet tool — TAB tab visible when in inventory
-- Ship power map and circuit diagram accessible from tablet
-- Automatic diagnostic/repair notes with timestamp and location
-- Notes archived automatically when repair is complete
-- Ship's log — events, diagnosis, repairs
-- Messages system — narrative delivery, accessible from terminals and tablet
+### Future phases (not in order)
 
-### Phase 20 — Life support
+**File splits** ⚠️ Do piece by piece, fully tested before moving to next
+- `repair_handler.py` → `repair_handler.py` + `repair_utils.py`
+- `terminal.js` → `terminal_core.js` + `terminal_engineering.js` + `terminal_manifest.js`
+- `command_handler.py` — review for split candidates
+
+**Electrical repair system**
+- Panel-based repair: each circuit panel owns its breakers and adjacent cables
+- `electrical_repair_profiles.json` keyed by panel ID
+- HV test kit required, lockout/tagout assumed (not modelled)
+- Diagnose/repair commands extended to cover electrical components
+- See Section 23 for full design
+
+**Fixed object repair**
+- Engines and reactors repairable using same profile-driven pattern
+- `Engine` class extended with repair state
+- Power sources (reactors) treated as fixed objects for repair purposes
+
+**Event system expansion**
+- Move impact event damage from hardcode to JSON event definition
+- Add more event types (power surge, micrometeorite)
+- Random event probability system
+
+**Save/load system** — see Section 20
+- Autosave only, JSON format, `savegame.json` in project root
+- Full state: player, items, doors, panels, electrical, chronometer, events, logs
+
+**Life support** — see Phase 20 notes
 - Binary operational states driven by electrical system
-- Temperature modelling — open/closed doors, room volume, HVAC
+- Temperature modelling
 - Dynamic room descriptions based on power state
 
-### Phase 21 — Events system + opening narrative (see Sections 18 and 22)
-- Banking hack opening event — delivered via messages system
-- Enso VeilTech compliance message
-- Friend's warning message
-- Mainframe navigation lock event
-- Random and scheduled event architecture
-- Player survival mechanics
+**Player survival mechanics** — see Section 18
+- Hunger, thirst, fatigue, atmospheric survival
+- Auto-chain threshold for long repairs — pause between components above N minutes
 
-### Phase 22 — Mainframe hack objective
+**Events + opening narrative**
+- Banking hack, compliance message, friend contact (after ship control)
+- Mainframe navigation lock
+
+**Mainframe hack objective**
 - Mainframe terminal hack mechanic
 - Mainframe AI personality post-hack
-- Ceres Base navigation objective
 
-### Phase 23 — Going dark (see Section 24)
-- Cargo inventory and barter — liquidate Enso VeilTech cargo through underground contacts
-- Ship transponder obfuscator — illegal device, underground source only
-- Physical hull camouflage — bolt-on parts changing the Tempus Fugit's visual profile
-- EVA required for external hull work — unlocks EVA gameplay phase
-- New ship identity established
+**Going dark** — see Section 24
+- Cargo barter, transponder obfuscator, hull camouflage, EVA
 
-### Phase 24 — Electrical system repair (see Section 23)
-- HV test kit — specialist tool for electrical diagnosis
-- Lockout/tagout procedure using breaker locked_out attribute
-- diagnose/repair commands extended to cover electrical components
-- Reactor integral main isolator breaker
-
-### Phase 25 — Cargo movement (sack barrow + cargo handler)
-- Sack barrow mechanic — Jack moves small containers between rooms
-- Cargo handler operational check — `cargo_handler_operational` flag on GameManager
-- Stacking accessibility logic:
-  - Container stacked directly on pallet → accessible, sack barrow sufficient
-  - Container stacked on another container → cargo handler must be operational to unstack first
-- Cargo handler as a repairable item — breaks down, must be repaired before cargo loading/unloading
-
-### Phase 26+ — Navigation, trading, further narrative...
+**Cargo movement**
+- Sack barrow, cargo handler operational flag
+- `cargo_handler_operational` on GameManager before this phase
 
 ---
 
@@ -664,24 +696,28 @@ When a second repairable type is added, extract common logic to `repair_utils.py
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
 - ✅ **Description panel click lockout during timed actions** — implemented via `pointer-events: none` on `description-content` in `Loop.lockInput()` and `Loop.unlockInput()`.
-- **Codebase size and structure analysis** — ✅ completed April 2026. Known remaining targets: `repair_handler.py` (→ `repair_utils.py`) before Phase 24, `terminal.js` split before Phase 22.
-- **`terminal.js` split** — split into `terminal_core.js`, `terminal_engineering.js`, `terminal_manifest.js` before Phase 22 mainframe work begins.
-- **`PalletContainer.pallet` flag** — purpose unclear, appears unused. Resolve before Phase 23.
-- **Cargo contents** — initial_cargo.json containers are currently empty. Cargo contents to be authored when narrative cargo manifest is defined (Phase 23).
-- **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before Phase 25.
+- ✅ **Codebase size and structure analysis** — completed April 2026. Remaining targets: `repair_handler.py` (→ `repair_utils.py`), `terminal.js` split, `command_handler.py` review.
+- **`terminal.js` split** — split into `terminal_core.js`, `terminal_engineering.js`, `terminal_manifest.js`. Do carefully, one piece at a time.
+- **`repair_handler.py` split** — extract utilities to `repair_utils.py`. Do after terminal.js split is complete and tested.
+- **`command_handler.py`** — review for split candidates after repair_handler split.
+- **`PalletContainer.pallet` flag** — purpose unclear, appears unused. Resolve before cargo movement phase.
+- **Cargo contents** — `initial_cargo.json` containers currently empty. Cargo contents to be authored when narrative cargo manifest is defined.
+- **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before cargo movement phase.
+- **Long repair auto-chain threshold** — repairs over N game minutes per component should pause and require player to explicitly continue. Implement when Phase 21 survival mechanics are built.
+- **Repair failure mechanic** — when `panel_restored` is false due to failure, `Loop.setRepairInProgress(false)` must be called before presenting failure message.
 
 
 ### Input lockout behaviour — known inconsistency
 
-**Terminal active** (`setTerminalMode`) — command input disabled, description panel 
-click handlers blocked via isTerminalSessionActive() checks, hover tooltips remain 
+**Terminal active** (`setTerminalMode`) — command input disabled, description panel
+click handlers blocked via isTerminalSessionActive() checks, hover tooltips remain
 active.
 
-**Timed action active** (`Loop.lockInput`) — command input disabled, description 
+**Timed action active** (`Loop.lockInput`) — command input disabled, description
 panel fully blocked via pointer-events: none, hover tooltips also disabled.
 
-These behave differently as a result of how each was implemented rather than 
-intentional design. Whether they should be unified — and if so, which behaviour 
+These behave differently as a result of how each was implemented rather than
+intentional design. Whether they should be unified — and if so, which behaviour
 is correct — is an open question for a future session.
 
 ### Recently completed deferred items
@@ -695,6 +731,9 @@ is correct — is an open question for a future session.
 - ✅ **Progress counter on animations** — % counter on scan/repair/diagnosis animations.
 - ✅ **Phase 19** — Storage room automated facility and cargo bay manifest fully implemented.
 - ✅ **Codebase review and cleanup (April 2026)** — dead code removed, silent fallbacks eliminated, door action logic corrected, input locking hardened, ship log structured, messages stub fixed.
+- ✅ **Electrical system expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer multi-path, engine fixed objects, SVG map updates.
+- ✅ **Event system (bare minimum)** — EventSystem, impact event, event strip, repairInProgress flag.
+- ✅ **Electrical repair parts** — HV items authored, circuit breakers, wire gauges, storage quantity support.
 
 ---
 
@@ -917,43 +956,56 @@ Never a villain in the traditional sense. Complete institutional indifference. A
 
 ---
 
-## 23. ELECTRICAL SYSTEM REPAIR — DESIGN (PHASE 24)
+## 23. ELECTRICAL SYSTEM REPAIR — DESIGN
 
 ### Overview
-The same diagnose/repair gameplay used for door panels extends to the ship's electrical system. Key differences: HV test kit required, lockout/tagout safety procedure mandatory, electrical components are not visible — player must reason from symptoms.
+The same diagnose/repair gameplay used for door panels extends to the ship's electrical system. Key differences: HV test kit required, lockout/tagout safety assumed (not modelled), electrical components accessed via their owning circuit panel.
 
 ### Fault causes
 Electrical faults are always caused by game events — never random at diagnosis time. Events: micrometeorite impact (severs cables), power surge (trips/destroys breakers), age/general failure.
 
 ### The HV Test Kit
-Specialist tool for all electrical diagnosis and repair. Cannot be substituted with scan tool. Contains HV rated PPE, HV multimeter, megohmmeter.
+Specialist tool for all electrical diagnosis and repair. Cannot be substituted with scan tool. Contains HV rated PPE, HV multimeter, megohmmeter, lockout tags. Item ID: `hv_service_kit`.
 
 ### Lockout / Tagout procedure
-800V DC is lethal. Player must isolate and prove dead before working. Attempting to work live = instant death.
+800V DC is lethal. Lockout/tagout is assumed to be performed correctly — not modelled as a gameplay mechanic. The HV service kit description references lockout hardware. Attempting to work on live systems is not currently modelled — future consideration.
 
-1. Identify upstream breaker
-2. `lock out <breaker_id>` — must be physically present at breaker's room
-3. Prove dead (embedded in diagnosis timed action)
-4. Diagnose and repair
-5. `remove lockout <breaker_id>`
+### Panel-based repair access
+Each circuit panel is a physical repair location. Jack must be in the panel's room to diagnose and repair. Each panel owns:
+- The panel itself
+- All breakers in that panel
+- All cables on either side up to the next panel or power source
 
-**Breaker `locked_out` attribute:**
+### Repair profiles
+`data/repair/electrical_repair_profiles.json` — keyed by panel ID. Each profile lists all owned components with diagnosis/repair times and required parts.
 
-| tripped | operational | locked_out | Meaning |
-|---------|-------------|------------|---------|
-| False | True | False | Normal — passing power |
-| True | True | False | Tripped — needs reset |
-| True | False | False | Failed — needs replacement |
-| Any | Any | True | Locked out by player |
+**Component types and parts:**
 
-### Reactor integral main isolator
-Modelled as a breaker with `"integral": true`. Locking it out takes entire main distribution offline.
+| Type | Parts required |
+|------|---------------|
+| Breaker | 1x matching amp-rated circuit breaker |
+| Cable (standard) | `wire_hv_standard` by length + 2x `hv_connect_standard` |
+| Cable (heavy duty) | `wire_hv_heavy_duty` by length + 2x `hv_connect_heavy` |
+| Panel | 1x `hv_logic_board` + 1x `hv_bus_bar` (+ possible breakers for severe failure) |
+| Power sources | Out of scope — handled by fixed object repair system |
+
+**Heavy duty cables** (reactor feeds and bypass path):
+`PWC-ENG-01`, `PWC-PRO-01`, `PWC-PRO-04`, `PWC-ENG-00`, `PWC-PRO-02`, `PWC-PRO-03`
+
+**Circuit breaker sizes:**
+| Item ID | Rating | Used for |
+|---------|--------|---------|
+| `10A_breaker` | 10A | Small rooms |
+| `32A_breaker` | 32A | Medium rooms |
+| `63A_breaker` | 63A | Sub-panel branch feeds |
+| `250A_breaker` | 250A | Bypass breaker FUS-PRO-00 |
+| `600A_breaker` | 600A | Sub-light engine FUS-PRO-01 |
+| `1200A_breaker` | 1200A | FTL engine FUS-PRO-02 |
 
 ### Key design decisions still to make ⚠️
-- HV test kit manufacturer/model
-- Replacement breaker unit item definition
-- Repair profiles for each electrical component type
-- Exact command syntax for lockout/tagout
+- Exact command syntax for electrical diagnose/repair
+- Panel failure severity randomisation — event sets damage level, profile defines max parts
+- Repair profiles need cable length_m added to electrical.json first
 
 ---
 
@@ -995,5 +1047,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v19.1*
+*Project Orion Game Design Document v20.0*
 *April 2026*
