@@ -160,7 +160,7 @@
     background: #0a1f0a;
     border: 1px solid var(--col-border);
     color: var(--col-title);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 11px;
     padding: 4px 10px;
     cursor: pointer;

@@ -7,7 +7,7 @@
     <style>
       .wall       { stroke: #444; stroke-width: 6; fill: none; stroke-linecap: square; }
       .room-fill  { fill-opacity: 0.22; stroke: none; }
-      text        { fill: #ccc; font-family: Arial, sans-serif; pointer-events: none; }
+      text        { fill: #ccc; font-family: 'Share Tech Mono', Arial, sans-serif; pointer-events: none; }
     </style>
     <!-- Eject symbol — used when a reactor is ejected. Apply via <use> -->
     <g id="eject-symbol">
@@ -40,8 +40,7 @@
         x="746" y="211" width="148" height="208"
         fill="#4a6fa5"/>
 
-  <text x="750" y="345" font-size="18">Recreation Room</text>
-  <text x="820" y="360" font-size="13" fill="#aaa">5.5 × 4 m</text>
+  <text x="750" y="345" font-size="15">Recreation Room</text>
 
   <!-- Cockpit walls -->
   <g class="wall">
@@ -56,8 +55,7 @@
         x="776" y="91" width="88" height="108"
         fill="#4a6fa5"/>
 
-  <text x="790" y="150" font-size="18">Cockpit</text>
-  <text x="790" y="175" font-size="13" fill="#aaa">3 × 2.5 m</text>
+  <text x="790" y="150" font-size="15">Cockpit</text>
 
   <!-- Storage Room -->
   <g class="wall">
@@ -129,8 +127,7 @@
         x="746" y="431" width="68" height="388"
         fill="#4a6fa5"/>
 
-  <text x="760" y="625" font-size="18">CH-1</text>
-  <text x="760" y="650" font-size="13" fill="#aaa">10 × 2 m</text>
+  <text x="760" y="625" font-size="15">CH-1</text>
 
   <!-- Sub Corridor CH-2 -->
   <g class="wall">
@@ -144,8 +141,7 @@
         x="426" y="491" width="308" height="68"
         fill="#4a6fa5"/>
 
-  <text x="560" y="525" font-size="18">CH-2</text>
-  <text x="560" y="540" font-size="13" fill="#aaa">8 × 2 m</text>
+  <text x="560" y="525" font-size="15">CH-2</text>
 
   <!-- Bathroom / Head -->
   <g class="wall">
@@ -158,8 +154,7 @@
         x="526" y="571" width="68" height="108"
         fill="#4a6fa5"/>
 
-  <text x="540" y="625" font-size="18">Head</text>
-  <text x="540" y="640" font-size="13" fill="#aaa">3 × 2 m</text>
+  <text x="540" y="625" font-size="15">Head</text>
 
   <!-- Mainframe room -->
   <g class="wall">
@@ -171,8 +166,7 @@
         x="606" y="571" width="128" height="128"
         fill="#4a6fa5"/>
 
-  <text x="630" y="625" font-size="18">Mainframe</text>
-  <text x="630" y="640" font-size="13" fill="#aaa">3.5 × 3.5 m</text>
+  <text x="630" y="625" font-size="15">Mainframe</text>
 
   <!-- Cargo Bay -->
   <g class="wall">
@@ -189,8 +183,7 @@
         x="86" y="301" width="328" height="388"
         fill="#4a6fa5"/>
 
-  <text x="220" y="495" font-size="18">Cargo Bay</text>
-  <text x="220" y="520" font-size="13" fill="#aaa">10 × 8.5 m</text>
+  <text x="220" y="495" font-size="15">Cargo Bay</text>
 
   <!-- Airlock -->
   <g class="wall">
@@ -204,8 +197,7 @@
         x="246" y="701" width="128" height="88"
         fill="#4a6fa5"/>
 
-  <text x="270" y="735" font-size="18">Air Lock</text>
-  <text x="270" y="760" font-size="13" fill="#aaa">3.5 × 2.5 m</text>
+  <text x="270" y="735" font-size="15">Air Lock</text>
 
   <!-- Engineering -->
   <g class="wall">
@@ -222,8 +214,7 @@
         x="636" y="831" width="288" height="228"
         fill="#4a6fa5"/>
 
-  <text x="740" y="945" font-size="18">Engineering</text>
-  <text x="740" y="970" font-size="13" fill="#aaa">7.5 × 6 m</text>
+  <text x="740" y="945" font-size="15">Engineering</text>
 
   <!-- Life support -->
   <g class="wall">
@@ -236,8 +227,7 @@
         x="496" y="831" width="128" height="168"
         fill="#4a6fa5"/>
 
-  <text x="510" y="915" font-size="18">Life Support</text>
-  <text x="510" y="940" font-size="13" fill="#aaa">4.5 × 3.5 m</text>
+  <text x="510" y="915" font-size="15">Life Support</text>
 
   <!-- Propulsion -->
   <g class="wall">
@@ -252,8 +242,7 @@
         x="586" y="1071" width="388" height="318"
         fill="#4a6fa5"/>
 
-  <text x="740" y="1195" font-size="18">Propulsion</text>
-  <text x="740" y="1220" font-size="13" fill="#aaa">10 × 8 m</text>
+  <text x="740" y="1195" font-size="15">Propulsion</text>
 
   <!-- Captains Quarters -->
   <g class="wall">
@@ -266,8 +255,7 @@
         x="826" y="431" width="148" height="168"
         fill="#4a6fa5"/>
 
-  <text x="830" y="495" font-size="18">Captains Quarters</text>
-  <text x="830" y="520" font-size="13" fill="#aaa">4.5 × 4 m</text>
+  <text x="830" y="495" font-size="15">Captains Quarters</text>
 
   <!-- Crew Cabin -->
   <g class="wall">
@@ -279,8 +267,7 @@
         x="826" y="611" width="148" height="128"
         fill="#4a6fa5"/>
 
-  <text x="850" y="655" font-size="18">Crew Cabin</text>
-  <text x="850" y="680" font-size="13" fill="#aaa">4 × 3.5 m</text>
+  <text x="850" y="655" font-size="15">Crew Cabin</text>
 
   <!-- ═══════════════════════════════════════════════════ -->
   <!-- POWER SOURCE ICONS — driven by game.js             -->

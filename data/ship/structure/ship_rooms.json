@@ -74,8 +74,8 @@
       "The single hatch leads back to *sub corridor CH-2*."
     ],
     "dimensions_m": {
-      "length": 3.5,
-      "width": 2.5,
+      "length": 3,
+      "width": 2,
       "height": 2.5
     },
     "exits": {
@@ -256,7 +256,7 @@
     ],
     "dimensions_m": {
       "length": 4.0,
-      "width": 3.0,
+      "width": 3.5,
       "height": 2.5
     },
     "exits": {

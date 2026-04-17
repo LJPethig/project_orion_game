@@ -41,7 +41,7 @@ html, body {
     overflow: hidden;
     background: var(--col-bg);
     color: var(--col-text);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 13px;
 }
 
@@ -110,7 +110,7 @@ html, body {
 
 .tab-label {
     color: var(--col-title);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 9px;
     letter-spacing: 1px;
     user-select: none;
@@ -255,7 +255,7 @@ html, body {
     border: none;
     outline: none;
     color: var(--col-prompt);
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 13px;
     caret-color: var(--col-prompt);
 }
@@ -310,7 +310,7 @@ html, body {
     background: rgba(0, 0, 0, 0.92);
     border: 1px solid var(--col-border);
     padding: 6px 10px;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 12px;
     pointer-events: none;
     z-index: 2000;
