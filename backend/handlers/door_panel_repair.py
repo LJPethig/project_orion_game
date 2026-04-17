@@ -1,6 +1,6 @@
-# backend/handlers/repair_handler.py
+# backend/handlers/door_panel_repair.py
 """
-RepairHandler — handles 'repair <target>' command.
+DoorPanelRepairHandler — diagnosis and repair of door access panels.
 
 Stateful, data-driven repair system. Reads repair_profiles.json for tool
 requirements, component lists, diagnosis and repair times.
@@ -26,33 +26,19 @@ import json
 import random
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
+from backend.handlers.repair_utils import (
+    calc_repair_real_seconds,
+    calc_diagnose_real_seconds,
+    item_name,
+    component_display_name,
+    check_tools,
+    format_duration,
+)
 from config import REPAIR_PROFILES_PATH, DOOR_PANEL_TYPES_PATH, \
-                   REPAIR_TIME_BASE_SECONDS, REPAIR_TIME_SCALE_SECONDS, \
-                   REPAIR_TIME_PIVOT_MINUTES, REPAIR_TIME_CAP_SECONDS, \
                    DIAG_ACCESS_OVERHEAD, DIAG_TIME_JITTER
 
 
-def calc_repair_real_seconds(game_minutes: int) -> int:
-    """Real wait time for a repair action, scaled to game time with cap."""
-    total = round(REPAIR_TIME_BASE_SECONDS + (game_minutes / REPAIR_TIME_PIVOT_MINUTES) * REPAIR_TIME_SCALE_SECONDS)
-    if total > REPAIR_TIME_CAP_SECONDS:
-        total = REPAIR_TIME_CAP_SECONDS
-    return total
-
-
-def calc_diagnose_real_seconds(game_minutes: int) -> int:
-    """Real wait time for a diagnosis action, scaled to game time with cap.
-    NOTE: Currently identical to calc_repair_real_seconds. Kept separate
-    in anticipation that diagnosis and repair may scale differently in future
-    (e.g. Phase 24 electrical repair). Revisit after Phase 24 is complete.
-    """
-    total = round(REPAIR_TIME_BASE_SECONDS + (game_minutes / REPAIR_TIME_PIVOT_MINUTES) * REPAIR_TIME_SCALE_SECONDS)
-    if total > REPAIR_TIME_CAP_SECONDS:
-        total = REPAIR_TIME_CAP_SECONDS
-    return total
-
-
-class RepairHandler(BaseHandler):
+class DoorPanelRepairHandler(BaseHandler):
 
     def __init__(self):
         # Load repair profiles
@@ -78,12 +64,12 @@ class RepairHandler(BaseHandler):
         if panel.broken_components:
             profile     = self._profiles.get(panel.panel_type)
             fault_names = [
-                self._component_display_name(next(
+                component_display_name(next(
                     comp for comp in profile['components'] if comp['item_id'] == c
                 ))
                 for c in panel.broken_components
             ]
-            tool_names  = [self._item_name(t) for t in profile['repair_tools_required']]
+            tool_names  = [item_name(t) for t in profile['repair_tools_required']]
             return {
                 'response':     f"The {exit_label} access panel has already been diagnosed.",
                 'action_type':  'repair_message',
@@ -175,9 +161,9 @@ class RepairHandler(BaseHandler):
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
         # ── Check diag tools ──────────────────────────────────
-        missing_tools = self._check_tools(profile['diag_tools_required'])
+        missing_tools = check_tools(profile['diag_tools_required'], game_manager.player)
         if missing_tools:
-            names = [self._item_name(t) for t in missing_tools]
+            names = [item_name(t) for t in missing_tools]
             return {
                 'response': '',
                 'action_type': 'repair_message',
@@ -291,7 +277,7 @@ class RepairHandler(BaseHandler):
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
         # ── Check repair tools ────────────────────────────────
-        missing_tools = [self._item_name(t) for t in self._check_tools(profile['repair_tools_required'])]
+        missing_tools = [item_name(t) for t in check_tools(profile['repair_tools_required'], game_manager.player)]
 
         # ── Check parts across all remaining components ───────
         missing_parts = self._check_all_parts(panel, profile)
@@ -314,13 +300,13 @@ class RepairHandler(BaseHandler):
         if not next_component:
             return self._instant("All diagnosed components have been repaired.")
 
-        item_name    = self._item_name(next_component['item_id'])
-        repair_mins  = next_component['repair_time_mins']
-        real_seconds = calc_repair_real_seconds(repair_mins)
-        remaining    = len(panel.broken_components) - len(panel.repaired_components) - 1
+        next_item_name = item_name(next_component['item_id'])
+        repair_mins    = next_component['repair_time_mins']
+        real_seconds   = calc_repair_real_seconds(repair_mins)
+        remaining      = len(panel.broken_components) - len(panel.repaired_components) - 1
 
         return {
-            'response':             f"Replacing {item_name}...",
+            'response':             f"Replacing {next_item_name}...",
             'action_type':          'repair_component',
             'lock_input':           True,
             'real_seconds':         real_seconds,
@@ -357,7 +343,7 @@ class RepairHandler(BaseHandler):
             if item_id in panel.repaired_components:
                 continue
 
-            name = self._item_name(item_id)
+            name = item_name(item_id)
 
             if 'length_m' in component:
                 required = component['length_m']
@@ -380,7 +366,7 @@ class RepairHandler(BaseHandler):
 
         return missing
 
-    # ── Completion (called from command.py endpoints) ─────────
+    # ── Completion (called from repair_handler.py endpoints) ──
 
     def complete_diagnosis(self, panel_id: str, door_id: str, game_minutes: int,
                                exit_label: str = 'unknown') -> dict:
@@ -415,12 +401,12 @@ class RepairHandler(BaseHandler):
 
         # ── Build response ────────────────────────────────────
         panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
-        fault_names = [self._component_display_name(c) for c in broken]
-        duration = self._format_duration(total_diag_mins)
+        fault_names = [component_display_name(c) for c in broken]
+        duration = format_duration(total_diag_mins)
 
         # Check what the player is missing for the repair
         missing_parts = self._check_all_parts(panel, profile)
-        missing_tools = [self._item_name(t) for t in self._check_tools(profile['repair_tools_required'])]
+        missing_tools = [item_name(t) for t in check_tools(profile['repair_tools_required'], game_manager.player)]
         missing_items = missing_tools + missing_parts
 
         # ── Write ship log and tablet note ────────────────────
@@ -436,7 +422,7 @@ class RepairHandler(BaseHandler):
             'timestamp': game_manager.get_ship_time(),
             'location_str': location_str,
             'faults': fault_names,
-            'tools': [self._item_name(t) for t in profile['repair_tools_required']],
+            'tools': [item_name(t) for t in profile['repair_tools_required']],
             'missing': missing_items,
             'panel_id': panel_id,
             'door_id': door_id,
@@ -452,11 +438,11 @@ class RepairHandler(BaseHandler):
             'panel_model': panel_model,
             'faults': fault_names,
             'faults_label': 'You determined these components are faulty:',
-            'tools': [self._item_name(t) for t in profile['repair_tools_required']],
+            'tools': [item_name(t) for t in profile['repair_tools_required']],
             'tools_label': 'This repair will require the following tools:',
             'missing_items': missing_items,
             'parts': [
-                {'name': self._component_display_name(c), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
+                {'name': component_display_name(c), 'qty': c.get('qty'), 'length_m': c.get('length_m')}
                 for c in broken
             ],
         }
@@ -487,7 +473,7 @@ class RepairHandler(BaseHandler):
         panel.repaired_components.append(component_id)
         game_manager.advance_time(component['repair_time_mins'])
 
-        item_name = self._item_name(component_id)
+        repaired_item_name = item_name(component_id)
 
         # ── Check if all broken components are repaired ───────
         if set(panel.repaired_components) == set(panel.broken_components):
@@ -497,12 +483,12 @@ class RepairHandler(BaseHandler):
             panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
             current_room = game_manager.get_current_room()
             location_str = f"Location: {current_room.name}  |  {exit_label} door panel  {panel_model}"
-            components_str = ', '.join(self._item_name(c) for c in panel.broken_components)
+            components_str = ', '.join(item_name(c) for c in panel.broken_components)
             total_repair_mins = sum(
                 c['repair_time_mins'] for c in profile['components']
                 if c['item_id'] in panel.broken_components
             )
-            repair_duration = self._format_duration(total_repair_mins)
+            repair_duration = format_duration(total_repair_mins)
             game_manager.add_log_entry({
                 'timestamp': game_manager.get_ship_time(),
                 'event': 'Repair complete',
@@ -527,7 +513,7 @@ class RepairHandler(BaseHandler):
 
         # ── More components to repair ─────────────────────────
         return {
-            'response':        f"{item_name} replaced. Preparing next component.",
+            'response':        f"{repaired_item_name} replaced. Preparing next component.",
             'action_type':     'repair_complete',
             'lock_input':      False,
             'room_changed':    False,
@@ -561,38 +547,5 @@ class RepairHandler(BaseHandler):
                     player.remove_from_inventory(item)
                     removed += 1
 
-    # ── Helpers ───────────────────────────────────────────────
 
-    def _check_tools(self, tool_ids: list) -> list:
-        """Return list of tool ids the player is missing."""
-        player    = game_manager.player
-        all_items = player.get_inventory() + player.equipped_items
-        held_ids = {getattr(item, 'id', None) for item in all_items if item}
-        return [t for t in tool_ids if t not in held_ids]
-
-    def _item_name(self, item_id: str) -> str:
-        """Look up item display name from registry. Falls back to item_id."""
-        from backend.loaders.item_loader import load_item_registry
-        registry = load_item_registry()
-        data = registry.get(item_id)
-        return data['name'] if data else item_id
-
-    def _component_display_name(self, component: dict) -> str:
-        """Return display name for a profile component, appending length for wire."""
-        name = self._item_name(component['item_id'])
-        if 'length_m' in component:
-            return f"{name} ({component['length_m']}m)"
-        return name
-
-    def _format_duration(self, minutes: int) -> str:
-        """Format a duration in minutes as a human-readable string."""
-        hours = minutes // 60
-        mins = minutes % 60
-        if hours and mins:
-            return f"{hours} hour{'s' if hours > 1 else ''} {mins} minute{'s' if mins > 1 else ''}"
-        if hours:
-            return f"{hours} hour{'s' if hours > 1 else ''}"
-        return f"{mins} minute{'s' if mins > 1 else ''}"
-
-
-repair_handler = RepairHandler()
+door_panel_repair_handler = DoorPanelRepairHandler()
