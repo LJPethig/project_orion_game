@@ -15,6 +15,10 @@
     margin-bottom: 8px;
 }
 
+#description-content .room-desc-addendum {
+    font-style: italic;
+}
+
 #description-content .section-label {
     color: #3a6a3a;
     font-size: 11px;
@@ -27,38 +31,49 @@
 
 .markup-exit {
     color: var(--col-title);
+    font-weight: bold;
     white-space: nowrap;
     cursor: default;
 }
 
 .markup-container {
-    color: var(--col-title);
+    color: var(--col-container);
+    font-weight: bold;
     white-space: nowrap;
     cursor: pointer;
 }
 
 .markup-terminal {
-    color: var(--col-title);
+    color: var(--col-terminal);
+    font-weight: bold;
     white-space: nowrap;
     cursor: pointer;
 }
 
 .markup-surface {
-    color: var(--col-text);
+    color: var(--col-container);
     font-weight: bold;
     white-space: nowrap;
     cursor: pointer;
 }
 
 .markup-surface.markup-surface-items {
-    color: var(--col-portable);
+    color: var(--col-container);
     font-weight: bold;
+}
+
+.markup-junction {
+    color: var(--col-junction);
+    font-weight: bold;
+    white-space: nowrap;
+    cursor: default;
 }
 
 .markup-exit:hover,
 .markup-container:hover,
 .markup-terminal:hover,
-.markup-surface:hover {
+.markup-surface:hover,
+.markup-junction:hover {
     text-decoration: underline;
 }
 
@@ -77,7 +92,8 @@
 }
 
 .layer2-container-name {
-    color: var(--col-title);
+    color: var(--col-container);
+    font-weight: bold;
     cursor: pointer;
     white-space: nowrap;
 }

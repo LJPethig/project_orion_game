@@ -15,9 +15,12 @@
     --col-border:       #1a3a1a;
     --col-divider:      #0f2a0f;
 
-    --col-text:         #bababa;       /* Default text */
-    --col-title:        #27e6ec;       /* Cyan — exits, fixed objects, titles */
-    --col-portable:     #bea5cd;       /* Purple — portable items */
+    --col-text:         #cecece;       /* Default prose */
+    --col-title:        #27e6ec;       /* Cyan — exits / doors */
+    --col-container:    #c4a050;       /* Amber — containers + surfaces */
+    --col-terminal:     #a06aa0;       /* Violet — terminals */
+    --col-junction:     #b87560;       /* Coral — power junctions */
+    --col-portable:     #b09abe;       /* Purple — portable items */
     --col-alert:        #ff8c00;       /* Orange — alerts */
     --col-prompt:       #00ff00;       /* Green — command prompt */
     --col-response:     #7e97ae;       /* Muted blue — player input echo */

@@ -130,9 +130,15 @@
     "name": "Recreation Room",
     "target_temperature": "normal",
     "description": [
-      "The ship's central hub for relaxation and social interaction, with soft lighting and warm colors to create a welcoming atmosphere.",
-      "The *main corridor CH-1* leads back towards your quarters. Forward access to the *cockpit* is via a solid door.",
-      "The *galley* entrance is on the right side wall next to a #shelving unit#, while separate doors to a small *storage room* and *med-bay* are opposite."
+      "The curved hull walls close in around an amber leather sofa — too large, too expensive, entirely wrong for a cargo hauler. A stained rug covers part of the deck, the rest scattered with food wrappers, old magazines and the general detritus of a man living alone in deep space.",
+      "^power_state^",
+      "The *Cockpit* is through the forward door, the *Main Corridor* through the aft hatch. The *Galley* is through the starboard hatch. Port side doors lead to the *Med-Bay* and *Storage Room*. A #Shelving Unit# runs along the starboard bulkhead, a ?Power Junction? mounted beside the aft hatch on the port side."
+    ],
+    "description_powered": [
+      "The strip lighting hums overhead. The forward screen loops between an Enso VeilTech corporate wellness programme nobody asked for and product infomercials nobody watches — ways to spend what's left of your meagre salary after corporate deductions."
+    ],
+    "description_unpowered": [
+      "The strip lighting is dead. Photoluminescent deck markers cast just enough green light to navigate carefully. The forward screen is dark and silent — a small mercy. Something somewhere has gone wrong."
     ],
     "dimensions_m": {
       "length": 5.5,
@@ -156,12 +162,10 @@
       },
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       },
       "med_bay": {

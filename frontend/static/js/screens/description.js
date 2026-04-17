@@ -11,6 +11,23 @@ function renderDescription(room) {
     content.appendChild(title);
 
     room.description.forEach(line => {
+        // ── State token — resolve to addendum ────────────
+        if (line === '^power_state^') {
+            const powered  = room.room_powered !== false;
+            const addendum = powered ? room.description_powered : room.description_unpowered;
+            if (addendum && addendum.length > 0) {
+                addendum.forEach(addLine => {
+                    const el = document.createElement('div');
+                    el.className = 'room-desc room-desc-addendum';
+                    el.textContent = addLine;
+                    content.appendChild(el);
+                });
+            }
+            return;
+        }
+        if (line === '@reactor_state@') return;  // reserved — not yet implemented
+        if (line === '&engine_state&') return;   // reserved — not yet implemented
+
         const el = document.createElement('div');
         el.className = 'room-desc';
         el.appendChild(parseMarkup(line, room.object_states || {}));
@@ -148,7 +165,7 @@ function _getObjectName(id, objectStates) {
 function parseMarkup(text, objectStates = {}) {
     const fragment  = document.createDocumentFragment();
     // Matches *exit*, %container%, !terminal!, #surface#
-    const regex     = /(\*[^*]+\*|%[^%]+%|![^!]+!|#[^#]+#)/g;
+    const regex     = /(\*[^*]+\*|%[^%]+%|![^!]+!|#[^#]+#|\?[^?]+\?)/g;
     let lastIndex   = 0;
     let match;
 
@@ -184,6 +201,11 @@ function parseMarkup(text, objectStates = {}) {
             const hasItems = objState && objState.has_items;
             span.className       = hasItems ? 'markup-surface markup-surface-items' : 'markup-surface';
             span.dataset.surface = key;
+
+        } else if (raw.startsWith('?')) {
+            // Power junction
+            span.className        = 'markup-junction';
+            span.dataset.junction = inner.toLowerCase().replace(/\s+/g, '_');
         }
 
         fragment.appendChild(span);

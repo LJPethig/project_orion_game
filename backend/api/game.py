@@ -170,15 +170,20 @@ def _build_room_data(room) -> dict:
     # Floor items — only populated when items are present
     floor_items = [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in room.floor]
 
+    room_powered = es.check_room_power(room.id) if es else True
+
     return {
-        'id':               room.id,
-        'name':             room.name,
-        'description':      room.description,
+        'id': room.id,
+        'name': room.name,
+        'description': room.description,
+        'description_powered': room.description_powered,
+        'description_unpowered': room.description_unpowered,
+        'room_powered': room_powered,
         'background_image': room.background_image,
-        'exits':            exits,
+        'exits': exits,
         'portable_objects': portable_objects,
-        'object_states':    object_states,
-        'floor_items':      floor_items,
+        'object_states': object_states,
+        'floor_items': floor_items,
     }
 
 @game_bp.route("/terminal/content", methods=["POST"])

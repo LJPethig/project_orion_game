@@ -62,6 +62,8 @@ class Ship:
                 target_temperature=target_temp,
             )
             room.fixed_object_ids = room_data.get('fixed_objects', [])
+            room.description_powered = room_data.get('description_powered', [])
+            room.description_unpowered = room_data.get('description_unpowered', [])
             self.rooms[room_id] = room
 
     def _load_doors(self) -> None:

@@ -27,6 +27,8 @@ class Room:
         self.id                 = room_id
         self.name               = name
         self.description        = description
+        self.description_powered = []
+        self.description_unpowered = []
         self.background_image   = background_image
         self.exits              = exits
         self.dimensions_m, self.volume_m3 = self._validate_and_compute_volume(
@@ -41,7 +43,8 @@ class Room:
         # Floor — fallback when no surface is available. Not shown in description unless occupied.
         self.floor:            List[Any]  = []
 
-        # Temperature — target set from JSON preset, current starts at target
+        # Temperature — deferred until life support is designed (Phase 20+)
+        # Structure may change — do not build on this until life support phase begins
         self.target_temperature  = target_temperature
         self.current_temperature = target_temperature
 
