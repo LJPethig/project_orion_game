@@ -121,6 +121,7 @@ def _break_response(sys, component_type, component_id, action):
         'component_type': component_type,
         'component_id': component_id,
         'action': action,
+        'power_changed': True,
         'room_power': _room_power(sys),
         'batteries': sys.get_battery_states(),
         'reactors': {
@@ -205,6 +206,7 @@ def _fix_response(sys, component_type, component_id, action):
         'component_type': component_type,
         'component_id': component_id,
         'action': action,
+        'power_changed': True,
         'room_power': _room_power(sys),
         'batteries': sys.get_battery_states(),
         'reactors': {

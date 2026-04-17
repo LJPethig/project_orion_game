@@ -312,7 +312,7 @@ function handleResult(result) {
 
     // Instant action — reload room if contents changed (take/drop), otherwise just refresh exits
     if (result.action_type === 'instant') {
-        if (result.room_contents_changed) {
+        if (result.room_contents_changed || result.power_changed) {
             loadRoom();
         } else {
             refreshDescription();

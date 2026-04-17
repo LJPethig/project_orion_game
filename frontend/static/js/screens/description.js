@@ -333,6 +333,8 @@ function setupClickHandlers(container) {
             if (id) {
                 clearResponse();
                 appendResponse(`> ${verb} ${e.target.textContent}`, 'player-cmd');
+                const tooltip = document.getElementById('exit-tooltip');
+                if (tooltip) tooltip.classList.add('hidden');
                 API.sendCommand(`${verb} ${id}`).then(result => handleResult(result));
             }
         });

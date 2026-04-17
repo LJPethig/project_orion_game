@@ -198,7 +198,7 @@ async function _debugBreakFix(action, componentId) {
         if (typeof _updateRoomColours === 'function') {
             await _updateRoomColours();
         }
-        refreshDescription();
+        loadRoom();
 
     } catch (err) {
         _debugLog(`Network error: ${err.message}`, 'err');
