@@ -1,5 +1,12 @@
-// frontend/static/js/screens/terminal.js
-// Terminal panel — renders terminal menu, handles keypress navigation, exit.
+// frontend/static/js/screens/terminal_core.js
+// Terminal core — session state, panel open/close, rendering, typewriter, keyboard.
+// Depends on: terminal_engineering.js (_openElectricalSubMenu, _openElectricalMap)
+//             terminal_manifest.js (_openStorageManifest, _openCargoManifest,
+//                                   _storageManifestData, _storageSelectedIndex, _storageSelectItem,
+//                                   _retrieveFromStorage, _cargoManifestData, _cargoSelectedIndex,
+//                                   _cargoSelectItem)
+//             api.js (API.terminalClose, API.getState, API.getTerminalContent)
+//             game.js (clearResponse, appendResponse, updateDatapadTab)
 
 // ── Constants ─────────────────────────────────────────────────
 const TERM_CHAR_SPEED_MS   = 20;    // Base ms per character
@@ -13,7 +20,6 @@ let currentTerminal      = null;   // current terminal data from backend
 let terminalSubMenu      = null;   // null = main menu, object = sub-menu content
 let _typewriterActive    = false;  // true while typing is in progress
 let _typewriterCancelled = false;  // set to true to abort current typewriter
-let _electricalSubMenuData = null;   // electrical sub-menu data for back navigation
 
 
 // ── Terminal mode — blocks command input ──────────────────────
@@ -330,10 +336,10 @@ function _handleMenuKey(key) {
                 _applyMapTransformToContainer('term-map-container'); return;
             }
             if (key === '0') {
-            resetMapState();
-            _applyMapTransformToContainer('term-map-container');
-            return;
-        }
+                resetMapState();
+                _applyMapTransformToContainer('term-map-container');
+                return;
+            }
         }
         if (key === 'r') {
             // If we came from electrical sub-menu, go back there
@@ -377,80 +383,6 @@ function _handleMenuKey(key) {
     });
 }
 
-function _openElectricalSubMenu(data) {
-    _electricalSubMenuData = data;
-    terminalSubMenu = data;
-    const inner = document.getElementById('terminal-panel-inner');
-    inner.innerHTML = '';
-
-    const title = document.createElement('div');
-    title.className   = 'term-title';
-    title.textContent = data.title;
-    inner.appendChild(title);
-
-    const menu = document.createElement('div');
-    menu.className = 'term-menu';
-    data.menu.forEach(item => {
-        const row = document.createElement('div');
-        row.className   = 'term-menu-item';
-        row.textContent = item.label;
-        menu.appendChild(row);
-    });
-    inner.appendChild(menu);
-
-    const prompt = document.createElement('div');
-    prompt.className = 'term-prompt';
-    prompt.appendChild(document.createTextNode('Enter Command: '));
-    const cursor = document.createElement('span');
-    cursor.className = 'term-cursor';
-    prompt.appendChild(cursor);
-    inner.appendChild(prompt);
-}
-
-async function _openElectricalMap(title) {
-    const inner = document.getElementById('terminal-panel-inner');
-    inner.innerHTML = '';
-
-    // Title
-    const titleEl = document.createElement('div');
-    titleEl.className   = 'term-title';
-    titleEl.textContent = title;
-    inner.appendChild(titleEl);
-
-    // Commands
-    const commands = document.createElement('div');
-    commands.className   = 'term-submenu-commands';
-    commands.textContent = '[R] Return    [X] Exit    Arrow keys pan    [+][-] zoom    [0] Reset view';
-    inner.appendChild(commands);
-
-    // Map container
-    const mapContainer = document.createElement('div');
-    mapContainer.className = 'term-map-container';
-    mapContainer.id        = 'term-map-container';
-    inner.appendChild(mapContainer);
-
-    // Load SVG
-    try {
-        const response = await fetch('/static/images/ship_layout.svg');
-        const svgText  = await response.text();
-        mapContainer.innerHTML = svgText;
-        _mapSvgEl = mapContainer.querySelector('svg');
-        if (_mapSvgEl) {
-            _mapSvgEl.style.transformOrigin = '0 0';
-            _mapPanX  = 0;
-            _mapPanY  = 0;
-            _mapScale = 0.35;
-            _applyMapTransformToContainer('term-map-container');
-            await _updateRoomColours();
-            _initMapHovers();
-        }
-    } catch (e) {
-        mapContainer.textContent = 'Map unavailable.';
-    }
-
-    // Set sub-menu state so R/X keys work
-    terminalSubMenu = { view: 'electrical_map', title, _parent: _electricalSubMenuData };
-}
 
 function _returnToMainMenu() {
     _cancelTypewriter();
@@ -482,226 +414,3 @@ function _terminalKeyHandler(e) {
     _handleMenuKey(key);
 }
 
-// ── Storage manifest ──────────────────────────────────────────
-
-let _storageManifestData  = [];
-let _storageSelectedIndex = -1;
-
-async function _openStorageManifest() {
-    const inner = document.getElementById('terminal-panel-inner');
-    inner.innerHTML = '';
-
-    const title = document.createElement('div');
-    title.className   = 'term-title';
-    title.textContent = currentTerminal.terminal_name;
-    inner.appendChild(title);
-
-    const commands = document.createElement('div');
-    commands.className   = 'term-submenu-commands';
-    commands.textContent = 'UP/DOWN arrow keys to navigate    [R] Retrieve    [X] Exit';
-    inner.appendChild(commands);
-
-    const list = document.createElement('div');
-    list.className = 'term-manifest-list';
-    list.id        = 'term-manifest-list';
-    inner.appendChild(list);
-
-    await _renderStorageManifest();
-}
-
-async function _renderStorageManifest() {
-    const data = await API.getStorageManifest();
-    _storageManifestData  = data.manifest || [];
-    _storageSelectedIndex = _storageManifestData.length > 0 ? 0 : -1;
-
-    const list = document.getElementById('term-manifest-list');
-    if (!list) return;
-    list.innerHTML = '';
-
-    if (_storageManifestData.length === 0) {
-        const empty = document.createElement('div');
-        empty.className   = 'term-content-line';
-        empty.textContent = 'No items are currently stored or the database is corrupted.';
-        empty.style.paddingLeft = '24px';
-        list.appendChild(empty);
-        return;
-    }
-
-    _storageManifestData.forEach((entry, idx) => {
-        const row = document.createElement('div');
-        row.className = 'term-manifest-item' + (idx === _storageSelectedIndex ? ' selected' : '');
-        row.dataset.idx = idx;
-
-        const name = document.createElement('span');
-        name.textContent = entry.display_name;
-
-        const qty = document.createElement('span');
-        qty.textContent = `x${entry.quantity}`;
-
-        const btn = document.createElement('button');
-        btn.className   = 'term-manifest-retrieve';
-        btn.textContent = 'RETRIEVE';
-        btn.addEventListener('click', () => _retrieveFromStorage(entry.instance_id));
-
-        row.appendChild(name);
-        row.appendChild(qty);
-        row.appendChild(btn);
-        row.addEventListener('click', () => _storageSelectItem(idx));
-        list.appendChild(row);
-    });
-}
-
-function _storageSelectItem(idx) {
-    _storageSelectedIndex = idx;
-    let selectedEl = null;
-    document.querySelectorAll('.term-manifest-item').forEach(row => {
-        const isSelected = parseInt(row.dataset.idx) === idx;
-        row.classList.toggle('selected', isSelected);
-        if (isSelected) selectedEl = row;
-    });
-    if (selectedEl) {
-        selectedEl.scrollIntoView({ block: 'nearest' });
-    }
-}
-
-async function _retrieveFromStorage(instanceId) {
-    const savedIndex = _storageSelectedIndex;
-    const result = await API.retrieveItem(instanceId);
-    clearResponse();
-    handleResult(result);
-    refreshInventoryIfOpen();
-    await _renderStorageManifest();
-    if (_storageManifestData.length > 0) {
-        _storageSelectItem(Math.min(savedIndex, _storageManifestData.length - 1));
-    }
-}
-
-// ── Cargo manifest ────────────────────────────────────────────
-
-let _cargoManifestData  = [];
-let _cargoSelectedIndex = -1;
-
-async function _openCargoManifest() {
-    const inner = document.getElementById('terminal-panel-inner');
-    inner.innerHTML = '';
-
-    const title = document.createElement('div');
-    title.className   = 'term-title';
-    title.textContent = currentTerminal.terminal_name;
-    inner.appendChild(title);
-
-    const commands = document.createElement('div');
-    commands.className   = 'term-submenu-commands';
-    commands.textContent = 'UP/DOWN arrow keys to navigate    [X] Exit';
-    inner.appendChild(commands);
-
-    const list = document.createElement('div');
-    list.className = 'term-manifest-list';
-    list.id        = 'term-cargo-list';
-    inner.appendChild(list);
-
-    await _renderCargoManifest();
-}
-
-async function _renderCargoManifest() {
-    const data = await API.getCargoManifest();
-    const list = document.getElementById('term-cargo-list');
-    if (!list) return;
-    list.innerHTML = '';
-
-    // Header row
-    const header = document.createElement('div');
-    header.className = 'term-manifest-header';
-    ['Container', 'Type', 'Item', 'Qty'].forEach(label => {
-        const span = document.createElement('span');
-        span.textContent = label;
-        header.appendChild(span);
-    });
-    list.appendChild(header);
-
-    const containers     = data.containers || [];
-    const pallets        = data.pallets    || [];
-    const visiblePallets = pallets.filter(p => p.attached_items && p.attached_items.length > 0);
-
-    const sizeOrder = { small: 0, medium: 1, large: 2 };
-    containers.sort((a, b) => (sizeOrder[a.container_size] ?? 99) - (sizeOrder[b.container_size] ?? 99));
-    _cargoManifestData  = [...containers, ...visiblePallets];
-    _cargoSelectedIndex = _cargoManifestData.length > 0 ? 0 : -1;
-
-    if (_cargoManifestData.length === 0) {
-        const empty = document.createElement('div');
-        empty.className   = 'term-content-line';
-        empty.textContent = 'No cargo on manifest.';
-        empty.style.paddingLeft = '24px';
-        list.appendChild(empty);
-        return;
-    }
-
-    containers.forEach((c, idx) => {
-        const row = document.createElement('div');
-        row.className = 'term-manifest-item' + (idx === _cargoSelectedIndex ? ' selected' : '');
-        row.dataset.idx = idx;
-
-        const ref = document.createElement('span');
-        ref.textContent = c.name;
-
-        const type = document.createElement('span');
-        type.textContent = c.type_name || '';
-
-        const item = document.createElement('span');
-        const qty  = document.createElement('span');
-        if (c.contents.length > 0) {
-            item.textContent = c.contents[0].name;
-            qty.textContent  = c.contents[0].quantity;
-        } else {
-            item.textContent = 'Empty';
-            qty.textContent  = '—';
-        }
-
-        row.appendChild(ref);
-        row.appendChild(type);
-        row.appendChild(item);
-        row.appendChild(qty);
-        row.addEventListener('click', () => _cargoSelectItem(idx));
-        list.appendChild(row);
-    });
-
-    visiblePallets.forEach((p, i) => {
-        const idx = containers.length + i;
-        const row = document.createElement('div');
-        row.className = 'term-manifest-item' + (idx === _cargoSelectedIndex ? ' selected' : '');
-        row.dataset.idx = idx;
-
-        const ref = document.createElement('span');
-        ref.textContent = p.name;
-
-        const type = document.createElement('span');
-        type.textContent = p.type_name || '';
-
-        const item = document.createElement('span');
-        const qty  = document.createElement('span');
-        if (p.attached_items.length > 0) {
-            item.textContent = p.attached_items[0].name;
-            qty.textContent  = p.attached_items[0].quantity;
-        } else {
-            item.textContent = 'Empty';
-            qty.textContent  = '—';
-        }
-
-        row.appendChild(ref);
-        row.appendChild(type);
-        row.appendChild(item);
-        row.appendChild(qty);
-        row.addEventListener('click', () => _cargoSelectItem(idx));
-        list.appendChild(row);
-    });
-}
-
-function _cargoSelectItem(idx) {
-    _cargoSelectedIndex = idx;
-    document.querySelectorAll('#term-cargo-list .term-manifest-item').forEach(row => {
-        row.classList.toggle('selected', parseInt(row.dataset.idx) === idx);
-    });
-    const selectedEl = document.querySelector('#term-cargo-list .term-manifest-item.selected');
-    if (selectedEl) selectedEl.scrollIntoView({ block: 'nearest' });
-}
