@@ -223,6 +223,7 @@ class RepairHandler(BaseHandler):
         total_diag_mins = round((component_mins + access_mins) * jitter)
         real_seconds = calc_diagnose_real_seconds(total_diag_mins)
 
+
         if manual_warning:
             return {
                 'response': manual_warning.strip(),
@@ -250,7 +251,7 @@ class RepairHandler(BaseHandler):
             'exit_label':      exit_label,
             'panel_type':      panel.panel_type,
             'security_level': panel.security_level.value,
-        }
+    }
 
     def _check_scan_tool_manual(self, panel) -> str | None:
         """
@@ -298,6 +299,7 @@ class RepairHandler(BaseHandler):
 
         # ── If anything missing — return full summary ─────────
         if missing_tools or missing_parts:
+            tool_names = [self._item_name(t) for t in missing_tools]
             return {
                 'response':     'You are missing the following items required for this repair:',
                 'action_type':  'repair_message',
@@ -305,7 +307,7 @@ class RepairHandler(BaseHandler):
                 'room_changed': False,
                 'faults':       missing_parts,
                 'faults_label': 'Missing components:',
-                'tools':        missing_tools,
+                'tools':        tool_names,
                 'tools_label':  'Missing tools:',
             }
 
@@ -386,9 +388,8 @@ class RepairHandler(BaseHandler):
                                exit_label: str = 'unknown') -> dict:
         """
         Called by /diagnose_complete endpoint after timed action.
-        Broken components were already selected in _begin_diagnosis — this method
-        reads them back, advances ship time, writes the log, and returns the
-        diagnosis report.
+        Randomly selects broken components from profile, populates panel.broken_components.
+        Returns diagnosis report.
         """
         door = game_manager.ship.get_door_by_id(door_id)
         if not door:
