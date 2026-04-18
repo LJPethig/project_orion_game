@@ -12,12 +12,7 @@
     { "id": "engineering_propulsion_bay",         "door_open": false, "door_locked": true  },
     { "id": "cargo_bay_airlock",                  "door_open": false, "door_locked": true  }
   ],
-  "panels": [
-    { "id": "recreation_room_galley_panel_rec",         "damaged": true },
-    { "id": "recreation_room_cockpit_panel_rec",     "damaged": true },
-    { "id": "recreation_room_main_corridor_panel_rec",     "damaged": true },
-    { "id": "crew_cabin_main_corridor_panel_crew",     "damaged": true }
-  ],
+  "panels": [],
   "pins": [
     { "door_id": "main_corridor_mainframe_room",  "pin": "1111" },
     { "door_id": "engineering_life_support",      "pin": "1111" },

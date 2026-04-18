@@ -6,7 +6,9 @@
       "trigger_minutes": 2,
       "event_message": "⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics",
       "affected_components": [
-        "PNL-REC-SUB-C"
+        "PNL-REC-SUB-C",
+        "recreation_room_cockpit_panel_rec",
+        "recreation_room_main_corridor_panel_rec"
       ],
       "event_effects": [],
       "randomise_damage": false,

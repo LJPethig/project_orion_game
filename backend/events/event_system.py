@@ -6,7 +6,7 @@ Events fire when ship time reaches their trigger threshold.
 check() is called by the frontend poll and returns any due events.
 
 Supported event types:
-  impact_event      — breaks a list of electrical components
+  impact_event      — breaks a list of components (electrical and/or door panels)
   message_event     — delivers a message notification (stub)
 
 Unknown event types are logged as warnings and skipped — no silent failures.
@@ -54,6 +54,7 @@ class EventSystem:
         Each dict contains at minimum: event_id, message.
         """
         from backend.systems.electrical.electrical_service import break_component
+        from backend.models.game_manager import game_manager
 
         due = []
         for event in self._events:
@@ -64,7 +65,7 @@ class EventSystem:
             event_type  = event.data.get('type')
 
             if event_type == 'impact_event':
-                self._handle_impact_event(event, break_component)
+                self._handle_impact_event(event, break_component, game_manager)
             elif event_type == 'message_event':
                 # Stub — message delivery not yet implemented
                 print(f"[EventSystem] message_event '{event.event_id}' fired — not yet implemented")
@@ -78,15 +79,44 @@ class EventSystem:
 
         return due
 
-    def _handle_impact_event(self, event: GameEvent, break_component) -> None:
-        """Break all affected electrical components and write ship log."""
-        from backend.models.game_manager import game_manager
-
+    def _handle_impact_event(self, event: GameEvent, break_component, game_manager) -> None:
+        """Break all affected components and write ship log."""
         components = event.data.get('affected_components', [])
         for component_id in components:
-            result = break_component(component_id)
-            if not result['success']:
-                print(f"[EventSystem] WARNING: impact_event could not break '{component_id}': {result.get('error')}")
+            self._break_component_by_id(component_id, break_component, game_manager)
+
+        game_manager.add_log_entry({
+            'timestamp': game_manager.get_ship_time(),
+            'event':     'Impact Event',
+            'detail':    'Hull impact detected. Electrical faults reported on multiple circuits.',
+        })
+
+    def _break_component_by_id(self, component_id: str, break_component, game_manager) -> None:
+        """
+        Resolve a component ID against all damageable types and break it.
+
+        Resolution order:
+          1. Electrical components (cables, breakers, panels, power sources)
+          2. Door panels
+
+        # TODO: Add engine resolution when fixed object repair is implemented.
+        #       engine.online = False when component_id matches an engine ID.
+        # TODO: Add fixed object resolution for life support, cargo handler etc.
+        """
+        # ── 1. Electrical components ──────────────────────────
+        result = break_component(component_id)
+        if result['success']:
+            return
+
+        # ── 2. Door panels ────────────────────────────────────
+        panel_index = game_manager.ship._build_panel_index()
+        panel = panel_index.get(component_id)
+        if panel:
+            panel.is_broken = True
+            return
+
+        # ── Not found ─────────────────────────────────────────
+        print(f"[EventSystem] WARNING: component '{component_id}' not found in any damageable system — skipped")
 
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
