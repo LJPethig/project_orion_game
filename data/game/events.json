@@ -1,0 +1,16 @@
+{
+  "events": [
+    {
+      "id": "micrometeorite_impact",
+      "type": "impact_event",
+      "trigger_minutes": 2,
+      "event_message": "⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics",
+      "affected_components": [
+        "PNL-REC-SUB-C"
+      ],
+      "event_effects": [],
+      "randomise_damage": false,
+      "randomise_time": false
+    }
+  ]
+}

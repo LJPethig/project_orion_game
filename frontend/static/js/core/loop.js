@@ -71,6 +71,8 @@ const Loop = (() => {
                 if (typeof _updateRoomColours === 'function' && _mapSvgEl) {
                     _updateRoomColours();
                 }
+                // Reload room to update description addendum if power state changed
+                loadRoom();
             }
         } catch (err) {
             console.error('Event check error:', err);

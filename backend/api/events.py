@@ -34,12 +34,6 @@ def check_events():
     elapsed         = current_minutes - start_minutes
 
     due = game_manager.event_system.check(elapsed)
-
-    # Apply electrical damage for any impact events that just fired
-    for event in due:
-        if event['event_id'] == 'impact_event':
-            _apply_impact_damage()
-
     return jsonify({'events': due})
 
 
@@ -53,35 +47,3 @@ def active_events():
         return jsonify({'events': []})
 
     return jsonify({'events': game_manager.event_system.get_active_events()})
-
-
-def _apply_impact_damage() -> None:
-    """
-    Apply electrical damage for the impact event.
-    Damages a predetermined set of components for testing.
-    Future: event system will pass damage payload instead of hardcoding here.
-    """
-    es = game_manager.electrical_system
-    if not es:
-        return
-
-    # Sever two cables
-    for cable_id in ('PWC-ENG-07', 'PWC-MC-03'):
-        cable = es.cables.get(cable_id)
-        if cable:
-            cable.intact = False
-
-    # Trip one breaker
-    breaker = es.breakers.get('FUS-REC-02')
-    if breaker:
-        breaker.tripped = True
-
-    # Update electrical states after damage
-    game_manager.update_electrical_states()
-
-    # Write ship log entry
-    game_manager.add_log_entry({
-        'timestamp': game_manager.get_ship_time(),
-        'event':     'Impact Event',
-        'detail':    'Hull impact detected. Electrical faults reported on multiple circuits.',
-    })

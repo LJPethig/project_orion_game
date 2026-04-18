@@ -213,18 +213,9 @@ class GameManager:
     # ── Event system ──────────────────────────────────────────
 
     def _init_events(self) -> None:
-        """Initialise and schedule all game events."""
+        """Load and schedule all game events from events.json."""
         self.event_system = EventSystem()
-
-        # Impact event — fires 3 ship minutes after game start
-        self.event_system.schedule(
-            event_id='impact_event',
-            trigger_minutes=40,
-            handler=lambda: {
-                'message': '⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics',
-                'log_entry': 'Impact event scheduled',
-            }
-        )
+        self.event_system.load_from_json()
 
     # ── Electrical helpers ────────────────────────────────────
 
