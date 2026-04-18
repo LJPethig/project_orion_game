@@ -130,7 +130,7 @@
     "name": "Recreation Room",
     "target_temperature": "normal",
     "description": [
-      "~The curved hull walls close in around an amber leather sofa — too large, too expensive, entirely wrong for a cargo hauler. A stained rug covers part of the deck, the rest scattered with food wrappers, old magazines and the general detritus of a man living alone in deep space.~",
+      "~The curved hull walls close in around an amber leather sofa — too large, too expensive, entirely wrong for a cargo hauler. A stained rug covers part of the deck, the rest scattered with food wrappers, old holovids and the general detritus of a man living alone in deep space.~",
       "^power_state^",
       "The *Cockpit* is through the forward door, the *Main Corridor* through the aft hatch. The *Galley* is through the starboard hatch. Port side doors lead to the *Med-Bay* and *Storage Room*. A #Shelving Unit# runs along the starboard bulkhead, a ?Power Junction? is mounted beside the aft hatch on the port side."
     ],

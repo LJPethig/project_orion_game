@@ -16,6 +16,9 @@ let expandedSurface = null;
 // Current room ID — used to detect room changes
 let currentRoomId = null;
 
+// Current room power state — used to detect addendum state changes
+let currentRoomPowered = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
@@ -107,8 +110,18 @@ function updateRoom(room) {
     currentRoomId  = room.id;
     currentExits   = room.exits || {};
     currentObjects = room.object_states || {};
-    setRoomImage(`/static/${room.background_image}`);
-    renderDescription(room);
+    const powerStateChanged = currentRoomPowered !== null && currentRoomPowered !== room.room_powered;
+    currentRoomPowered = room.room_powered !== false;
+
+    // Select powered or unpowered room image
+    const baseImage = room.background_image.replace(/(\.[^.]+)$/, '');
+    const ext       = room.background_image.match(/(\.[^.]+)$/)?.[1] || '.png';
+    const imagePath = currentRoomPowered
+        ? `/static/${room.background_image}`
+        : `/static/${baseImage}_unpowered${ext}`;
+    setRoomImage(imagePath);
+
+    renderDescription(room, powerStateChanged);
 
     // Close any open slide panels only on room change
     if (roomChanged) {

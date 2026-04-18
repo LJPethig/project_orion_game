@@ -5,7 +5,7 @@
     font-size: 13px;
     letter-spacing: 1px;
     padding: 0 12px;
-    animation: event-blink 1.2s step-start 3;
+    animation: event-blink 1.2s step-start 7;
 }
 
 @keyframes event-blink {

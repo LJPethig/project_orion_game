@@ -1,7 +1,7 @@
 // frontend/static/js/screens/description.js
 // Description panel — rendering, markup parser, tooltips, click handlers.
 
-function renderDescription(room) {
+function renderDescription(room, powerStateChanged = false) {
     const content = document.getElementById('description-content');
     content.innerHTML = '';
 
@@ -18,7 +18,7 @@ function renderDescription(room) {
             if (addendum && addendum.length > 0) {
                 addendum.forEach(addLine => {
                     const el = document.createElement('div');
-                    el.className = 'room-desc room-desc-addendum';
+                    el.className = 'room-desc room-desc-addendum' + (powerStateChanged ? ' room-desc-addendum-flash' : '');
                     el.textContent = addLine;
                     content.appendChild(el);
                 });

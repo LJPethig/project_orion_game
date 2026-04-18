@@ -19,6 +19,17 @@
     font-style: italic;
 }
 
+@keyframes addendum-flash {
+    0%   { color: var(--col-alert); opacity: 0; }
+    15%  { color: var(--col-alert); opacity: 1; }
+    60%  { color: var(--col-alert); }
+    100% { color: var(--col-text); }
+}
+
+#description-content .room-desc-addendum-flash {
+    animation: addendum-flash 8s ease-out forwards;
+}
+
 #description-content .room-desc-italic {
     font-style: italic;
 }

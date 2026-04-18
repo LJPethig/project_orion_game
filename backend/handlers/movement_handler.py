@@ -31,7 +31,7 @@ class MovementHandler(BaseHandler):
         if not door:
             game_manager.set_current_room(exit_data['target'])
             return self._instant(
-                f"You enter {game_manager.get_current_room().name}.",
+                f"You enter the {game_manager.get_current_room().name}.",
                 room_changed=True
             )
 
@@ -42,12 +42,12 @@ class MovementHandler(BaseHandler):
                 game_manager.set_current_room(exit_data['target'])
                 new_room = game_manager.get_current_room()
                 return self._instant(
-                    f"You pass through the open door into {new_room.name}.",
+                    f"You pass through the open door into the {new_room.name}.",
                     room_changed=True
                 )
             game_manager.set_current_room(exit_data['target'])
             return self._instant(
-                f"You enter {game_manager.get_current_room().name}.",
+                f"You enter the {game_manager.get_current_room().name}.",
                 room_changed=True
             )
 
@@ -65,7 +65,7 @@ class MovementHandler(BaseHandler):
             target_room = game_manager.ship.get_room(exit_data['target'])
             target_name = target_room.name if target_room else exit_data['target']
             return {
-                'response':       f"The door to {target_name} is locked.",
+                'response':       f"The door to the {target_name} is locked.",
                 'action_type':    'door_locked',
                 'lock_input':     False,
                 'room_changed':   False,
@@ -78,6 +78,6 @@ class MovementHandler(BaseHandler):
         new_room = game_manager.get_current_room()
         door.close()
         return self._instant(
-            f"You open the door and enter {new_room.name}. The door closes behind you.",
+            f"You open the door and enter the {new_room.name}. The door closes behind you.",
             room_changed=True
         )
