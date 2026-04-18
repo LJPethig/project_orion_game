@@ -303,6 +303,20 @@ function setupObjectTooltips(container) {
         _bindTooltipMove(span, tooltip);
         span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
     });
+
+    // ── Power junctions — panel ID ────────────────────────
+    container.querySelectorAll('.markup-junction').forEach(span => {
+        span.addEventListener('mouseenter', (e) => {
+            const key      = e.target.dataset.junction;
+            const objState = _findObjectState(currentObjects, key);
+            const panelId  = objState ? objState.panel_id : null;
+            if (!panelId) return;
+            tooltip.innerHTML = `<div style="color:var(--col-junction);font-size:11px">${panelId}</div>`;
+            tooltip.classList.remove('hidden');
+        });
+        _bindTooltipMove(span, tooltip);
+        span.addEventListener('mouseleave', () => tooltip.classList.add('hidden'));
+    });
 }
 
 function _bindTooltipMove(span, tooltip) {

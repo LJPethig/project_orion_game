@@ -8,12 +8,12 @@ import json
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel
-from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal, Engine, PalletContainer, Pallet
+from backend.models.interactable import PortableItem, FixedObject, StorageUnit, Surface, Terminal, Engine, PalletContainer, Pallet, PowerJunction
 from backend.loaders.item_loader import instantiate_item
 from config import ROOM_TEMP_PRESETS, DOORS_JSON_PATH, DOOR_PANEL_TYPES_PATH, \
                    INITIAL_STATE_JSON_PATH, TERMINALS_JSON_PATH, STORAGE_UNITS_JSON_PATH, \
-                   SURFACES_JSON_PATH, ENGINES_JSON_PATH, SHIP_ITEMS_JSON_PATH, CARGO_CONTAINERS_JSON_PATH,  \
-                   PALLET_PLATFORMS_JSON_PATH
+                   SURFACES_JSON_PATH, ENGINES_JSON_PATH, POWER_JUNCTIONS_JSON_PATH, \
+                   SHIP_ITEMS_JSON_PATH, CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH
 
 
 class Ship:
@@ -157,6 +157,7 @@ class Ship:
             (STORAGE_UNITS_JSON_PATH, StorageUnit),
             (SURFACES_JSON_PATH, Surface),
             (ENGINES_JSON_PATH, Engine),
+            (POWER_JUNCTIONS_JSON_PATH, PowerJunction),
             (CARGO_CONTAINERS_JSON_PATH, PalletContainer),
             (PALLET_PLATFORMS_JSON_PATH, Pallet),
         ]

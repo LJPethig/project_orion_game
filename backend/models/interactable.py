@@ -11,7 +11,9 @@ Interactable object hierarchy.
     │   ├── Surface         — always-open surface, holds PortableItems
     │   │   └── Pallet      — moveable flat platform, requires equipment to move
     │   ├── Engine          — propulsion engine (sub-light or FTL)
-    │   └── Terminal        — computer terminal
+    │   ├── Terminal        — computer terminal
+    │   └── PowerJunction   — circuit breaker panel, physical access point for electrical repair
+
 """
 
 from typing import List, Optional, Any
@@ -190,6 +192,7 @@ class Terminal(FixedObject):
         self.terminal_type: str = getattr(self, 'terminal_type', 'generic')
         self.menu: list = getattr(self, 'menu', [{"label": "Exit", "action": "exit"}])
 
+
 class Engine(FixedObject):
     """
     A ship propulsion engine — sub-light ion drive or FTL jump drive.
@@ -203,6 +206,23 @@ class Engine(FixedObject):
         super().__init__(**kwargs)
         self.powered: bool = False          # set by electrical system at runtime
         self.online:  bool = getattr(self, 'online', True)   # default True — undamaged
+
+
+class PowerJunction(FixedObject):
+    """
+    A fixed circuit breaker panel — the physical access point for electrical
+    diagnosis and repair. The player interacts with this object to access the
+    electrical system. panel_id links to the corresponding CircuitPanel in the
+    electrical system.
+
+    No display or status indicator — the player must diagnose to determine state.
+    Future: diagnose and repair commands routed via panel_id to electrical repair handler.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.panel_id: str = getattr(self, 'panel_id', '')
+
 
 class PalletContainer(StorageUnit):
     """

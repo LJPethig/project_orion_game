@@ -44,7 +44,6 @@
       "type": "main_circuit_panel",
       "name": "Main Reactor Circuit Panel",
       "location": "engineering",
-      "description": "Main reactor circuit panel mounted on wall near reactor",
       "breaker_count": 5
     },
     {
@@ -52,7 +51,6 @@
       "type": "propulsion_circuit_panel",
       "name": "Propulsion Reactor Circuit Panel",
       "location": "propulsion_bay",
-      "description": "Propulsion reactor circuit panel mounted on wall near reactor",
       "breaker_count": 3
     },
     {
@@ -60,7 +58,6 @@
       "type": "sub_circuit_panel",
       "name": "Sub Circuit Panel A",
       "location": "main_corridor",
-      "description": "Sub circuit panel mounted near Mainframe Room door",
       "breaker_count": 3
     },
     {
@@ -68,7 +65,6 @@
       "type": "sub_circuit_panel",
       "name": "Sub Circuit Panel B",
       "location": "sub_corridor",
-      "description": "Sub circuit panel mounted near Cargo Bay door",
       "breaker_count": 3
     },
     {
@@ -76,7 +72,6 @@
       "type": "sub_circuit_panel",
       "name": "Sub Circuit Panel C",
       "location": "recreation_room",
-      "description": "Sub circuit panel on wall facing Main Corridor",
       "breaker_count": 5
     }
   ],

@@ -4,7 +4,7 @@
     "name": "Crew Cabin",
     "target_temperature": "normal",
     "description": [
-      "The crew cabin, there is a basic double bunk on the far wall next to a %storage locker% and a #small desk#. A door leads to *main corridor CH-1*."
+      "The crew cabin, there is a basic double bunk on the far wall next to a %storage locker% and a #small desk#. A door leads to the *main corridor*."
     ],
     "dimensions_m": {
       "length": 4.0,
@@ -14,12 +14,10 @@
     "exits": {
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       }
     },
@@ -37,7 +35,7 @@
       "Your personal quarters. The hum from the HVAC vent fills the air. Dim lights flicker on automatically.",
       "The bunk is unmade and your personal effects are scattered, reminders of a life spent in the black.",
       "A #metal desk# is bolted to the floor beside your bunk, on top of it sits your !personal terminal!",
-      "A %locker% with twin sliding doors is built into the far wall beside a #long shelf#. A hatch leads to *main corridor CH-1*."
+      "A %locker% with twin sliding doors is built into the far wall beside a #long shelf#. A hatch leads to the *main corridor*."
     ],
     "dimensions_m": {
       "length": 4.5,
@@ -47,12 +45,10 @@
     "exits": {
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       }
     },
@@ -71,7 +67,7 @@
     "description": [
       "A compact, utilitarian wet room. The air is humid, carrying the faint tang of recycled water and sanitizer.",
       "There is a sink atop a %small cabinet%, vacuum toilet, and steam shower, all the function with none of the luxury.",
-      "The single hatch leads back to *sub corridor CH-2*."
+      "The single hatch leads back to the *sub corridor*."
     ],
     "dimensions_m": {
       "length": 3,
@@ -81,12 +77,10 @@
     "exits": {
       "sub_corridor": {
         "target": "sub_corridor",
-        "label": "Sub Corridor CH-2",
+        "label": "Sub Corridor",
         "shortcuts": [
           "sub corridor",
-          "corridor",
-          "CH-2",
-          "corridor CH-2"
+          "corridor"
         ]
       }
     },
@@ -186,7 +180,8 @@
       }
     },
     "fixed_objects": [
-      "recreation_room_shelving_unit"
+      "recreation_room_shelving_unit",
+      "recreation_room_power_junction"
     ],
     "background_image": "images/rooms/recreation.png"
   },
@@ -320,12 +315,12 @@
   },
   {
     "id": "main_corridor",
-    "name": "Main Corridor CH-1",
+    "name": "Main Corridor",
     "target_temperature": "normal",
     "description": [
       "This passageway connects the main sections of the ship.Overhead lights cast a steady glow on the metal deck plates.",
       "The *recreation room* entrance leads forward towards the bridge. Besides your *captains quarters* is access door to the *crew cabin*.",
-      "On the opposite wall is a door labeled 'Restricted Access' *mainframe room*. A *sub corridor CH-2* leads to the cargo hold while the *engineering* section is aft."
+      "On the opposite wall is a door labeled 'Restricted Access' *mainframe room*. A *sub corridor* leads to the cargo hold while the *engineering* section is aft."
     ],
     "dimensions_m": {
       "length": 10.0,
@@ -344,17 +339,15 @@
       },
       "sub_corridor": {
         "target": "sub_corridor",
-        "label": "Sub Corridor CH-2",
+        "label": "Sub Corridor",
         "shortcuts": [
-          "corridor CH-2",
           "corridor",
-          "CH-2",
-          "sub corridor CH-2"
+          "sub corridor"
         ]
       },
       "engineering": {
         "target": "engineering",
-        "label": "Engineering",
+        "label": "Engineering Bay",
         "shortcuts": [
           "eng"
         ]
@@ -392,7 +385,7 @@
     "target_temperature": "cool",
     "description": [
       "The ship's mainframe, responsible for all ship systems, the !mainframe access terminal! can only be accessed by high security clearance personal.",
-      "A door leads back to the *main corridor CH-1*."
+      "A door leads back to the *main corridor*."
     ],
     "dimensions_m": {
       "length": 3.5,
@@ -402,12 +395,10 @@
     "exits": {
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       }
     },
@@ -418,10 +409,10 @@
   },
   {
     "id": "sub_corridor",
-    "name": "Sub Corridor CH-2",
+    "name": "Sub Corridor",
     "target_temperature": "cool",
     "description": [
-      "A secondary corridor that branches off *main corridor CH-1*.",
+      "A secondary corridor that branches off the *main corridor*.",
       "Less trafficked, with fewer lights and occasional flickering panels.",
       "On the left wall is a door to the *bathroom*",
       "At the end of the corridor are the large *cargo bay* doors"
@@ -434,12 +425,10 @@
     "exits": {
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       },
       "cargo_bay": {
@@ -468,13 +457,13 @@
   },
   {
     "id": "engineering",
-    "name": "Engineering",
+    "name": "Engineering Bay",
     "target_temperature": "hot",
     "description": [
       "The ship's engineering bay, filled with tools and diagnostic equipment.",
       "The reactor core thrums with contained energy. Close by you see the !engineering terminal!.",
       "A %large parts storage unit% sits next to a long #workbench#, opposite to this is a worn %tool storage cabinet%",
-      "A solid door leads back towards *main corridor CH-1*, a large door leads ahead to the *propulsion bay*, while on the left wall a small hatch is labelled *life support*"
+      "A solid door leads back towards the *main corridor*, a large door leads ahead to the *propulsion bay*, while on the left wall a small hatch is labelled *life support*"
     ],
     "dimensions_m": {
       "length": 7.5,
@@ -484,12 +473,10 @@
     "exits": {
       "main_corridor": {
         "target": "main_corridor",
-        "label": "Main Corridor CH-1",
+        "label": "Main Corridor",
         "shortcuts": [
-          "corridor CH-1",
           "corridor",
-          "CH-1",
-          "main corridor CH-1"
+          "main corridor"
         ]
       },
       "life_support": {
@@ -535,7 +522,7 @@
     "exits": {
       "engineering": {
         "target": "engineering",
-        "label": "Engineering",
+        "label": "Engineering Bay",
         "shortcuts": [
           "eng",
           "engineering bay"
@@ -550,7 +537,7 @@
   },
   {
     "id": "life_support",
-    "name": "Life Support",
+    "name": "Life Support Room",
     "target_temperature": "normal",
     "description": [
       "The life support systems room, filled with air and water recycling machinery.",
@@ -565,7 +552,7 @@
     "exits": {
       "engineering": {
         "target": "engineering",
-        "label": "Engineering",
+        "label": "Engineering Bay",
         "shortcuts": [
           "eng",
           "engineering bay"
@@ -620,12 +607,10 @@
     "exits": {
       "sub_corridor": {
         "target": "sub_corridor",
-        "label": "Sub Corridor CH-2",
+        "label": "Sub Corridor",
         "shortcuts": [
           "sub corridor",
-          "corridor",
-          "CH-2",
-          "corridor CH-2"
+          "corridor"
         ]
       },
       "airlock": {

@@ -51,13 +51,11 @@ class BackupBattery(PowerSource):
 class CircuitPanel:
     """Circuit breaker panel containing multiple breakers"""
 
-    def __init__(self, id: str, type: str, name: str, location: str,
-                 description: str, breaker_count: int):
+    def __init__(self, id: str, type: str, name: str, location: str, breaker_count: int):
         self.id = id
         self.type = type
         self.name = name
         self.location = location
-        self.description = description
         self.breaker_count = breaker_count
 
         # Runtime state (defaults)
@@ -146,7 +144,6 @@ class ElectricalSystem:
                 type=panel_data['type'],
                 name=panel_data['name'],
                 location=panel_data['location'],
-                description=panel_data['description'],
                 breaker_count=panel_data['breaker_count']
             )
             system.panels[panel.id] = panel

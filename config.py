@@ -59,6 +59,7 @@ TERMINALS_JSON_PATH        = os.path.join('data', 'items', 'terminals.json')
 STORAGE_UNITS_JSON_PATH    = os.path.join('data', 'items', 'storage_units.json')
 SURFACES_JSON_PATH         = os.path.join('data', 'items', 'surfaces.json')
 ENGINES_JSON_PATH          = os.path.join('data', 'items', 'engines.json')
+POWER_JUNCTIONS_JSON_PATH  = os.path.join('data', 'items', 'power_junctions.json')
 CARGO_CONTAINERS_JSON_PATH = os.path.join('data', 'items', 'cargo_containers.json')
 PALLET_PLATFORMS_JSON_PATH = os.path.join('data', 'items', 'pallet_platforms.json')
 

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "engineering_power_junction",
+    "name": "Power Junction",
+    "keywords": ["power junction", "junction", "junction box", "PNL-ENG-MAIN"],
+    "panel_id": "PNL-ENG-MAIN",
+    "description": "A grey metal enclosure bolted to the bulkhead. Enso VeilTech stampings on the cover plate. Houses the main reactor circuit breakers for the ship."
+  },
+  {
+    "id": "main_corridor_power_junction",
+    "name": "Power Junction",
+    "keywords": ["power junction", "junction", "junction box", "PNL-MC-SUB-A"],
+    "panel_id": "PNL-MC-SUB-A",
+    "description": "A grey metal enclosure bolted to the bulkhead. Enso VeilTech stampings on the cover plate. Houses the sub-circuit breakers for the main corridor section."
+  },
+  {
+    "id": "sub_corridor_power_junction",
+    "name": "Power Junction",
+    "keywords": ["power junction", "junction", "junction box", "PNL-SC-SUB-B"],
+    "panel_id": "PNL-SC-SUB-B",
+    "description": "A grey metal enclosure bolted to the bulkhead. Enso VeilTech stampings on the cover plate. Houses the sub-circuit breakers for the cargo section."
+  },
+  {
+    "id": "recreation_room_power_junction",
+    "name": "Power Junction",
+    "keywords": ["power junction", "junction", "junction box", "PNL-REC-SUB-C"],
+    "panel_id": "PNL-REC-SUB-C",
+    "description": "A grey metal enclosure bolted to the bulkhead. Enso VeilTech stampings on the cover plate. Houses the sub-circuit breakers for the recreation section."
+  },
+  {
+    "id": "propulsion_bay_power_junction",
+    "name": "Power Junction",
+    "keywords": ["power junction", "junction", "junction box", "PNL-PRO-MAIN"],
+    "panel_id": "PNL-PRO-MAIN",
+    "description": "A grey metal enclosure bolted to the bulkhead. Enso VeilTech stampings on the cover plate. Houses the propulsion reactor circuit breakers."
+  }
+]

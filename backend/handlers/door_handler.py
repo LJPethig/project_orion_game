@@ -53,7 +53,7 @@ class DoorHandler(BaseHandler):
             if not has_card:
                 return self._instant(card_msg)
             result = self._card_swipe_response(door, action='open', pending_move=None)
-            result['response'] = f"You swipe the access panel to {target_name}."
+            result['response'] = f"You swipe the access panel to the {target_name}."
             return result
 
         # Closed but unlocked — open instantly
@@ -100,7 +100,7 @@ class DoorHandler(BaseHandler):
         if not has_card:
             return self._instant(card_msg)
         result = self._card_swipe_response(door, action='unlock', pending_move=None)
-        result['response'] = f"You swipe the access panel to {target_name}."
+        result['response'] = f"You swipe the access panel to the {target_name}."
         return result
 
     def handle_lock(self, args: str) -> dict:
@@ -137,7 +137,7 @@ class DoorHandler(BaseHandler):
         if not has_card:
             return self._instant(card_msg)
         result = self._card_swipe_response(door, action='lock', pending_move=None)
-        result['response'] = f"You swipe the access panel to {target_name}."
+        result['response'] = f"You swipe the access panel to the {target_name}."
         return result
 
     def handle_close(self, args: str) -> dict:
