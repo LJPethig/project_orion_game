@@ -29,8 +29,13 @@ function renderDescription(room) {
         if (line === '&engine_state&') return;   // reserved — not yet implemented
 
         const el = document.createElement('div');
-        el.className = 'room-desc';
-        el.appendChild(parseMarkup(line, room.object_states || {}));
+        if (line.startsWith('~') && line.endsWith('~')) {
+            el.className = 'room-desc room-desc-italic';
+            el.textContent = line.slice(1, -1);
+        } else {
+            el.className = 'room-desc';
+            el.appendChild(parseMarkup(line, room.object_states || {}));
+        }
         content.appendChild(el);
     });
 

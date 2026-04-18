@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 20.0 — April 2026**
+**Version 21.0 — April 2026**
 
 > ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
@@ -51,6 +51,10 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Player, inventory, items ✅
 - Fixed object data structure: terminals, storage units, surfaces, pallet containers, pallet platforms, engines ✅
 - Description panel: markup parser, hover tooltips, click handlers, Layer 2/3 ✅
+- Description panel: power state token injection system (`^power_state^`) ✅
+- Description panel: powered/unpowered addendum rendered in italic ✅
+- Description panel: new colour scheme — exits cyan, containers/surfaces amber, terminals violet, power junctions coral, portables purple ✅
+- Description panel: power junction markup `?name?` ✅
 - Container commands: open, close, look in, take from, put in, put on ✅
 - Equip/unequip commands: wear, equip, remove, take off, unequip ✅
 - Floor fallback: items drop to floor when no surface available ✅
@@ -61,11 +65,14 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Smart command parser: ID resolver, verb conflict resolution, clarification system ✅
 - Item registry: unique instances per placement, unique runtime instance_id per item ✅
 - Terminal system: CRT styling, typewriter, keypress nav, sub-menus, terminal mode lockout ✅
+- Terminal system split: `terminal_core.js` + `terminal_engineering.js` + `terminal_manifest.js` ✅
 - Electrical system: reactor, panels, breakers, cables, batteries, power tracing ✅
 - Electrical integrated into gameplay: door panels and terminals check room power ✅
+- Electrical service layer: `electrical_service.py` — `break_component()` / `fix_component()` callable from any backend code ✅
 - Engineering terminal: Technical Data, Electrical sub-menu (Power Status map, Circuit Diagram placeholder) ✅
-- Debug console: Ctrl+D, break/fix commands, live map refresh ✅
+- Debug console: Ctrl+D, break/fix commands, live map refresh, room description reload on power change ✅
 - Full repair system: diagnose + repair commands, scan tool manual validation, per-component repair, wire consumption by length, auto-chain, event hook ✅
+- Repair handler split: `repair_handler.py` (dispatcher) + `door_panel_repair.py` + `repair_utils.py` ✅
 - Repair/diagnosis real-time scaling: formula-based with config constants, 20s cap ✅
 - Diagnosis timing: based on actual failed components + 25% access overhead + ±10% jitter ✅
 - Diagnosis response: formatted duration, failed components, required tools, missing items ✅
@@ -87,11 +94,16 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Power tracer: any operational `FissionReactor` terminates trace, multiple inbound cables tried ✅
 - Engine fixed objects: `Engine` class with `powered` and `online` flags, propulsion bay engines ✅
 - SVG map: engine icons (sub-light pairs + FTL drive), reactor eject overlays, engine hover tooltips ✅
+- SVG map: Share Tech Mono font, reduced room label size, dimension labels removed ✅
 - Ship time multiplier: 40 real seconds = 1 ship minute ✅
-- Event system: `EventSystem` class, frontend poll every 15 seconds, `repairInProgress` flag ✅
-- Impact event: fires 3 ship minutes after game start, damages cables and breaker, event strip message ✅
+- Event system: JSON-driven from `data/game/events.json`, frontend poll every 15 seconds ✅
+- Event system: `impact_event` type breaks electrical components and door panels via `electrical_service` ✅
+- Event system: `_break_component_by_id()` resolves IDs against electrical system then door panels ✅
+- Impact event: fires 2 ship minutes after game start, breaks `PNL-REC-SUB-C` + two rec room door panels ✅
 - Electrical repair parts: circuit breakers (6 sizes), HV wire (2 gauges), HV connectors, bus bars, logic boards, HV service kit ✅
 - Storage facility quantity support: `{"id": "...", "quantity": N}` format in `initial_ship_items.json` ✅
+- UI font: Share Tech Mono replacing Courier New across all player-facing UI (terminal panels excluded) ✅
+- Room description style guide: separate document `Project_Orion_Room_Description_Style_v1.md` ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -113,6 +125,11 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer improvements, engine fixed objects, SVG map engine icons, ship time multiplier ✅
 - **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
 - **Electrical repair parts** — HV items, circuit breakers, wire gauges, storage quantity support ✅
+- **File splits (April 2026)** — terminal.js → terminal_core/engineering/manifest.js; repair_handler.py → repair_handler/door_panel_repair/repair_utils.py ✅
+- **Electrical service layer** — electrical_service.py extracted, systems.py thinned to HTTP wrappers ✅
+- **Event system overhaul** — JSON-driven events.json, generic _break_component_by_id(), door panel damage via events ✅
+- **Description system overhaul** — token injection, powered/unpowered addendum, new colour scheme, Share Tech Mono font, power junction markup ✅
+- **Room description style guide** — Project_Orion_Room_Description_Style_v1.md created ✅
 
 ---
 
@@ -129,7 +146,7 @@ project_orion_game/
 │   ├── models/
 │   │   ├── game_manager.py        ← owns all game state, event_system, storage_manifest, cargo_manifest
 │   │   ├── ship.py
-│   │   ├── room.py
+│   │   ├── room.py                ← description_powered, description_unpowered fields added
 │   │   ├── door.py                ← panel_type, security_level resolved at load time
 │   │   ├── interactable.py        ← StorageUnit, Surface, Terminal, Engine, PalletContainer, Pallet
 │   │   ├── player.py
@@ -137,18 +154,21 @@ project_orion_game/
 │   │
 │   ├── systems/
 │   │   └── electrical/
-│   │       └── electrical_system.py
+│   │       ├── electrical_system.py
+│   │       └── electrical_service.py  ← break_component(), fix_component() — shared service layer
 │   │
 │   ├── events/
 │   │   ├── __init__.py
-│   │   └── event_system.py        ← EventSystem class, schedule/check/resolve
+│   │   └── event_system.py        ← JSON-driven, _break_component_by_id(), handles electrical + door panels
 │   │
 │   ├── handlers/
 │   │   ├── base_handler.py
 │   │   ├── command_handler.py
 │   │   ├── movement_handler.py
 │   │   ├── door_handler.py
-│   │   ├── repair_handler.py
+│   │   ├── repair_handler.py      ← thin dispatcher only
+│   │   ├── door_panel_repair.py   ← door panel diagnosis and repair logic
+│   │   ├── repair_utils.py        ← shared pure utilities (time calc, item_name, check_tools etc.)
 │   │   ├── item_handler.py
 │   │   ├── container_handler.py
 │   │   ├── equip_handler.py
@@ -161,7 +181,7 @@ project_orion_game/
 │   └── api/
 │       ├── game.py
 │       ├── command.py
-│       ├── systems.py
+│       ├── systems.py             ← thin HTTP wrappers calling electrical_service
 │       └── events.py              ← /api/events/check endpoint
 │
 ├── frontend/
@@ -172,60 +192,64 @@ project_orion_game/
 │   └── static/
 │       ├── css/
 │       │   ├── splash.css
-│       │   ├── game.css
-│       │   ├── description.css
+│       │   ├── game.css           ← new colour variables, Share Tech Mono font
+│       │   ├── description.css    ← new markup classes, addendum italic class
 │       │   ├── inventory.css
 │       │   ├── response.css
 │       │   ├── terminal.css
 │       │   ├── datapad.css
-│       │   └── events.css         ← event strip message styling
+│       │   └── events.css
 │       ├── js/
 │       │   ├── core/
 │       │   │   ├── constants.js
 │       │   │   ├── api.js
-│       │   │   └── loop.js        ← event poll, repairInProgress flag, 40s tick
+│       │   │   └── loop.js        ← event poll, repairInProgress flag, loadRoom() after events
 │       │   └── screens/
 │       │       ├── splash.js
-│       │       ├── ui.js          ← appendEventStrip, clearEventStrip
+│       │       ├── ui.js
 │       │       ├── commands.js
-│       │       ├── description.js
+│       │       ├── description.js ← token injection, ?junction? markup
 │       │       ├── inventory.js
-│       │       ├── terminal.js
-│       │       ├── map.js         ← engine icons, eject state, engine tooltips
-│       │       └── game.js
+│       │       ├── terminal_core.js       ← was terminal.js
+│       │       ├── terminal_engineering.js
+│       │       ├── terminal_manifest.js
+│       │       ├── map.js
+│       │       └── game.js        ← loadRoom() after debug break/fix
 │       └── images/
 │           ├── rooms/
 │           ├── doors/
-│           └── ship_layout.svg    ← engine icons, eject overlays added
+│           └── ship_layout.svg    ← Share Tech Mono, reduced font size
 │
 └── data/
     ├── items/
-    │   ├── tools.json             ← hv_service_kit added
+    │   ├── tools.json
     │   ├── wearables.json
     │   ├── misc_items.json
-    │   ├── consumables.json       ← HV parts, circuit breakers, wire gauges added
-    │   ├── trade_items.json       ← trade item definitions
+    │   ├── consumables.json
+    │   ├── trade_items.json
     │   ├── terminals.json
     │   ├── storage_units.json
     │   ├── surfaces.json
-    │   ├── engines.json           ← sub-light and FTL engine definitions
+    │   ├── engines.json
     │   ├── cargo_containers.json
     │   └── pallet_platforms.json
+    ├── game/
+    │   └── events.json            ← JSON-driven event definitions
     ├── terminals/
     │   └── engineering.json
     ├── repair/
     │   └── repair_profiles.json
     └── ship/
         ├── structure/
-        │   ├── ship_rooms.json    ← engines added to propulsion_bay
+        │   ├── ship_rooms.json    ← rec room updated: new prose, token injection, addendums
         │   ├── door_status.json
         │   ├── door_access_panel_types.json
-        │   ├── initial_ship_state.json  ← PWC-ENG-00 intact:false
-        │   ├── initial_ship_items.json  ← quantity support, HV parts in storage
-        │   ├── initial_cargo.json       ← trade items in containers
+        │   ├── initial_ship_state.json  ← panels array emptied (damage now via event system)
+        │   ├── initial_ship_items.json
+        │   ├── initial_cargo.json
         │   └── player_items.json
         └── systems/
-            └── electrical.json    ← propulsion bypass, PNL-PRO-MAIN, corrected amp ratings
+            └── electrical.json
 ```
 
 ---
@@ -249,27 +273,37 @@ REPAIR_TIME_CAP_SECONDS   = 20
 DIAG_ACCESS_OVERHEAD      = 0.25
 DIAG_TIME_JITTER          = 0.10
 
-ROOMS_JSON_PATH              = 'data/ship/structure/ship_rooms.json'
-DOORS_JSON_PATH              = 'data/ship/structure/door_status.json'
-DOOR_PANEL_TYPES_PATH        = 'data/ship/structure/door_access_panel_types.json'
-INITIAL_STATE_JSON_PATH      = 'data/ship/structure/initial_ship_state.json'
-SHIP_ITEMS_JSON_PATH         = 'data/ship/structure/initial_ship_items.json'
-CARGO_JSON_PATH              = 'data/ship/structure/initial_cargo.json'
-PLAYER_ITEMS_JSON_PATH       = 'data/ship/structure/player_items.json'
-REPAIR_PROFILES_PATH         = 'data/repair/repair_profiles.json'
+# Ship structure
+ROOMS_JSON_PATH            = 'data/ship/structure/ship_rooms.json'
+DOORS_JSON_PATH            = 'data/ship/structure/door_status.json'
+DOOR_PANEL_TYPES_PATH      = 'data/ship/structure/door_access_panel_types.json'
+INITIAL_STATE_JSON_PATH    = 'data/ship/structure/initial_ship_state.json'
+SHIP_ITEMS_JSON_PATH       = 'data/ship/structure/initial_ship_items.json'
+PLAYER_ITEMS_JSON_PATH     = 'data/ship/structure/player_items.json'
+CARGO_JSON_PATH            = 'data/ship/structure/initial_cargo.json'
+ELECTRICAL_JSON_PATH       = 'data/ship/systems/electrical.json'
+EVENTS_JSON_PATH           = 'data/game/events.json'
+
+# Items
 ITEM_FILES = [
     'data/items/tools.json',
     'data/items/wearables.json',
     'data/items/misc_items.json',
     'data/items/consumables.json',
+    'data/items/trade_items.json',
 ]
-TERMINALS_JSON_PATH          = 'data/items/terminals.json'
-STORAGE_UNITS_JSON_PATH      = 'data/items/storage_units.json'
-SURFACES_JSON_PATH           = 'data/items/surfaces.json'
-CARGO_CONTAINERS_JSON_PATH   = 'data/items/cargo_containers.json'
-PALLET_PLATFORMS_JSON_PATH   = 'data/items/pallet_platforms.json'
-TERMINAL_CONTENT_PATH        = 'data/terminals'
-ELECTRICAL_JSON_PATH         = 'data/ship/systems/electrical.json'
+TERMINALS_JSON_PATH        = 'data/items/terminals.json'
+STORAGE_UNITS_JSON_PATH    = 'data/items/storage_units.json'
+SURFACES_JSON_PATH         = 'data/items/surfaces.json'
+ENGINES_JSON_PATH          = 'data/items/engines.json'
+CARGO_CONTAINERS_JSON_PATH = 'data/items/cargo_containers.json'
+PALLET_PLATFORMS_JSON_PATH = 'data/items/pallet_platforms.json'
+
+# Repair
+REPAIR_PROFILES_PATH       = 'data/repair/repair_profiles.json'
+
+# Terminal content
+TERMINAL_CONTENT_PATH      = 'data/terminals'
 ```
 
 ---
@@ -351,9 +385,12 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 ### Colour palette
 | Variable | Hex | Use |
 |----------|-----|-----|
-| `--col-text` | `#bababa` | Default text |
-| `--col-title` | `#27e6ec` | Cyan — titles, exits, containers, terminals |
-| `--col-portable` | `#bea5cd` | Purple — portable items, surfaces with items, repair components/tools |
+| `--col-text` | `#cecece` | Default prose text |
+| `--col-title` | `#27e6ec` | Cyan — exits / doors |
+| `--col-container` | `#c4a050` | Amber — containers + surfaces |
+| `--col-terminal` | `#a06aa0` | Violet — terminals |
+| `--col-junction` | `#b87560` | Coral — power junctions |
+| `--col-portable` | `#b09abe` | Purple — portable items |
 | `--col-alert` | `#ff8c00` | Orange — alerts, locked doors, offline state |
 | `--col-prompt` | `#00ff00` | Green — command prompt, open doors |
 | `--col-response` | `#7e97ae` | Muted blue — player input echo |
@@ -362,6 +399,9 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 | `--col-term-dim` | `#00801f` | Dimmer green — secondary terminal text |
 | `--col-term-border` | `#004d10` | Dark green border |
 
+### Font
+Share Tech Mono is the primary UI font across all player-facing panels. Courier New remains as fallback. CRT terminal panels use a separate font (TBD — to be selected when terminal font is addressed).
+
 ---
 
 ## 9. DESCRIPTION PANEL — MARKUP SYSTEM
@@ -369,16 +409,42 @@ Horizontal tabs at top of image panel. INV always visible. TERM tab appears only
 ### Markup types
 | Markup | Type | Colour | Hover | Click |
 |--------|------|--------|-------|-------|
-| `*exit*` | Exit | Cyan | Door state + Offline if unpowered | None |
-| `%object%` | Container | Cyan | Open/Closed | Toggle open/close |
-| `!terminal!` | Terminal | Cyan | Online / Offline | `access <terminal>` |
-| `#surface#` | Surface | Grey bold (empty) / Purple bold (has items) | "Empty"/"Has items" | Expand Layer 3 |
+| `*exit*` | Exit | Cyan bold | Door state + Offline if unpowered | None |
+| `%container%` | Container | Amber bold | Open/Closed | Toggle open/close |
+| `!terminal!` | Terminal | Violet bold | Online / Offline | `access <terminal>` |
+| `#surface#` | Surface | Amber bold | Empty/Has items | Expand Layer 3 |
+| `?junction?` | Power junction | Coral bold | (future) | (future) |
+
+All markup renders title case and bold. Colour distinguishes object type.
+
+### Power state token injection
+The `description` array in `ship_rooms.json` is a mixed array of prose strings and state tokens. The renderer processes each element in order — prose strings render normally, state tokens resolve to the appropriate addendum and render in italic.
+
+| Token | Resolves to | JSON fields required |
+|-------|-------------|---------------------|
+| `^power_state^` | Room power addendum | `description_powered`, `description_unpowered` |
+| `@reactor_state@` | Reactor state addendum | Deferred — reserved |
+| `&engine_state&` | Engine state addendum | Deferred — reserved |
+
+Addendums render in italic, same default grey colour as prose. See `Project_Orion_Room_Description_Style_v1.md` for full authoring rules.
+
+### Room description style
+All room description authoring follows the rules in the separate style guide document:
+**`docs/Project_Orion_Room_Description_Style_v1.md`**
+
+Key rules:
+- Neutral prose contains no power state references
+- ISS directional convention throughout (forward, aft, port, starboard)
+- All exits, interactables and fixed objects must appear in the description
+- Powered/unpowered addendums mirror each other in structure
+- Photoluminescent deck strips provide emergency lighting in all rooms — always present, always dim green, independent of electrical system
 
 ### Description layers
-1. **Static prose** — authored JSON
-2. **Layer 2** — open container contents (cyan name, purple items)
-3. **Layer 3** — expanded surface contents (purple, on demand)
-4. **Floor line** — `Floor: item1, item2` (italic label, purple items, only when occupied)
+1. **Neutral prose** — authored JSON, no power state references
+2. **Power state addendum** — italic, injected at `^power_state^` token position
+3. **Layer 2** — open container contents (amber name, purple items)
+4. **Layer 3** — expanded surface contents (purple, on demand)
+5. **Floor line** — `Floor: item1, item2` (italic label, purple items, only when occupied)
 
 ### Drop behaviour
 - Drop lands on random surface, falls back to floor if none
@@ -487,7 +553,9 @@ Terminal access is blocked if the room has no power.
 - `data/items/terminals.json` — terminal definitions, keywords, menu items with key bindings
 - `backend/handlers/terminal_handler.py` — `access` verb handler, power check
 - `backend/api/game.py` — terminal content, storage manifest, cargo manifest endpoints
-- `frontend/static/js/screens/terminal.js` — all terminal rendering and interaction
+- `frontend/static/js/screens/terminal_core.js` — session state, panel open/close, rendering, typewriter, keyboard
+- `frontend/static/js/screens/terminal_engineering.js` — electrical sub-menu and power map
+- `frontend/static/js/screens/terminal_manifest.js` — storage and cargo manifest rendering
 - `frontend/static/css/terminal.css` — CRT styling
 
 ---
@@ -552,6 +620,7 @@ propulsion_reactor (120kW) — independent tree
 ### Debug console
 - `Ctrl+D` toggles debug panel in game
 - `break <component_id>` / `fix <component_id>` — electrical components only
+- After break/fix, `loadRoom()` is called to update description addendum immediately
 
 ---
 
@@ -560,40 +629,55 @@ propulsion_reactor (120kW) — independent tree
 > ⚠️ **Phases below are not in strict order.** The sequence changes frequently. The suggested next order is listed but should be treated as a guide only.
 
 ### Suggested next order
-1. **File splits** — carefully split oversized files one at a time, fully tested before moving to next
-2. **Electrical repair system** — diagnose/repair for cables, breakers, panels via circuit panel access
+1. **Room descriptions** — author powered/unpowered addendums for all 17 rooms following the style guide. Recreation room is the reference example (complete).
+2. **Electrical repair system** — diagnose/repair for cables, breakers, panels via power junction access
 3. **Fixed object repair** — engines and reactors using same pattern as door panel repair
-4. **Event system expansion** — move hardcoded events to JSON, add more event types
+4. **Event system expansion** — add more event types, randomisation flags
 5. **Codebase review** — before save/load, clean baseline
 6. **Save/load system** — autosave only, JSON format, full state serialisation
 
 ### Future phases (not in order)
 
-**File splits** ⚠️ Do piece by piece, fully tested before moving to next
-- `repair_handler.py` → `repair_handler.py` + `repair_utils.py`
-- `terminal.js` → `terminal_core.js` + `terminal_engineering.js` + `terminal_manifest.js`
-- `command_handler.py` — review for split candidates
+**Room descriptions** ⚠️ Do room by room, test each before moving to next
+- Author `description_powered` and `description_unpowered` for all 17 rooms
+- Follow `Project_Orion_Room_Description_Style_v1.md` strictly
+- Recreation room complete — use as reference
+- Rename Main Corridor and Sub Corridor throughout all rooms (remove CH-1/CH-2 suffixes)
+
+**Power junction FixedObject** ⚠️ Needed before electrical repair
+- New `PowerJunction` class in `interactable.py` — subclass of `FixedObject`
+- `panel_id` field linking to electrical system `CircuitPanel` by ID
+- JSON type definition file for power junctions
+- Placement in `ship_rooms.json` for the five panel rooms
+- Markup `?name?` already implemented in description renderer
+- Bridge-by-ID pattern — same as doors. Electrical system untouched.
 
 **Electrical repair system**
-- Panel-based repair: each circuit panel owns its breakers and adjacent cables
+- Panel-based repair: each power junction is the physical access point
 - `electrical_repair_profiles.json` keyed by panel ID
 - HV test kit required, lockout/tagout assumed (not modelled)
 - Diagnose/repair commands extended to cover electrical components
+- `electrical_repair.py` handler — separate from `door_panel_repair.py`
+- Both import shared utilities from `repair_utils.py`
 - See Section 23 for full design
 
 **Fixed object repair**
 - Engines and reactors repairable using same profile-driven pattern
 - `Engine` class extended with repair state
 - Power sources (reactors) treated as fixed objects for repair purposes
+- `fixed_object_repair.py` handler
 
 **Event system expansion**
-- Move impact event damage from hardcode to JSON event definition
-- Add more event types (power surge, micrometeorite)
-- Random event probability system
+- Add more event types: `solar_flare_event`, `reactor_overload_event`, `message_event`
+- `randomise_damage` flag — pick N random components from affected_components list
+- `randomise_time` flag — fire anywhere within a time window
+- `event_effects` list for future room description changes and atmosphere breaches
+- `_break_component_by_id()` TODO stubs: engine resolution, fixed object resolution
 
 **Save/load system** — see Section 20
 - Autosave only, JSON format, `savegame.json` in project root
 - Full state: player, items, doors, panels, electrical, chronometer, events, logs
+- Event system fired/resolved flags must be serialised — events must not re-fire after load
 
 **Life support** — see Phase 20 notes
 - Binary operational states driven by electrical system
@@ -607,6 +691,7 @@ propulsion_reactor (120kW) — independent tree
 **Events + opening narrative**
 - Banking hack, compliance message, friend contact (after ship control)
 - Mainframe navigation lock
+- Message event type delivery to datapad messages system
 
 **Mainframe hack objective**
 - Mainframe terminal hack mechanic
@@ -618,6 +703,15 @@ propulsion_reactor (120kW) — independent tree
 **Cargo movement**
 - Sack barrow, cargo handler operational flag
 - `cargo_handler_operational` on GameManager before this phase
+
+**Terminal font**
+- CRT panels (engineering, storage, cargo terminals) need a distinct font
+- Share Tech Mono is the main UI font — CRT panels currently inherit it
+- A more appropriate CRT/retro font to be selected and applied via `terminal.css`
+
+**`command_handler.py`**
+- Review `process()` method — preposition command blocks partially duplicate `_resolve_for_verb()` logic
+- Targeted cleanup pass, not a split
 
 ---
 
@@ -673,8 +767,14 @@ After each component repair, frontend automatically proceeds to next component a
 ### Post-repair failure roll
 Hook exists — currently always succeeds. Future: probability-based failure, higher for complex repairs or missing manuals.
 
-### Repair system architecture — future refactor
-When a second repairable type is added, extract common logic to `repair_utils.py`. `repair_handler.py` stays as door panel handler. New handlers import from `repair_utils.py`.
+### Repair system architecture
+The repair system is split across three files:
+
+- `repair_handler.py` — thin dispatcher, routes `diagnose`/`repair` verbs to the correct sub-handler
+- `door_panel_repair.py` — all door access panel logic (`DoorPanelRepairHandler`)
+- `repair_utils.py` — shared pure utilities: `calc_repair_real_seconds`, `calc_diagnose_real_seconds`, `item_name`, `component_display_name`, `check_tools`, `format_duration`. Item registry loaded once at module import — no per-call disk I/O.
+
+Future repair handlers (`electrical_repair.py`, `fixed_object_repair.py`) will follow the same pattern, importing from `repair_utils.py` and being routed from `repair_handler.py`.
 
 ### API endpoints
 | Endpoint | Method | Description |
@@ -689,23 +789,26 @@ When a second repairable type is added, extract common logic to `repair_utils.py
 
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
-- **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session.
+- **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session. Note: examine on power junctions should read `description` field from `electrical.json` via `panel_id`.
 - **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
-- **Dynamic room descriptions** — static prose needs electrical atmosphere removed. A power-state description layer (dark/silent when unpowered, atmospheric when powered) is planned for Phase 20.
+- **Dynamic room descriptions** — 16 rooms still need powered/unpowered addendums authored. Recreation room complete and is the reference example. Follow style guide.
+- **Room corridor naming** — Main Corridor CH-1 → Main Corridor, Sub Corridor CH-2 → Sub Corridor. Already updated in recreation room exits. All other rooms and their exit labels still reference old names.
 - **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
 - **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
 - **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
-- ✅ **Description panel click lockout during timed actions** — implemented via `pointer-events: none` on `description-content` in `Loop.lockInput()` and `Loop.unlockInput()`.
-- ✅ **Codebase size and structure analysis** — completed April 2026. Remaining targets: `repair_handler.py` (→ `repair_utils.py`), `terminal.js` split, `command_handler.py` review.
-- **`terminal.js` split** — split into `terminal_core.js`, `terminal_engineering.js`, `terminal_manifest.js`. Do carefully, one piece at a time.
-- **`repair_handler.py` split** — extract utilities to `repair_utils.py`. Do after terminal.js split is complete and tested.
-- **`command_handler.py`** — review for split candidates after repair_handler split.
+- **Power junction FixedObject** — `PowerJunction` class needed in `interactable.py` before electrical repair can be built. Bridge-by-ID pattern, same as doors. Five panels in five rooms.
+- **CRT terminal font** — CRT panels currently inherit Share Tech Mono. A more appropriate retro/phosphor font to be selected and applied via `terminal.css`.
+- **Event system save/load** — `GameEvent.fired` and `GameEvent.resolved` are in-memory only. Must be serialised in save file and restored after load to prevent events re-firing.
+- **Event effects** — `event_effects` array in events.json is reserved but not implemented. Future: room description changes, atmosphere venting, narrative state changes.
+- **Engine damage via events** — `_break_component_by_id()` has TODO stub for engine resolution. Implement when fixed object repair is built.
 - **`PalletContainer.pallet` flag** — purpose unclear, appears unused. Resolve before cargo movement phase.
 - **Cargo contents** — `initial_cargo.json` containers currently empty. Cargo contents to be authored when narrative cargo manifest is defined.
 - **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before cargo movement phase.
 - **Long repair auto-chain threshold** — repairs over N game minutes per component should pause and require player to explicitly continue. Implement when Phase 21 survival mechanics are built.
 - **Repair failure mechanic** — when `panel_restored` is false due to failure, `Loop.setRepairInProgress(false)` must be called before presenting failure message.
-
+- **`command_handler.py` process() cleanup** — preposition command blocks partially duplicate `_resolve_for_verb()` logic. Targeted cleanup pass deferred.
+- **`ship.py` loader split** — `ShipLoader` class for JSON loading logic is a natural future split when cargo bay or electrical repair adds significant loading complexity. Not at threshold yet.
+- **Room temperature** — `target_temperature` and `current_temperature` on Room are deferred until life support is designed. Structure may change — do not build on this until life support phase begins.
 
 ### Input lockout behaviour — known inconsistency
 
@@ -734,6 +837,11 @@ is correct — is an open question for a future session.
 - ✅ **Electrical system expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer multi-path, engine fixed objects, SVG map updates.
 - ✅ **Event system (bare minimum)** — EventSystem, impact event, event strip, repairInProgress flag.
 - ✅ **Electrical repair parts** — HV items authored, circuit breakers, wire gauges, storage quantity support.
+- ✅ **File splits** — terminal.js → three files; repair_handler.py → three files.
+- ✅ **Electrical service layer** — break_component/fix_component extracted to electrical_service.py.
+- ✅ **Event system overhaul** — JSON-driven, generic component damage, door panel damage via events.
+- ✅ **Description system overhaul** — token injection, colour scheme, Share Tech Mono, power junction markup.
+- ✅ **Room description style guide** — Project_Orion_Room_Description_Style_v1.md.
 
 ---
 
@@ -758,37 +866,64 @@ is correct — is an open question for a future session.
 
 ---
 
-## 18. EVENT SYSTEM — DESIGN (PHASE 21)
+## 18. EVENT SYSTEM — DESIGN
 
 ### Overview
 Two categories of events exist with different triggering mechanisms.
 
-**Random events** — probability-based, checked periodically in the game loop. Examples: micrometeorite impacts causing ship damage, electrical faults, system failures.
+**Scheduled events** — triggered by game-time thresholds. Defined in `data/game/events.json`. Loaded at game start by `EventSystem.load_from_json()`. Currently implemented.
 
-**Scheduled events** — triggered by game-time thresholds. Examples: hunger, thirst, fatigue, atmospheric exposure.
+**Random events** — probability-based, checked periodically in the game loop. Not yet implemented.
+
+### Event JSON structure
+Events are defined in `data/game/events.json`. Each event has:
+
+```json
+{
+  "id": "micrometeorite_impact",
+  "type": "impact_event",
+  "trigger_minutes": 2,
+  "event_message": "⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics",
+  "affected_components": ["PNL-REC-SUB-C", "recreation_room_cockpit_panel_rec"],
+  "event_effects": [],
+  "randomise_damage": false,
+  "randomise_time": false
+}
+```
+
+### Supported event types
+| Type | Behaviour | Status |
+|------|-----------|--------|
+| `impact_event` | Breaks components in `affected_components` list | ✅ Implemented |
+| `message_event` | Delivers message to datapad | Stub only |
+| `solar_flare_event` | Future | Planned |
+| `reactor_overload_event` | Future | Planned |
+
+### Component damage resolution
+`_break_component_by_id()` in `EventSystem` resolves each ID in `affected_components` in order:
+1. Electrical components (cables, breakers, panels, power sources) via `electrical_service.break_component()`
+2. Door panels — `panel.is_broken = True`
+3. TODO: Engines — `engine.online = False` (when fixed object repair is built)
+4. TODO: Fixed objects (when fixed object repair is built)
+5. Not found — warning logged, no silent failure
 
 ### Event delivery
-Events are delivered by the frontend poll — `loop.js` calls `/api/events/check` every 15 seconds when no timed action, repair chain, or PIN entry is in progress. The backend `EventSystem` checks elapsed ship time against scheduled event thresholds and returns any due events.
+Events are delivered by the frontend poll — `loop.js` calls `/api/events/check` every 15 seconds when no timed action, repair chain, or PIN entry is in progress. After any event fires, `loadRoom()` is called to update the description addendum.
 
-Diagnosis and individual component repairs are atomic — events cannot fire during them. The `repairInProgress` flag in `loop.js` covers the brief inter-component gap where `inputLocked` is momentarily false between components.
+### Save/load consideration ⚠️
+`GameEvent.fired` and `GameEvent.resolved` are in-memory only. Save/load must serialise these flags and restore them after `load_from_json()` — otherwise events re-fire after loading a save.
 
-### Repairs and survival mechanics
-Long repairs (multi-hour component jobs) need a natural break point between components so survival mechanics can fire and the player can choose to rest. This will be addressed by an auto-chain threshold — repairs over N game minutes per component will pause after completion and require the player to explicitly continue rather than auto-chaining. Implement when Phase 21 survival mechanics are built.
-
-Survival events do not interrupt repairs — they impose penalties instead (slower repair, increased failure chance). Jack pushes through and suffers the consequences.
-
-### Player survival mechanics (Phase 21)
-- **Hunger** — must eat at regular intervals.
-- **Thirst** — must drink at regular intervals.
-- **Fatigue** — must rest/sleep.
-- **Atmospheric survival** — breathable air, correct temperature, correct pressure.
+### Event effects (deferred)
+The `event_effects` array is reserved for future side effects beyond component damage:
+- Room description changes (hull breach visual)
+- Atmosphere venting triggers
+- Narrative state changes
 
 ### Technical implementation
-- `EventSystem` in `backend/events/event_system.py` — schedule, check, resolve
-- `/api/events/check` — frontend polls this endpoint every 15 seconds
-- Events scheduled in `game_manager._init_events()` with `trigger_minutes` threshold
-- Random events: probability checked in game loop tick (not yet implemented)
-- Scheduled events: ship-time threshold comparison against `chronometer` state
+- `EventSystem` in `backend/events/event_system.py`
+- `electrical_service.py` in `backend/systems/electrical/`
+- `/api/events/check` — frontend polls every 15 seconds
+- Events loaded in `game_manager._init_events()` via `load_from_json()`
 
 ---
 
@@ -1047,5 +1182,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v20.0*
+*Project Orion Game Design Document v21.0*
 *April 2026*
