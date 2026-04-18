@@ -311,7 +311,7 @@ function setupObjectTooltips(container) {
             const objState = _findObjectState(currentObjects, key);
             const panelId  = objState ? objState.panel_id : null;
             if (!panelId) return;
-            tooltip.innerHTML = `<div style="color:var(--col-junction);font-size:11px">${panelId}</div>`;
+            tooltip.innerHTML = `<div style="color:var(--col-text);font-size:11px">${panelId}</div>`;
             tooltip.classList.remove('hidden');
         });
         _bindTooltipMove(span, tooltip);

@@ -110,6 +110,14 @@ function updateRoom(room) {
     currentRoomId  = room.id;
     currentExits   = room.exits || {};
     currentObjects = room.object_states || {};
+
+    // ── Terminal power cut — close terminal if room loses power ──
+    if (!room.room_powered && isTerminalSessionActive()) {
+        closeTerminalPanel();
+        clearResponse();
+        appendResponse('The terminal goes offline.');
+        appendMonologue('Dammit, a power failure? As if I don\'t have enough reports to file already.');
+    }
     const powerStateChanged = currentRoomPowered !== null && currentRoomPowered !== room.room_powered;
     currentRoomPowered = room.room_powered !== false;
 

@@ -16,6 +16,22 @@
     color: var(--col-alert);
 }
 
+/* ── Jack's internal monologue ──────────────────────────────── */
+
+.monologue-box {
+    border: 1px solid #5a6a7a;
+    background-color: #0d1117;
+    color: #7a8a9a;
+    font-style: italic;
+    padding: 6px 10px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+    line-height: 1.7;
+    border-radius: 6px;
+    display: table;
+    max-width: 100%;
+}
+
 /* ── Clarification options ──────────────────────────────────── */
 
 .clarification-options {

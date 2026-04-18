@@ -50,6 +50,15 @@ function clearResponse() {
     document.getElementById('response-content').innerHTML = '';
 }
 
+function appendMonologue(text) {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.className  = 'monologue-box';
+    el.textContent = text;
+    content.appendChild(el);
+    content.scrollTop = content.scrollHeight;
+}
+
 // ── Scan animation ───────────────────────────────────────────
 
 function showScanAnimation(realSeconds) {
