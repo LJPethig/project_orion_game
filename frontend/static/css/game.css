@@ -13,7 +13,7 @@
     --col-bg:           #000000;
     --col-bg-panel:     #050a05;
     --col-border:       #1a3a1a;
-    --col-divider:      #0f2a0f;
+    --col-divider:      #1a4a1a;
 
     --col-text:         #cecece;       /* Default prose */
     --col-title:        #27e6ec;       /* Cyan — exits / doors */
@@ -216,7 +216,7 @@ html, body {
     min-height: 0;
 }
 
-#description-panel { flex: 3; }
+#description-panel { flex: 5; }
 #response-panel    { flex: 2; }
 
 .text-panel::-webkit-scrollbar { width: 4px; }
@@ -226,7 +226,7 @@ html, body {
 /* ── Panel dividers ─────────────────────────────────────────── */
 
 .panel-divider {
-    height: 1px;
+    height: 2px;
     background: var(--col-divider);
     flex-shrink: 0;
     margin: 0 var(--panel-padding);
@@ -241,7 +241,7 @@ html, body {
     align-items: center;
     padding: 0 var(--panel-padding);
     gap: 8px;
-    border-top: 1px solid var(--col-divider);
+    border-top: none;
     background: var(--col-bg-panel);
 }
 
