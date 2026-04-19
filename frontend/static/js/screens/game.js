@@ -100,6 +100,13 @@ function updateDatapadTab(hasDatapad) {
     }
 }
 
+// ── Panel priority toggle ─────────────────────────────────────
+
+function togglePanelPriority() {
+    const rightPanel = document.getElementById('right-panel');
+    rightPanel.classList.toggle('response-priority');
+}
+
 // ── Room loading ─────────────────────────────────────────────
 
 async function loadRoom() {

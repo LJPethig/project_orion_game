@@ -216,8 +216,16 @@ html, body {
     min-height: 0;
 }
 
-#description-panel { flex: 5; }
+#description-panel {
+    flex: 5;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
 #response-panel    { flex: 2; }
+
+#right-panel.response-priority #description-panel { flex: 2; }
+#right-panel.response-priority #response-panel    { flex: 5; }
 
 .text-panel::-webkit-scrollbar { width: 4px; }
 .text-panel::-webkit-scrollbar-track { background: var(--col-bg); }
@@ -230,6 +238,26 @@ html, body {
     background: var(--col-divider);
     flex-shrink: 0;
     margin: 0 var(--panel-padding);
+    position: relative;
+    cursor: pointer;
+}
+
+.panel-divider-toggle {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--col-divider);
+    font-size: 10px;
+    letter-spacing: 1px;
+    user-select: none;
+    padding: 0 4px;
+    background: var(--col-bg);
+    line-height: 1;
+}
+
+.panel-divider:hover .panel-divider-toggle {
+    color: var(--col-title);
 }
 
 /* ── Input panel ────────────────────────────────────────────── */

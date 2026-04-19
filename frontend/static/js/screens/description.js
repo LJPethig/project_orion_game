@@ -5,10 +5,8 @@ function renderDescription(room, powerStateChanged = false, reactorStateChanged 
     const content = document.getElementById('description-content');
     content.innerHTML = '';
 
-    const title = document.createElement('div');
-    title.className = 'room-title';
-    title.textContent = room.name;
-    content.appendChild(title);
+    const titleEl = document.getElementById('description-title');
+    titleEl.textContent = room.name;
 
     room.description.forEach(line => {
         // ── State token — resolve to addendum ────────────
@@ -166,6 +164,7 @@ function renderDescription(room, powerStateChanged = false, reactorStateChanged 
 
         content.appendChild(row);
     }
+
 
     setupObjectTooltips(content);
     setupClickHandlers(content);

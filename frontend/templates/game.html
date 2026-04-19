@@ -64,14 +64,20 @@
             <div id="right-panel">
 
                 <!-- Description -->
-                <div id="description-panel" class="text-panel">
-                    <div id="description-content">
-                        <!-- Room name, objects, exits populated by JS -->
+                <div id="description-panel">
+                    <div id="description-title"></div>
+                    <div id="description-content" class="text-panel">
+                        <!-- Room objects, exits populated by JS -->
                     </div>
                 </div>
 
+                <!-- Ghost divider — prevents text cutoff at scroll boundary -->
+                <div class="panel-divider" style="opacity: 0; pointer-events: none; height: 6px;"></div>
+
                 <!-- Divider -->
-                <div class="panel-divider"></div>
+                <div class="panel-divider" onclick="togglePanelPriority()">
+                    <span class="panel-divider-toggle">▲▼</span>
+                </div>
 
                 <!-- Response -->
                 <div id="response-panel" class="text-panel">
