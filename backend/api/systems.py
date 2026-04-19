@@ -7,7 +7,7 @@ are thin HTTP wrappers that call the service and return JSON responses.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
-from backend.systems.electrical.electrical_service import break_component, fix_component
+from backend.systems.electrical.electrical_service import break_component, fix_component, eject_reactor, install_reactor
 
 systems_bp = Blueprint('systems', __name__)
 
@@ -68,6 +68,35 @@ def fix_component_route(component_id):
         return jsonify({'error': 'Electrical system not initialized'}), 500
 
     result = fix_component(component_id)
+    if not result['success']:
+        return jsonify(result), 404
+    return jsonify(result)
+
+@systems_bp.route('/electrical/reactor/eject/<reactor_id>', methods=['POST'])
+def eject_reactor_route(reactor_id):
+    """
+    Eject a reactor core by ID — debug console only.
+    Delegates to electrical_service.eject_reactor().
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    result = eject_reactor(reactor_id)
+    if not result['success']:
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@systems_bp.route('/electrical/reactor/install/<reactor_id>', methods=['POST'])
+def install_reactor_route(reactor_id):
+    """
+    Install a reactor core by ID — debug console only.
+    Delegates to electrical_service.install_reactor().
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    result = install_reactor(reactor_id)
     if not result['success']:
         return jsonify(result), 404
     return jsonify(result)

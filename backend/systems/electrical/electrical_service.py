@@ -171,3 +171,48 @@ def fix_component(component_id: str) -> dict:
         'success': False,
         'error': f"Component '{component_id}' not found. Check the ID against electrical.json.",
     }
+
+def eject_reactor(reactor_id: str) -> dict:
+    """
+    Eject a reactor core by ID (case-insensitive).
+    Sets ejected = True and operational = False on the reactor.
+    Debug console only — in-game ejection will be a separate command.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.power_sources, reactor_id)
+    if not key:
+        return {'success': False, 'error': f"Reactor '{reactor_id}' not found."}
+
+    source = sys.power_sources[key]
+    if not isinstance(source, FissionReactor):
+        return {'success': False, 'error': f"'{reactor_id}' is not a reactor."}
+
+    source.ejected     = True
+    source.operational = False
+    return _build_result(sys, 'reactor', key, 'ejected')
+
+
+def install_reactor(reactor_id: str) -> dict:
+    """
+    Reinstall a reactor core by ID (case-insensitive).
+    Reverses ejection — debug console only, not physically realistic.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.power_sources, reactor_id)
+    if not key:
+        return {'success': False, 'error': f"Reactor '{reactor_id}' not found."}
+
+    source = sys.power_sources[key]
+    if not isinstance(source, FissionReactor):
+        return {'success': False, 'error': f"'{reactor_id}' is not a reactor."}
+
+    source.ejected     = False
+    source.operational = True
+    return _build_result(sys, 'reactor', key, 'installed')
+

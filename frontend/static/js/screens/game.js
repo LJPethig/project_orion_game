@@ -126,12 +126,13 @@ function updateRoom(room) {
     currentRoomPowered   = room.room_powered !== false;
     currentReactorState  = room.reactor_state || 'online';
 
-    // Select powered or unpowered room image
-    const baseImage = room.background_image.replace(/(\.[^.]+)$/, '');
-    const ext       = room.background_image.match(/(\.[^.]+)$/)?.[1] || '.png';
-    const imagePath = currentRoomPowered
-        ? `/static/${room.background_image}`
-        : `/static/${baseImage}_unpowered${ext}`;
+    // Select room image based on power and reactor state
+    const baseImage     = room.background_image.replace(/(\.[^.]+)$/, '');
+    const ext           = room.background_image.match(/(\.[^.]+)$/)?.[1] || '.png';
+    const reactorOff    = currentReactorState === 'offline' || currentReactorState === 'ejected';
+    const unpoweredSuffix = currentRoomPowered ? '' : '_unpowered';
+    const reactorSuffix   = reactorOff ? '_reactor_off' : '';
+    const imagePath     = `/static/${baseImage}${unpoweredSuffix}${reactorSuffix}${ext}`;
     setRoomImage(imagePath);
 
     renderDescription(room, powerStateChanged, reactorStateChanged);
@@ -196,8 +197,14 @@ async function _debugHandleCommand() {
     } else if (cmd === 'fix') {
         if (!arg) { _debugLog('Usage: fix <component_id>', 'err'); return; }
         await _debugBreakFix('fix', arg);
+    } else if (cmd === 'eject') {
+        if (!arg) { _debugLog('Usage: eject <reactor_id>', 'err'); return; }
+        await _debugReactorAction('eject', arg);
+    } else if (cmd === 'install') {
+        if (!arg) { _debugLog('Usage: install <reactor_id>', 'err'); return; }
+        await _debugReactorAction('install', arg);
     } else {
-        _debugLog(`Unknown command. Try: break <id> | fix <id>`, 'err');
+        _debugLog(`Unknown command. Try: break <id> | fix <id> | eject <id> | install <id>`, 'err');
     }
 }
 
@@ -221,6 +228,31 @@ async function _debugBreakFix(action, componentId) {
         _debugLog(`Rooms powered: ${powered}/${total}`, powered === total ? 'ok' : 'warn');
 
         // Refresh map colours if map is currently open
+        if (typeof _updateRoomColours === 'function') {
+            await _updateRoomColours();
+        }
+        loadRoom();
+
+    } catch (err) {
+        _debugLog(`Network error: ${err.message}`, 'err');
+    }
+}
+
+async function _debugReactorAction(action, reactorId) {
+    try {
+        const resp = await fetch(
+            `/api/systems/electrical/reactor/${action}/${encodeURIComponent(reactorId)}`,
+            { method: 'POST' }
+        );
+        const data = await resp.json();
+
+        if (!data.success) {
+            _debugLog(`FAIL: ${data.error}`, 'err');
+            return;
+        }
+
+        _debugLog(`REACTOR [${data.component_id}] → ${data.action.toUpperCase()}`, action === 'eject' ? 'warn' : 'ok');
+
         if (typeof _updateRoomColours === 'function') {
             await _updateRoomColours();
         }
