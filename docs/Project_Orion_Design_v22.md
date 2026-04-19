@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Master Design & Development Document
-**Version 21.0 — April 2026**
+**Version 22.0 — April 2026**
 
 > ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
@@ -104,6 +104,16 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Storage facility quantity support: `{"id": "...", "quantity": N}` format in `initial_ship_items.json` ✅
 - UI font: Share Tech Mono replacing Courier New across all player-facing UI (terminal panels excluded) ✅
 - Room description style guide: separate document `Project_Orion_Room_Description_Style_v1.md` ✅
+- PowerJunction FixedObject: class in interactable.py, JSON definitions, loader, object_states, tooltip ✅
+- Power junction tooltip shows panel_id in coral — cross-reference with SVG circuit diagram ✅
+- Panel_id in junction keywords — player can type diagnose PNL-REC-SUB-C directly ✅
+- CircuitPanel: description field removed, id/type parameter shadowing fixed ✅
+- ~ italic markup: atmospheric prose lines wrapped in ~ render italic, no markup parsing inside ✅
+- Addendum flash animation: sharp orange fade-in, 8 second decay to normal grey on power state change ✅
+- Room image swap: powered/unpowered variants via _unpowered suffix, selected in updateRoom() ✅
+- Terminal auto-close on power cut: closes session, shows system response and Jack's monologue ✅
+- Jack's internal monologue: appendMonologue() function, styled box with rounded corners ✅
+- Corridor naming: Main Corridor CH-1 → Main Corridor, Sub Corridor CH-2 → Sub Corridor throughout ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -130,6 +140,10 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Event system overhaul** — JSON-driven events.json, generic _break_component_by_id(), door panel damage via events ✅
 - **Description system overhaul** — token injection, powered/unpowered addendum, new colour scheme, Share Tech Mono font, power junction markup ✅
 - **Room description style guide** — Project_Orion_Room_Description_Style_v1.md created ✅
+- **PowerJunction system** — class, JSON, loader, tooltip, panel_id keywords ✅
+- **Visual polish** — ~ italic markup, addendum flash animation, unpowered room image swap ✅
+- **Terminal power cut** — auto-close on power loss, Jack monologue box ✅
+- **Corridor rename** — CH-1/CH-2 references removed throughout ✅
 
 ---
 
@@ -193,12 +207,12 @@ project_orion_game/
 │       ├── css/
 │       │   ├── splash.css
 │       │   ├── game.css           ← new colour variables, Share Tech Mono font
-│       │   ├── description.css    ← new markup classes, addendum italic class
+│       │   ├── description.css    ← markup classes, addendum flash animation, ~ italic class
 │       │   ├── inventory.css
-│       │   ├── response.css
+│       │   ├── response.css       ← monologue-box style
 │       │   ├── terminal.css
 │       │   ├── datapad.css
-│       │   └── events.css
+│       │   └── events.css         ← blink iterations increased to 7
 │       ├── js/
 │       │   ├── core/
 │       │   │   ├── constants.js
@@ -206,15 +220,15 @@ project_orion_game/
 │       │   │   └── loop.js        ← event poll, repairInProgress flag, loadRoom() after events
 │       │   └── screens/
 │       │       ├── splash.js
-│       │       ├── ui.js
+│       │       ├── ui.js          ← appendMonologue() added
 │       │       ├── commands.js
-│       │       ├── description.js ← token injection, ?junction? markup
+│       │       ├── description.js ← token injection, ?junction? markup, ~ markup, junction tooltip
 │       │       ├── inventory.js
-│       │       ├── terminal_core.js       ← was terminal.js
+│       │       ├── terminal_core.js
 │       │       ├── terminal_engineering.js
 │       │       ├── terminal_manifest.js
 │       │       ├── map.js
-│       │       └── game.js        ← loadRoom() after debug break/fix
+│       │       └── game.js        ← currentRoomPowered tracking, image swap, terminal power cut
 │       └── images/
 │           ├── rooms/
 │           ├── doors/
@@ -231,6 +245,7 @@ project_orion_game/
     │   ├── storage_units.json
     │   ├── surfaces.json
     │   ├── engines.json
+    │   ├── power_junctions.json   ← NEW: five junction definitions with panel_id and keywords
     │   ├── cargo_containers.json
     │   └── pallet_platforms.json
     ├── game/
@@ -241,7 +256,7 @@ project_orion_game/
     │   └── repair_profiles.json
     └── ship/
         ├── structure/
-        │   ├── ship_rooms.json    ← rec room updated: new prose, token injection, addendums
+        │   ├── ship_rooms.json    ← rec room: ~ italic markup, power junction, corridor names fixed
         │   ├── door_status.json
         │   ├── door_access_panel_types.json
         │   ├── initial_ship_state.json  ← panels array emptied (damage now via event system)
@@ -249,7 +264,7 @@ project_orion_game/
         │   ├── initial_cargo.json
         │   └── player_items.json
         └── systems/
-            └── electrical.json
+            └── electrical.json    ← description field removed from panels
 ```
 
 ---
@@ -296,6 +311,7 @@ TERMINALS_JSON_PATH        = 'data/items/terminals.json'
 STORAGE_UNITS_JSON_PATH    = 'data/items/storage_units.json'
 SURFACES_JSON_PATH         = 'data/items/surfaces.json'
 ENGINES_JSON_PATH          = 'data/items/engines.json'
+POWER_JUNCTIONS_JSON_PATH  = 'data/items/power_junctions.json'
 CARGO_CONTAINERS_JSON_PATH = 'data/items/cargo_containers.json'
 PALLET_PLATFORMS_JSON_PATH = 'data/items/pallet_platforms.json'
 
@@ -413,9 +429,12 @@ Share Tech Mono is the primary UI font across all player-facing panels. Courier 
 | `%container%` | Container | Amber bold | Open/Closed | Toggle open/close |
 | `!terminal!` | Terminal | Violet bold | Online / Offline | `access <terminal>` |
 | `#surface#` | Surface | Amber bold | Empty/Has items | Expand Layer 3 |
-| `?junction?` | Power junction | Coral bold | (future) | (future) |
+| `?junction?` | Power junction | Coral bold | Panel ID (e.g. PNL-REC-SUB-C) | None |
 
 All markup renders title case and bold. Colour distinguishes object type.
+
+### Italic prose markup
+Lines wrapped in `~text~` render in italic with no markup parsing inside. Used for atmospheric prose and set dressing — the player voice that describes the space rather than its interactables. Pure prose only, no interactive markup inside `~` lines.
 
 ### Power state token injection
 The `description` array in `ship_rooms.json` is a mixed array of prose strings and state tokens. The renderer processes each element in order — prose strings render normally, state tokens resolve to the appropriate addendum and render in italic.
@@ -629,12 +648,13 @@ propulsion_reactor (120kW) — independent tree
 > ⚠️ **Phases below are not in strict order.** The sequence changes frequently. The suggested next order is listed but should be treated as a guide only.
 
 ### Suggested next order
-1. **Room descriptions** — author powered/unpowered addendums for all 17 rooms following the style guide. Recreation room is the reference example (complete).
-2. **Electrical repair system** — diagnose/repair for cables, breakers, panels via power junction access
-3. **Fixed object repair** — engines and reactors using same pattern as door panel repair
-4. **Event system expansion** — add more event types, randomisation flags
-5. **Codebase review** — before save/load, clean baseline
-6. **Save/load system** — autosave only, JSON format, full state serialisation
+1. **Room descriptions** — author powered/unpowered addendums and ~ italic prose for remaining 16 rooms. Generate unpowered images in Reve for each room alongside authoring.
+2. **Power junction placement** — add junctions to the other four panel rooms in ship_rooms.json and their descriptions
+3. **Electrical repair system** — diagnose/repair for cables, breakers, panels via power junction access
+4. **Fixed object repair** — engines and reactors using same pattern as door panel repair
+5. **Event system expansion** — add more event types, randomisation flags
+6. **Codebase review** — before save/load, clean baseline
+7. **Save/load system** — autosave only, JSON format, full state serialisation
 
 ### Future phases (not in order)
 
@@ -788,27 +808,29 @@ Future repair handlers (`electrical_repair.py`, `fixed_object_repair.py`) will f
 ## 16. KNOWN ISSUES / DEFERRED
 
 - **PAM** — clips to utility belt. Dormant until life support phase.
-- **Belt attachment mechanic** — utility belt accepts clipped items. Deferred until EVA phase.
-- **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session. Note: examine on power junctions should read `description` field from `electrical.json` via `panel_id`.
-- **Terminal shutdown on power loss** — if power is lost to a room while the terminal is active (via game events), the terminal should close immediately. Implement when event system is built.
-- **Dynamic room descriptions** — 16 rooms still need powered/unpowered addendums authored. Recreation room complete and is the reference example. Follow style guide.
-- **Room corridor naming** — Main Corridor CH-1 → Main Corridor, Sub Corridor CH-2 → Sub Corridor. Already updated in recreation room exits. All other rooms and their exit labels still reference old names.
-- **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal.
-- **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance, higher for complex repairs or missing manuals.
-- **Scan tool software updates** — future exotic systems require purchased scan tool updates. Not yet implemented.
-- **Power junction FixedObject** — `PowerJunction` class needed in `interactable.py` before electrical repair can be built. Bridge-by-ID pattern, same as doors. Five panels in five rooms.
+- **Belt attachment mechanic** — utility belt accepts clipped attachments. Deferred until EVA phase.
+- **Examine / look at command** — `examine <item>` prints name, manufacturer, model, and description to response panel. New verb in command handler. Deferred to quiet session. Note: examine on power junctions reads `description` from the `PowerJunction` object instance.
+- **Terminal shutdown on power loss** — implemented for event-driven power cuts ✅. Edge case: power cut while mid-repair with terminal open — deferred.
+- **Jack's internal monologue system** — currently hardcoded for terminal power cut only. Future: JSON-driven keyed response system (`monologue.json`) with keys like `terminal_power_failure`, `reactor_offline`, `hull_breach`. Ties into NPC dialogue tree system for mainframe AI, the friend, Ceres Base contact. Design considerations: tone variations based on game state, one-shot vs repeatable lines, character voice boxes with distinct colours per character.
+- **Unpowered room images** — naming convention `roomname_unpowered.png` implemented and working. Recreation room complete. Remaining 16 rooms need unpowered variants generated in Reve alongside description authoring.
+- **`^room_state^` token** — reserved for permanent room state changes triggered by events (hull breach visual etc.). Deferred until event effects system is built.
+- **Dynamic room descriptions** — 16 rooms still need ~ italic prose, powered/unpowered addendums authored. Recreation room complete and is the reference example. Follow style guide.
+- **Power junction placement** — recreation room complete. Four remaining rooms (engineering, main corridor, sub corridor, propulsion bay) need junctions added to fixed_objects and room descriptions.
+- **Circuit diagram SVG** — being built manually in Inkscape. When complete, integrate into `[C] Circuit Diagram` in engineering terminal. Power junction tooltip panel_id provides the cross-reference link.
+- **Repair post-repair failure roll** — hook exists, always succeeds. Future: probability-based failure chance.
+- **Scan tool software updates** — future exotic systems require purchased scan tool updates.
+- **Python built-in shadowing audit** — `id` and `type` used as parameter names in `__init__` methods, shadowing Python built-ins. Known affected: `electrical_system.py` (partially fixed on CircuitPanel), `interactable.py`, other model classes. Fix in dedicated cleanup pass.
 - **CRT terminal font** — CRT panels currently inherit Share Tech Mono. A more appropriate retro/phosphor font to be selected and applied via `terminal.css`.
 - **Event system save/load** — `GameEvent.fired` and `GameEvent.resolved` are in-memory only. Must be serialised in save file and restored after load to prevent events re-firing.
 - **Event effects** — `event_effects` array in events.json is reserved but not implemented. Future: room description changes, atmosphere venting, narrative state changes.
-- **Engine damage via events** — `_break_component_by_id()` has TODO stub for engine resolution. Implement when fixed object repair is built.
+- **Engine damage via events** — `_break_component_by_id()` has TODO stub for engine resolution.
 - **`PalletContainer.pallet` flag** — purpose unclear, appears unused. Resolve before cargo movement phase.
-- **Cargo contents** — `initial_cargo.json` containers currently empty. Cargo contents to be authored when narrative cargo manifest is defined.
+- **Cargo contents** — `initial_cargo.json` containers currently empty.
 - **Cargo handler operational flag** — `cargo_handler_operational` stub needed on GameManager before cargo movement phase.
-- **Long repair auto-chain threshold** — repairs over N game minutes per component should pause and require player to explicitly continue. Implement when Phase 21 survival mechanics are built.
-- **Repair failure mechanic** — when `panel_restored` is false due to failure, `Loop.setRepairInProgress(false)` must be called before presenting failure message.
+- **Long repair auto-chain threshold** — repairs over N game minutes per component should pause. Implement when Phase 21 survival mechanics are built.
+- **Repair failure mechanic** — when `panel_restored` is false, `Loop.setRepairInProgress(false)` must be called before presenting failure message.
 - **`command_handler.py` process() cleanup** — preposition command blocks partially duplicate `_resolve_for_verb()` logic. Targeted cleanup pass deferred.
-- **`ship.py` loader split** — `ShipLoader` class for JSON loading logic is a natural future split when cargo bay or electrical repair adds significant loading complexity. Not at threshold yet.
-- **Room temperature** — `target_temperature` and `current_temperature` on Room are deferred until life support is designed. Structure may change — do not build on this until life support phase begins.
+- **Room temperature** — deferred until life support is designed. Do not build on this.
 
 ### Input lockout behaviour — known inconsistency
 
@@ -842,6 +864,14 @@ is correct — is an open question for a future session.
 - ✅ **Event system overhaul** — JSON-driven, generic component damage, door panel damage via events.
 - ✅ **Description system overhaul** — token injection, colour scheme, Share Tech Mono, power junction markup.
 - ✅ **Room description style guide** — Project_Orion_Room_Description_Style_v1.md.
+- ✅ **PowerJunction FixedObject** — class, JSON, loader, tooltip, panel_id keywords, object_states.
+- ✅ **~ italic markup** — atmospheric prose lines wrapped in ~ render italic, no markup parsing inside.
+- ✅ **Addendum flash animation** — 8 second orange fade on power state change.
+- ✅ **Unpowered room image swap** — currentRoomPowered tracking, _unpowered suffix image selection.
+- ✅ **Terminal auto-close on power cut** — closes session, system response, Jack monologue box.
+- ✅ **Jack's monologue box** — appendMonologue(), styled box, rounded corners, muted blue-grey italic.
+- ✅ **Corridor rename** — CH-1/CH-2 references removed throughout all rooms and exits.
+- ✅ **CircuitPanel description removed** — description field belongs on PowerJunction, not electrical component.
 
 ---
 
@@ -1182,5 +1212,5 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game Design Document v21.0*
+*Project Orion Game Design Document v22.0*
 *April 2026*

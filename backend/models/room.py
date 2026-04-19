@@ -29,6 +29,9 @@ class Room:
         self.description        = description
         self.description_powered = []
         self.description_unpowered = []
+        self.description_reactor_online = []
+        self.description_reactor_offline = []
+        self.description_reactor_ejected = []
         self.background_image   = background_image
         self.exits              = exits
         self.dimensions_m, self.volume_m3 = self._validate_and_compute_volume(

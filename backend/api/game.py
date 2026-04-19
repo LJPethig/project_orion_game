@@ -115,6 +115,20 @@ def get_inventory():
         'carried':       carried,
     })
 
+def _get_reactor_state(es) -> str:
+    """Return current main reactor state: 'online', 'offline', or 'ejected'."""
+    if not es:
+        return 'online'
+    for source in es.power_sources.values():
+        from backend.systems.electrical.electrical_system import FissionReactor
+        if isinstance(source, FissionReactor) and source.id == 'reactor_core':
+            if source.ejected:
+                return 'ejected'
+            if not source.operational:
+                return 'offline'
+            return 'online'
+    return 'online'
+
 def _build_room_data(room) -> dict:
     """Build room dict for frontend — exits, portable items, object states."""
     exits = {}
@@ -178,12 +192,18 @@ def _build_room_data(room) -> dict:
 
     room_powered = es.check_room_power(room.id) if es else True
 
+    reactor_state = _get_reactor_state(es)
+
     return {
         'id': room.id,
         'name': room.name,
         'description': room.description,
         'description_powered': room.description_powered,
         'description_unpowered': room.description_unpowered,
+        'description_reactor_online': room.description_reactor_online,
+        'description_reactor_offline': room.description_reactor_offline,
+        'description_reactor_ejected': room.description_reactor_ejected,
+        'reactor_state': reactor_state,
         'room_powered': room_powered,
         'background_image': room.background_image,
         'exits': exits,

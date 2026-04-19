@@ -64,6 +64,9 @@ class Ship:
             room.fixed_object_ids = room_data.get('fixed_objects', [])
             room.description_powered = room_data.get('description_powered', [])
             room.description_unpowered = room_data.get('description_unpowered', [])
+            room.description_reactor_online = room_data.get('description_reactor_online', [])
+            room.description_reactor_offline = room_data.get('description_reactor_offline', [])
+            room.description_reactor_ejected = room_data.get('description_reactor_ejected', [])
             self.rooms[room_id] = room
 
     def _load_doors(self) -> None:

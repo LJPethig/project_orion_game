@@ -19,6 +19,9 @@ let currentRoomId = null;
 // Current room power state — used to detect addendum state changes
 let currentRoomPowered = null;
 
+// Current reactor state — used to detect addendum state changes
+let currentReactorState = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     init();
 });
@@ -118,8 +121,10 @@ function updateRoom(room) {
         appendResponse('The terminal goes offline.');
         appendMonologue('Dammit, a power failure? As if I don\'t have enough reports to file already.');
     }
-    const powerStateChanged = currentRoomPowered !== null && currentRoomPowered !== room.room_powered;
-    currentRoomPowered = room.room_powered !== false;
+    const powerStateChanged    = currentRoomPowered !== null && currentRoomPowered !== room.room_powered;
+    const reactorStateChanged  = currentReactorState !== null && currentReactorState !== room.reactor_state;
+    currentRoomPowered   = room.room_powered !== false;
+    currentReactorState  = room.reactor_state || 'online';
 
     // Select powered or unpowered room image
     const baseImage = room.background_image.replace(/(\.[^.]+)$/, '');
@@ -129,7 +134,7 @@ function updateRoom(room) {
         : `/static/${baseImage}_unpowered${ext}`;
     setRoomImage(imagePath);
 
-    renderDescription(room, powerStateChanged);
+    renderDescription(room, powerStateChanged, reactorStateChanged);
 
     // Close any open slide panels only on room change
     if (roomChanged) {

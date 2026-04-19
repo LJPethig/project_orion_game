@@ -1,7 +1,7 @@
 // frontend/static/js/screens/description.js
 // Description panel — rendering, markup parser, tooltips, click handlers.
 
-function renderDescription(room, powerStateChanged = false) {
+function renderDescription(room, powerStateChanged = false, reactorStateChanged = false) {
     const content = document.getElementById('description-content');
     content.innerHTML = '';
 
@@ -25,7 +25,21 @@ function renderDescription(room, powerStateChanged = false) {
             }
             return;
         }
-        if (line === '@reactor_state@') return;  // reserved — not yet implemented
+        if (line === '@reactor_state@') {
+            const state    = room.reactor_state || 'online';
+            const addendum = state === 'ejected' ? room.description_reactor_ejected
+                           : state === 'offline' ? room.description_reactor_offline
+                           : room.description_reactor_online;
+            if (addendum && addendum.length > 0) {
+                addendum.forEach(addLine => {
+                    const el = document.createElement('div');
+                    el.className = 'room-desc room-desc-addendum' + (reactorStateChanged ? ' room-desc-addendum-flash' : '');
+                    el.textContent = addLine;
+                    content.appendChild(el);
+                });
+            }
+            return;
+        }
         if (line === '&engine_state&') return;   // reserved — not yet implemented
 
         const el = document.createElement('div');
