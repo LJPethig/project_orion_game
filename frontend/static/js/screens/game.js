@@ -204,6 +204,9 @@ async function _debugHandleCommand() {
     } else if (cmd === 'fix') {
         if (!arg) { _debugLog('Usage: fix <component_id>', 'err'); return; }
         await _debugBreakFix('fix', arg);
+    } else if (cmd === 'trip') {
+        if (!arg) { _debugLog('Usage: trip <breaker_id>', 'err'); return; }
+        await _debugBreakFix('trip', arg);
     } else if (cmd === 'eject') {
         if (!arg) { _debugLog('Usage: eject <reactor_id>', 'err'); return; }
         await _debugReactorAction('eject', arg);
@@ -211,7 +214,7 @@ async function _debugHandleCommand() {
         if (!arg) { _debugLog('Usage: install <reactor_id>', 'err'); return; }
         await _debugReactorAction('install', arg);
     } else {
-        _debugLog(`Unknown command. Try: break <id> | fix <id> | eject <id> | install <id>`, 'err');
+        _debugLog(`Unknown command. Try: break <id> | trip <id> | fix <id> | eject <id> | install <id>`, 'err');
     }
 }
 

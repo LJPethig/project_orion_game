@@ -73,8 +73,13 @@ class Breaker:
         self.rating_amps = rating_amps
 
         # Runtime state (defaults)
-        self.operational = True
+        self.damaged = False
         self.tripped = False
+
+    @property
+    def operational(self) -> bool:
+        """A breaker is operational only when neither damaged nor tripped."""
+        return not self.damaged and not self.tripped
 
 
 class PowerCable:
@@ -223,7 +228,7 @@ class ElectricalSystem:
         # Check if component is a breaker
         if component_id in self.breakers:
             breaker = self.breakers[component_id]
-            if not breaker.operational or breaker.tripped:
+            if not breaker.operational:
                 return False
             # Breaker is in a panel, trace to panel
             return self._trace_power_to_source(breaker.panel_id, visited)
@@ -349,6 +354,7 @@ class ElectricalSystem:
                 breaker_id: {
                     'name': breaker.name,
                     'feeds': breaker.feeds,
+                    'damaged': breaker.damaged,
                     'tripped': breaker.tripped,
                     'operational': breaker.operational
                 }

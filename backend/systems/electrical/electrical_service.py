@@ -73,11 +73,11 @@ def _build_result(sys, component_type: str, component_id: str, action: str) -> d
         },
     }
 
-
 def break_component(component_id: str) -> dict:
     """
     Break any electrical component by ID (case-insensitive).
     Handles: cables, breakers, panels, power sources (reactors/batteries).
+    To trip a breaker instead, use trip_component().
     Returns a result dict — caller builds the HTTP response or handles directly.
     """
     sys = game_manager.electrical_system
@@ -93,9 +93,8 @@ def break_component(component_id: str) -> dict:
     # --- Breakers ---
     key = _find_key(sys.breakers, component_id)
     if key:
-        sys.breakers[key].tripped = True
-        sys.breakers[key].operational = False
-        return _build_result(sys, 'breaker', key, 'tripped+destroyed')
+        sys.breakers[key].damaged = True
+        return _build_result(sys, 'breaker', key, 'damaged')
 
     # --- Panels ---
     key = _find_key(sys.panels, component_id)
@@ -124,6 +123,27 @@ def break_component(component_id: str) -> dict:
     }
 
 
+def trip_component(component_id: str) -> dict:
+    """
+    Trip a circuit breaker by ID (case-insensitive).
+    A tripped breaker requires resetting only — no replacement part needed.
+    Only valid for breakers — returns an error for any other component type.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.breakers, component_id)
+    if key:
+        sys.breakers[key].tripped = True
+        return _build_result(sys, 'breaker', key, 'tripped')
+
+    return {
+        'success': False,
+        'error': f"Breaker '{component_id}' not found. Only breakers can be tripped.",
+    }
+
+
 def fix_component(component_id: str) -> dict:
     """
     Fix any electrical component by ID (case-insensitive).
@@ -143,8 +163,8 @@ def fix_component(component_id: str) -> dict:
     # --- Breakers ---
     key = _find_key(sys.breakers, component_id)
     if key:
+        sys.breakers[key].damaged = False
         sys.breakers[key].tripped = False
-        sys.breakers[key].operational = True
         return _build_result(sys, 'breaker', key, 'reset')
 
     # --- Panels ---

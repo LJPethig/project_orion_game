@@ -7,7 +7,7 @@ are thin HTTP wrappers that call the service and return JSON responses.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
-from backend.systems.electrical.electrical_service import break_component, fix_component, eject_reactor, install_reactor
+from backend.systems.electrical.electrical_service import break_component, fix_component, eject_reactor, install_reactor, trip_component
 
 systems_bp = Blueprint('systems', __name__)
 
@@ -68,6 +68,20 @@ def fix_component_route(component_id):
         return jsonify({'error': 'Electrical system not initialized'}), 500
 
     result = fix_component(component_id)
+    if not result['success']:
+        return jsonify(result), 404
+    return jsonify(result)
+
+@systems_bp.route('/electrical/trip/<component_id>', methods=['POST'])
+def trip_component_route(component_id):
+    """
+    Trip a circuit breaker by ID — debug console only.
+    Delegates to electrical_service.trip_component().
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    result = trip_component(component_id)
     if not result['success']:
         return jsonify(result), 404
     return jsonify(result)
