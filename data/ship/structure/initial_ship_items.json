@@ -1,7 +1,7 @@
 {
   "storage_facility": [
-    {"id": "wire_hv_standard", "quantity": 2},
-    {"id": "wire_low_voltage", "quantity": 2},
+    {"id": "cable_hv_standard", "quantity": 2},
+    {"id": "cable_low_voltage", "quantity": 2},
     {"id": "4_pin_interconnect", "quantity": 2},
     {"id": "12_pin_interconnect", "quantity": 2},
     {"id": "22_pin_interconnect", "quantity": 2},
@@ -13,13 +13,13 @@
     {"id": "10A_breaker", "quantity": 2},
     {"id": "32A_breaker", "quantity": 2},
     {"id": "63A_breaker", "quantity": 2},
-    "wire_optical",
+    "cable_optical",
     "250A_breaker",
     "600A_breaker",
     "1200A_breaker",
     "hv_logic_board",
     "hv_bus_bar",
-    "wire_hv_heavy_duty",
+    "cable_hv_heavy_duty",
     "id_card_scanner_head",
     "q-emerald_door_logic_board",
     "ts1500_door_logic_board",
@@ -52,7 +52,7 @@
   "surfaces": [
     {
       "surface_id": "cargo_bay_shelving_unit",
-      "items": ["wire_optical", "wire_hv_standard", "hv_service_kit"]
+      "items": ["cable_optical", "cable_hv_standard", "hv_service_kit"]
     },
     {
       "surface_id": "captains_quarters_metal_desk",

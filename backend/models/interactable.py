@@ -69,7 +69,7 @@ class PortableItem(Interactable):
         self.instance_id: Optional[str] = getattr(self, 'instance_id', None)
 
     def display_name(self) -> str:
-        """Return name with wire length appended if applicable."""
+        """Return name with cable length appended if applicable."""
         length_m = getattr(self, 'length_m', None)
         if length_m is not None:
             return f"{self.name} ({length_m}m)"

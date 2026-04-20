@@ -173,7 +173,9 @@ class ElectricalSystem:
                 name=cable_data['name'],
                 location=cable_data['location']
             )
-            cable.intact = cable_data.get('intact', True)  # default True unless specified
+            cable.intact = cable_data.get('intact', True)
+            cable.emergency_bypass = cable_data.get('emergency_bypass', False)
+            cable.length_m = cable_data.get('length_m', 0.0)
             system.cables[cable.id] = cable
 
         # Load room power source mappings

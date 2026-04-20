@@ -225,28 +225,34 @@
       "from": "propulsion_reactor",
       "to": "PNL-PRO-MAIN",
       "name": "Propulsion Reactor Main Feed",
-      "location": "propulsion_bay"
+      "location": "propulsion_bay",
+      "length_m": 4.0
     },
     {
       "id": "PWC-PRO-02",
       "from": "FUS-PRO-01",
       "to": "propulsion_bay_sublight_engine",
       "name": "Sub Light Engine Feed",
-      "location": "propulsion_bay"
+      "location": "propulsion_bay",
+      "length_m": 5.0
     },
     {
       "id": "PWC-PRO-03",
       "from": "FUS-PRO-02",
       "to": "propulsion_bay_ftl_engine",
       "name": "FTL Engine Feed",
-      "location": "propulsion_bay"
+      "location": "propulsion_bay",
+      "length_m": 8.0
     },
-     {
+    {
       "id": "PWC-PRO-04",
       "from": "FUS-PRO-00",
       "to": "PWC-ENG-00",
       "name": "Propulsion Reactor Backup Feed (Propulsion Segment)",
-      "location": "propulsion_bay"
+      "location": "propulsion_bay",
+      "intact": false,
+      "emergency_bypass": true,
+      "length_m": 6.0
     },
     {
       "id": "PWC-ENG-00",
@@ -254,189 +260,217 @@
       "to": "PNL-ENG-MAIN",
       "name": "Propulsion Reactor Backup Feed (Engineering Segment)",
       "location": "engineering",
-      "intact": false
+      "intact": false,
+      "emergency_bypass": true,
+      "length_m": 8.0
     },
     {
       "id": "PWC-ENG-01",
       "from": "reactor_core",
       "to": "PNL-ENG-MAIN",
       "name": "Reactor Main Feed",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 4.0
     },
     {
       "id": "PWC-ENG-02",
       "from": "FUS-ENG-01",
       "to": "life_support",
       "name": "Life Support Power Cable",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 5.0
     },
     {
       "id": "PWC-ENG-03",
       "from": "FUS-ENG-02",
       "to": "PWC-MC-06",
       "name": "Main Corridor Feed (Engineering Segment)",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 4.0
     },
     {
       "id": "PWC-ENG-04",
       "from": "FUS-ENG-03",
       "to": "PWC-MC-07",
       "name": "Sub Corridor Feed (Engineering Segment)",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 4.0
     },
     {
       "id": "PWC-ENG-05",
       "from": "FUS-ENG-04",
       "to": "PWC-MC-08",
       "name": "Recreation Room Feed (Engineering Segment)",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 4.0
     },
     {
       "id": "PWC-ENG-06",
       "from": "FUS-ENG-05",
       "to": "engineering",
       "name": "Engineering Local Power",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 3.0
     },
     {
       "id": "PWC-ENG-07",
       "from": "FUS-ENG-06",
       "to": "propulsion_bay",
       "name": "Propulsion Room Power Cable",
-      "location": "engineering"
+      "location": "engineering",
+      "length_m": 5.0
     },
     {
       "id": "PWC-MC-01",
       "from": "FUS-MC-01",
       "to": "crew_cabin",
       "name": "Crew Cabin Power Cable",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 4.0
     },
     {
       "id": "PWC-MC-02",
       "from": "FUS-MC-02",
       "to": "captains_quarters",
       "name": "Captains Quarters Power Cable",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 4.0
     },
     {
       "id": "PWC-MC-03",
       "from": "FUS-MC-03",
       "to": "mainframe_room",
       "name": "Mainframe Room Power Cable",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 4.0
     },
     {
       "id": "PWC-MC-04",
       "from": "PNL-MC-SUB-A",
       "to": "main_corridor",
       "name": "Main Corridor Local Power",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 2.0
     },
     {
       "id": "PWC-MC-06",
       "from": "PWC-ENG-03",
       "to": "PNL-MC-SUB-A",
       "name": "Main Corridor Feed (Main Corridor Segment)",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 6.0
     },
     {
       "id": "PWC-MC-07",
       "from": "PWC-ENG-04",
       "to": "PWC-SC-05",
       "name": "Sub Corridor Feed (Main Corridor Segment)",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 12.0
     },
     {
       "id": "PWC-MC-08",
       "from": "PWC-ENG-05",
       "to": "PWC-REC-05",
       "name": "Recreation Room Feed (Main Corridor Segment)",
-      "location": "main_corridor"
+      "location": "main_corridor",
+      "length_m": 12.0
     },
     {
       "id": "PWC-SC-01",
       "from": "FUS-SC-01",
       "to": "head",
       "name": "Bathroom Power Cable",
-      "location": "sub_corridor"
+      "location": "sub_corridor",
+      "length_m": 3.0
     },
     {
       "id": "PWC-SC-02",
       "from": "FUS-SC-02",
       "to": "cargo_bay",
       "name": "Cargo Bay Power Cable",
-      "location": "sub_corridor"
+      "location": "sub_corridor",
+      "length_m": 8.0
     },
     {
       "id": "PWC-SC-04",
       "from": "FUS-SC-04",
       "to": "airlock",
       "name": "Airlock Power Cable",
-      "location": "sub_corridor"
+      "location": "sub_corridor",
+      "length_m": 12.0
     },
     {
       "id": "PWC-SC-05",
       "from": "PWC-MC-07",
       "to": "PNL-SC-SUB-B",
       "name": "Sub Corridor Feed (Sub Corridor Segment)",
-      "location": "sub_corridor"
+      "location": "sub_corridor",
+      "length_m": 5.0
     },
     {
       "id": "PWC-SC-06",
       "from": "PNL-SC-SUB-B",
       "to": "sub_corridor",
       "name": "Sub Corridor Local Power",
-      "location": "sub_corridor"
+      "location": "sub_corridor",
+      "length_m": 2.0
     },
     {
       "id": "PWC-REC-01",
       "from": "FUS-REC-01",
       "to": "med_bay",
       "name": "Med-Bay Power Cable",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 4.0
     },
     {
       "id": "PWC-REC-02",
       "from": "FUS-REC-02",
       "to": "hypersleep_chamber",
       "name": "Hyper-sleep Chamber Power Cable",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 8.0
     },
     {
       "id": "PWC-REC-03",
       "from": "FUS-REC-03",
       "to": "galley",
       "name": "Galley Power Cable",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 4.0
     },
     {
       "id": "PWC-REC-04",
       "from": "FUS-REC-04",
       "to": "cockpit",
       "name": "Cockpit Power Cable",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 5.0
     },
     {
       "id": "PWC-REC-05",
       "from": "PWC-MC-08",
       "to": "PNL-REC-SUB-C",
       "name": "Recreation Room Feed (Recreation Room Segment)",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 5.0
     },
     {
       "id": "PWC-REC-06",
       "from": "PNL-REC-SUB-C",
       "to": "recreation_room",
       "name": "Recreation Room Local Power",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 3.0
     },
     {
       "id": "PWC-REC-07",
       "from": "FUS-REC-05",
       "to": "storage_room",
       "name": "Storage Room Power Cable",
-      "location": "recreation_room"
+      "location": "recreation_room",
+      "length_m": 4.0
     }
   ],
   

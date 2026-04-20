@@ -80,7 +80,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Electrical service layer: `electrical_service.py` — `break_component()` / `fix_component()` / `eject_reactor()` / `install_reactor()` callable from any backend code ✅
 - Engineering terminal: Technical Data, Electrical sub-menu (Power Status map, Circuit Diagram placeholder) ✅
 - Debug console: Ctrl+D, break/fix/eject/install commands, live map refresh, room description reload on state change ✅
-- Full repair system: diagnose + repair commands, scan tool manual validation, per-component repair, wire consumption by length, auto-chain, event hook ✅
+- Full repair system: diagnose + repair commands, scan tool manual validation, per-component repair, cable consumption by length, auto-chain, event hook ✅
 - Repair handler split: `repair_handler.py` (dispatcher) + `door_panel_repair.py` + `repair_utils.py` ✅
 - Repair/diagnosis real-time scaling: formula-based with config constants, 20s cap ✅
 - Diagnosis timing: based on actual failed components + 25% access overhead + ±10% jitter ✅
@@ -107,7 +107,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Event system: `impact_event` type breaks electrical components and door panels via `electrical_service` ✅
 - Event system: `_break_component_by_id()` resolves IDs against electrical system then door panels ✅
 - Impact event: fires 2 ship minutes after game start, breaks `PNL-REC-SUB-C` + two rec room door panels ✅
-- Electrical repair parts: circuit breakers (6 sizes), HV wire (2 gauges), HV connectors, bus bars, logic boards, HV service kit ✅
+- Electrical repair parts: circuit breakers (6 sizes), HV cable (2 gauges), HV connectors, bus bars, logic boards, HV service kit ✅
 - UI font: Share Tech Mono replacing Courier New across all player-facing UI (terminal panels excluded) ✅
 - Room image swap: powered/unpowered and reactor on/off variants via suffix naming convention ✅
 - Jack's internal monologue: `appendMonologue()` function, styled box with rounded corners ✅
@@ -135,7 +135,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Codebase review (April 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log ✅
 - **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer, engine fixed objects, SVG map ✅
 - **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
-- **Electrical repair parts** — HV items, circuit breakers, wire gauges, storage quantity support ✅
+- **Electrical repair parts** — HV items, circuit breakers, cable gauges, storage quantity support ✅
 - **File splits (April 2026)** — terminal.js → three files; repair_handler.py → three files ✅
 - **Electrical service layer** — electrical_service.py extracted, systems.py thinned to HTTP wrappers ✅
 - **Event system overhaul** — JSON-driven events.json, generic _break_component_by_id(), door panel damage ✅
@@ -487,7 +487,7 @@ See `Project_Orion_Room_Description_Style_v1.md` for full authoring rules.
 - `model` — model or part number
 - `description` — written with character, not generic
 
-### Wire consumables — special fields
+### cable consumables — special fields
 - `mass_per_metre` instead of `mass`
 - `max_length_m` — maximum spool capacity
 - `length_m` — actual instance length, decremented on use
@@ -751,8 +751,8 @@ Reactor ejection is irreversible in deep space. See Future doc Section 3.
 | Type | Parts required |
 |------|---------------|
 | Breaker | 1x matching amp-rated circuit breaker |
-| Cable (standard) | `wire_hv_standard` by length + 2x `hv_connect_standard` |
-| Cable (heavy duty) | `wire_hv_heavy_duty` by length + 2x `hv_connect_heavy` |
+| Cable (standard) | `cable_hv_standard` by length + 2x `hv_connect_standard` |
+| Cable (heavy duty) | `cable_hv_heavy_duty` by length + 2x `hv_connect_heavy` |
 | Panel | 1x `hv_logic_board` + 1x `hv_bus_bar` |
 
 ### Heavy duty cables

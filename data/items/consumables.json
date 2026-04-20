@@ -1,40 +1,40 @@
 [
   {
-    "id": "wire_low_voltage",
-    "name": "Low Voltage Wire",
+    "id": "cable_low_voltage",
+    "name": "Low Voltage Cable",
     "manufacturer": "Tengu cables",
     "model": "H05V-K",
-    "description": "A spool of small gauge electrical wire.",
+    "description": "A spool of small gauge electrical cable.",
     "keywords": ["wire", "wire spool", "electrical wire", "low voltage wire", "small gauge electrical wire", "small gauge electrical cable", "electrical cable", "cable"],
     "max_length_m": 50.0,
     "mass_per_metre": 0.05
   },
   {
-    "id": "wire_hv_standard",
-    "name": "High Voltage Wire 400 Amp",
+    "id": "cable_hv_standard",
+    "name": "High Voltage Cable 400 Amp",
     "manufacturer": "Harju Elekter Power",
     "model": "QZJP400-E",
-    "description": "A spool of heavy gauge electrical wire.",
+    "description": "A spool of heavy gauge electrical cable.",
     "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
     "max_length_m": 20.0,
     "mass_per_metre": 0.2
   },
   {
-    "id": "wire_hv_heavy_duty",
-    "name": "High Voltage Wire 1500 Amp",
+    "id": "cable_hv_heavy_duty",
+    "name": "High Voltage Cable 1500 Amp",
     "manufacturer": "Harju Elekter Power",
     "model": "QZKP1500-F",
-    "description": "A spool of super heavy gauge electrical wire.",
+    "description": "A spool of super heavy gauge electrical cable.",
     "keywords": ["wire", "wire spool", "electrical wire", "high voltage wire", "heavy gauge electrical wire", "heavy gauge electrical cable", "heavy electrical cable", "electrical cable", "cable"],
     "max_length_m": 15.0,
     "mass_per_metre": 0.5
   },
   {
-    "id": "wire_optical",
-    "name": "Optical Wire",
+    "id": "cable_optical",
+    "name": "Optical Cable",
     "manufacturer": "Lumina Powertech",
     "model": "WTC24–864F",
-    "description": "A spool of hybrid optical wire.",
+    "description": "A spool of hybrid optical cable.",
     "keywords": ["wire", "wire spool", "optical wire", "hybrid optical wire", "hybrid optical cable", "optical cable", "cable"],
     "max_length_m": 50.0,
     "mass_per_metre": 0.03

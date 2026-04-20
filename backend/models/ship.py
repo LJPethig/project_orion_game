@@ -239,8 +239,8 @@ class Ship:
         """
         Parse a placement entry from initial_ship_items.json.
         Supports both simple string and dict formats:
-          "wire_low_voltage"
-          {"id": "wire_low_voltage", "length_m": 12.5}
+          "cable_low_voltage"
+          {"id": "cable_low_voltage", "length_m": 12.5}
         Returns (item_id, overrides_dict_or_None).
         """
         if isinstance(entry, str):
