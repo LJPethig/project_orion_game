@@ -81,9 +81,16 @@ class EventSystem:
 
     def _handle_impact_event(self, event: GameEvent, break_component, game_manager) -> None:
         """Break all affected components and write ship log."""
+        from backend.systems.electrical.electrical_service import trip_component
         components = event.data.get('affected_components', [])
-        for component_id in components:
-            self._break_component_by_id(component_id, break_component, game_manager)
+        for entry in components:
+            if isinstance(entry, dict):
+                component_id = entry['id']
+                mode = entry.get('mode', 'damaged')
+            else:
+                component_id = entry
+                mode = 'damaged'
+            self._break_component_by_id(component_id, mode, break_component, trip_component, game_manager)
 
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
@@ -91,9 +98,12 @@ class EventSystem:
             'detail':    'Hull impact detected. Electrical faults reported on multiple circuits.',
         })
 
-    def _break_component_by_id(self, component_id: str, break_component, game_manager) -> None:
+    def _break_component_by_id(self, component_id: str, mode: str, break_component, trip_component,
+                               game_manager) -> None:
         """
         Resolve a component ID against all damageable types and break it.
+        mode: 'damaged' — physical damage, requires replacement part
+              'tripped'  — overload trip, requires reset only (breakers only)
 
         Resolution order:
           1. Electrical components (cables, breakers, panels, power sources)
@@ -104,7 +114,10 @@ class EventSystem:
         # TODO: Add fixed object resolution for life support, cargo handler etc.
         """
         # ── 1. Electrical components ──────────────────────────
-        result = break_component(component_id)
+        if mode == 'tripped':
+            result = trip_component(component_id)
+        else:
+            result = break_component(component_id)
         if result['success']:
             return
 

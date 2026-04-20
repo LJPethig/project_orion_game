@@ -204,6 +204,9 @@ async function _debugHandleCommand() {
     } else if (cmd === 'fix') {
         if (!arg) { _debugLog('Usage: fix <component_id>', 'err'); return; }
         await _debugBreakFix('fix', arg);
+    } else if (cmd === 'check') {
+        if (!arg) { _debugLog('Usage: check <component_id>', 'err'); return; }
+        await _debugCheckComponent(arg);
     } else if (cmd === 'trip') {
         if (!arg) { _debugLog('Usage: trip <breaker_id>', 'err'); return; }
         await _debugBreakFix('trip', arg);
@@ -214,7 +217,7 @@ async function _debugHandleCommand() {
         if (!arg) { _debugLog('Usage: install <reactor_id>', 'err'); return; }
         await _debugReactorAction('install', arg);
     } else {
-        _debugLog(`Unknown command. Try: break <id> | trip <id> | fix <id> | eject <id> | install <id>`, 'err');
+        _debugLog(`Unknown command. Try: check <id> | break <id> | trip <id> | fix <id> | eject <id> | install <id>`, 'err');
     }
 }
 
@@ -242,6 +245,35 @@ async function _debugBreakFix(action, componentId) {
             await _updateRoomColours();
         }
         loadRoom();
+
+    } catch (err) {
+        _debugLog(`Network error: ${err.message}`, 'err');
+    }
+}
+
+async function _debugCheckComponent(componentId) {
+    try {
+        const resp = await fetch(
+            `/api/systems/electrical/check/${encodeURIComponent(componentId)}`
+        );
+        const data = await resp.json();
+
+        if (!data.success) {
+            _debugLog(`FAIL: ${data.error}`, 'err');
+            return;
+        }
+
+        if (data.component_type === 'breaker') {
+            const state = data.damaged ? 'DAMAGED' : data.tripped ? 'TRIPPED' : 'OPERATIONAL';
+            const type  = data.operational ? 'ok' : 'warn';
+            _debugLog(`BREAKER [${data.component_id}] → ${state}`, type);
+        } else if (data.component_type === 'cable') {
+            const state = data.intact ? 'INTACT' : 'SEVERED';
+            _debugLog(`CABLE [${data.component_id}] → ${state}`, data.intact ? 'ok' : 'warn');
+        } else if (data.component_type === 'panel') {
+            const state = data.operational ? 'OPERATIONAL' : 'DAMAGED';
+            _debugLog(`PANEL [${data.component_id}] → ${state}`, data.operational ? 'ok' : 'warn');
+        }
 
     } catch (err) {
         _debugLog(`Network error: ${err.message}`, 'err');

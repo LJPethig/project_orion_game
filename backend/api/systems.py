@@ -72,6 +72,52 @@ def fix_component_route(component_id):
         return jsonify(result), 404
     return jsonify(result)
 
+@systems_bp.route('/electrical/check/<component_id>', methods=['GET'])
+def check_component_route(component_id):
+    """
+    Return the current state of any electrical component by ID — debug console only.
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    sys = game_manager.electrical_system
+
+    from backend.systems.electrical.electrical_service import _find_key
+
+    key = _find_key(sys.breakers, component_id)
+    if key:
+        b = sys.breakers[key]
+        return jsonify({
+            'success': True,
+            'component_type': 'breaker',
+            'component_id': key,
+            'damaged': b.damaged,
+            'tripped': b.tripped,
+            'operational': b.operational,
+        })
+
+    key = _find_key(sys.cables, component_id)
+    if key:
+        c = sys.cables[key]
+        return jsonify({
+            'success': True,
+            'component_type': 'cable',
+            'component_id': key,
+            'intact': c.intact,
+        })
+
+    key = _find_key(sys.panels, component_id)
+    if key:
+        p = sys.panels[key]
+        return jsonify({
+            'success': True,
+            'component_type': 'panel',
+            'component_id': key,
+            'operational': p.operational,
+        })
+
+    return jsonify({'success': False, 'error': f"Component '{component_id}' not found."}), 404
+
 @systems_bp.route('/electrical/trip/<component_id>', methods=['POST'])
 def trip_component_route(component_id):
     """

@@ -8,7 +8,9 @@
       "affected_components": [
         "PNL-REC-SUB-C",
         "recreation_room_cockpit_panel_rec",
-        "recreation_room_main_corridor_panel_rec"
+        "recreation_room_main_corridor_panel_rec",
+        { "id": "FUS-REC-01", "mode": "damaged" },
+        { "id": "FUS-REC-02", "mode": "tripped" }
       ],
       "event_effects": [],
       "randomise_damage": false,
