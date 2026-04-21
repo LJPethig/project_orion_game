@@ -200,7 +200,13 @@ class RepairHandler:
                     else door_panel_repair_handler.handle_repair(args)
 
             # Both present — clarification
-            return _instant("Door panel or junction panel?")
+            return _clarification(
+                f"Do you want to {verb} a door access panel or the electrical junction panel?",
+                [
+                    {'label': 'Door access panel', 'command': f"{verb} door panel"},
+                    {'label': 'Electrical junction panel', 'command': f"{verb} junction"},
+                ]
+            )
 
         # ── 5. Unrecognised args ──────────────────────────────
         return _instant("You can't diagnose that.")
