@@ -18,6 +18,7 @@ Shared utilities:
 """
 
 from backend.handlers.door_panel_repair import door_panel_repair_handler
+from backend.handlers.electrical_repair import electrical_repair_handler
 
 
 class RepairHandler:

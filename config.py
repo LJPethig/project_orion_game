@@ -65,6 +65,7 @@ PALLET_PLATFORMS_JSON_PATH = os.path.join('data', 'items', 'pallet_platforms.jso
 
 # Repair
 REPAIR_PROFILES_PATH       = os.path.join('data', 'repair', 'repair_profiles.json')
+ELECTRICAL_REPAIR_PROFILES_PATH = os.path.join('data', 'repair', 'electrical_repair_profiles.json')
 
 # Terminal content
 TERMINAL_CONTENT_PATH      = os.path.join('data', 'terminals')
