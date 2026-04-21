@@ -143,6 +143,47 @@ def trip_component(component_id: str) -> dict:
         'error': f"Breaker '{component_id}' not found. Only breakers can be tripped.",
     }
 
+def connect_cable(cable_id: str) -> dict:
+    """
+    Connect a cable by ID (case-insensitive).
+    Sets connected: True and intact: True — cable is physically installed and undamaged.
+    Only valid for cables with emergency_bypass: True.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.cables, cable_id)
+    if key:
+        cable = sys.cables[key]
+        if not cable.emergency_bypass:
+            return {'success': False, 'error': f"Cable '{cable_id}' is not a bypass cable."}
+        cable.connected = True
+        cable.intact    = True
+        return _build_result(sys, 'cable', key, 'connected')
+
+    return {'success': False, 'error': f"Cable '{cable_id}' not found."}
+
+
+def disconnect_cable(cable_id: str) -> dict:
+    """
+    Disconnect a cable by ID (case-insensitive).
+    Sets connected: False — cable is physically removed from the circuit.
+    Only valid for cables with emergency_bypass: True.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.cables, cable_id)
+    if key:
+        cable = sys.cables[key]
+        if not cable.emergency_bypass:
+            return {'success': False, 'error': f"Cable '{cable_id}' is not a bypass cable."}
+        cable.connected = False
+        return _build_result(sys, 'cable', key, 'disconnected')
+
+    return {'success': False, 'error': f"Cable '{cable_id}' not found."}
 
 def fix_component(component_id: str) -> dict:
     """
@@ -157,7 +198,13 @@ def fix_component(component_id: str) -> dict:
     # --- Cables ---
     key = _find_key(sys.cables, component_id)
     if key:
-        sys.cables[key].intact = True
+        cable = sys.cables[key]
+        if not cable.connected:
+            return {
+                'success': False,
+                'error': f"Cable '{key}' is not connected. Use connect_cable() to install it first.",
+            }
+        cable.intact = True
         return _build_result(sys, 'cable', key, 'repaired')
 
     # --- Breakers ---

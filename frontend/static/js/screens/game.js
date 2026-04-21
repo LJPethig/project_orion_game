@@ -210,6 +210,12 @@ async function _debugHandleCommand() {
     } else if (cmd === 'trip') {
         if (!arg) { _debugLog('Usage: trip <breaker_id>', 'err'); return; }
         await _debugBreakFix('trip', arg);
+    } else if (cmd === 'connect') {
+        if (!arg) { _debugLog('Usage: connect <cable_id>', 'err'); return; }
+        await _debugBreakFix('connect', arg);
+    } else if (cmd === 'disconnect') {
+        if (!arg) { _debugLog('Usage: disconnect <cable_id>', 'err'); return; }
+        await _debugBreakFix('disconnect', arg);
     } else if (cmd === 'eject') {
         if (!arg) { _debugLog('Usage: eject <reactor_id>', 'err'); return; }
         await _debugReactorAction('eject', arg);
@@ -217,7 +223,7 @@ async function _debugHandleCommand() {
         if (!arg) { _debugLog('Usage: install <reactor_id>', 'err'); return; }
         await _debugReactorAction('install', arg);
     } else {
-        _debugLog(`Unknown command. Try: check <id> | break <id> | trip <id> | fix <id> | eject <id> | install <id>`, 'err');
+        _debugLog(`Unknown command. Try: check <id> | break <id> | trip <id> | fix <id> | connect <id> | disconnect <id> | eject <id> | install <id>`, 'err');
     }
 }
 

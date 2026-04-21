@@ -7,7 +7,7 @@ are thin HTTP wrappers that call the service and return JSON responses.
 
 from flask import Blueprint, jsonify
 from backend.models.game_manager import game_manager
-from backend.systems.electrical.electrical_service import break_component, fix_component, eject_reactor, install_reactor, trip_component
+from backend.systems.electrical.electrical_service import break_component, fix_component, eject_reactor, install_reactor, trip_component, connect_cable, disconnect_cable
 
 systems_bp = Blueprint('systems', __name__)
 
@@ -132,6 +132,37 @@ def trip_component_route(component_id):
     if not result['success']:
         return jsonify(result), 404
     return jsonify(result)
+
+
+@systems_bp.route('/electrical/connect/<cable_id>', methods=['POST'])
+def connect_cable_route(cable_id):
+    """
+    Connect a bypass cable by ID — debug console only.
+    Delegates to electrical_service.connect_cable().
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    result = connect_cable(cable_id)
+    if not result['success']:
+        return jsonify(result), 404
+    return jsonify(result)
+
+
+@systems_bp.route('/electrical/disconnect/<cable_id>', methods=['POST'])
+def disconnect_cable_route(cable_id):
+    """
+    Disconnect a bypass cable by ID — debug console only.
+    Delegates to electrical_service.disconnect_cable().
+    """
+    if not game_manager.electrical_system:
+        return jsonify({'error': 'Electrical system not initialized'}), 500
+
+    result = disconnect_cable(cable_id)
+    if not result['success']:
+        return jsonify(result), 404
+    return jsonify(result)
+
 
 @systems_bp.route('/electrical/reactor/eject/<reactor_id>', methods=['POST'])
 def eject_reactor_route(reactor_id):
