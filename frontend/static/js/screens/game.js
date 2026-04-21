@@ -268,8 +268,9 @@ async function _debugCheckComponent(componentId) {
             const type  = data.operational ? 'ok' : 'warn';
             _debugLog(`BREAKER [${data.component_id}] → ${state}`, type);
         } else if (data.component_type === 'cable') {
-            const state = data.intact ? 'INTACT' : 'SEVERED';
-            _debugLog(`CABLE [${data.component_id}] → ${state}`, data.intact ? 'ok' : 'warn');
+            const state = !data.connected ? 'DISCONNECTED' : data.intact ? 'INTACT' : 'SEVERED';
+            const type  = data.connected && data.intact ? 'ok' : 'warn';
+            _debugLog(`CABLE [${data.component_id}] → ${state}`, type);
         } else if (data.component_type === 'panel') {
             const state = data.operational ? 'OPERATIONAL' : 'DAMAGED';
             _debugLog(`PANEL [${data.component_id}] → ${state}`, data.operational ? 'ok' : 'warn');

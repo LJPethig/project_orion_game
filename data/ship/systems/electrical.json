@@ -251,6 +251,7 @@
       "name": "Propulsion Reactor Backup Feed (Propulsion Segment)",
       "location": "propulsion_bay",
       "intact": false,
+      "connected": false,
       "emergency_bypass": true,
       "length_m": 6.0
     },
@@ -261,6 +262,7 @@
       "name": "Propulsion Reactor Backup Feed (Engineering Segment)",
       "location": "engineering",
       "intact": false,
+      "connected": false,
       "emergency_bypass": true,
       "length_m": 8.0
     },

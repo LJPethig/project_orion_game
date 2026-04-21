@@ -94,6 +94,7 @@ class PowerCable:
 
         # Runtime state (defaults)
         self.intact = True
+        self.connected = True
 
 
 class ElectricalSystem:
@@ -174,6 +175,7 @@ class ElectricalSystem:
                 location=cable_data['location']
             )
             cable.intact = cable_data.get('intact', True)
+            cable.connected = cable_data.get('connected', True)
             cable.emergency_bypass = cable_data.get('emergency_bypass', False)
             cable.length_m = cable_data.get('length_m', 0.0)
             system.cables[cable.id] = cable
@@ -367,6 +369,7 @@ class ElectricalSystem:
                     'name': cable.name,
                     'from': cable.from_id,
                     'to': cable.to_id,
+                    'connected': cable.connected,
                     'intact': cable.intact
                 }
                 for cable_id, cable in self.cables.items()

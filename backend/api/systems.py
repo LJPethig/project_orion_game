@@ -103,6 +103,7 @@ def check_component_route(component_id):
             'success': True,
             'component_type': 'cable',
             'component_id': key,
+            'connected': c.connected,
             'intact': c.intact,
         })
 
