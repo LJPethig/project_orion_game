@@ -216,12 +216,15 @@ class PowerJunction(FixedObject):
     electrical system.
 
     No display or status indicator — the player must diagnose to determine state.
-    Future: diagnose and repair commands routed via panel_id to electrical repair handler.
+    Repair state (broken_components, repaired_components) stored here and cleared
+    on successful repair completion.
     """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.panel_id: str = getattr(self, 'panel_id', '')
+        self.broken_components:  list = []
+        self.repaired_components: list = []
 
 
 class PalletContainer(StorageUnit):
