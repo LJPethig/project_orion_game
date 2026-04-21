@@ -177,7 +177,9 @@ class RepairHandler:
 
         # ── 3. Unambiguous door target ────────────────────────
         if _is_door_target(args, room):
-            return _instant(f"[STUB] Door handler — {verb} {args}")
+            return door_panel_repair_handler.handle_diagnose(args) \
+                if verb == 'diagnose' \
+                else door_panel_repair_handler.handle_repair(args)
 
         # ── 4. Ambiguous or empty args — check room contents ──
         if _is_ambiguous(args):
@@ -185,13 +187,17 @@ class RepairHandler:
             junction           = _get_junction(room)
 
             if not broken_door_panels and not junction:
-                return _instant("There are no damaged door access panels in this room.")
+                return door_panel_repair_handler.handle_diagnose(args) \
+                    if verb == 'diagnose' \
+                    else door_panel_repair_handler.handle_repair(args)
 
             if not broken_door_panels and junction:
                 return _instant(f"[STUB] Electrical handler — {verb} {junction.panel_id}")
 
             if broken_door_panels and not junction:
-                return _instant(f"[STUB] Door handler — {verb} {args}")
+                return door_panel_repair_handler.handle_diagnose(args) \
+                    if verb == 'diagnose' \
+                    else door_panel_repair_handler.handle_repair(args)
 
             # Both present — clarification
             return _instant("Door panel or junction panel?")
