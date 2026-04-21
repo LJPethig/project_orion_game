@@ -35,5 +35,15 @@ class ElectricalRepairHandler(BaseHandler):
                 f"check {ELECTRICAL_REPAIR_PROFILES_PATH}"
             )
 
+    def handle_diagnose(self, junction) -> dict:
+        """Stub — full implementation in Step 4."""
+        return self._instant(f"Junction {junction.panel_id} found. Diagnosis not yet implemented.")
+
+    def handle_repair(self, junction) -> dict:
+        """Stub — full implementation in Step 5."""
+        return self._instant(f"Junction {junction.panel_id} found. Repair not yet implemented.")
+
+
+
 
 electrical_repair_handler = ElectricalRepairHandler()
