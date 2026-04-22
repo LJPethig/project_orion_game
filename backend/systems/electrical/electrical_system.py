@@ -59,7 +59,24 @@ class CircuitPanel:
         self.breaker_count = breaker_count
 
         # Runtime state (defaults)
-        self.operational = True
+        # Internal components — all intact by default
+        # operational is derived from internal component states
+        self.logic_board_intact: bool = True
+        self.bus_bar_intact: bool = True
+        self.surge_protector_intact: bool = True
+        self.smoothing_capacitor_intact: bool = True
+        self.isolation_switch_intact: bool = True
+
+    @property
+    def operational(self) -> bool:
+        """Panel is operational only when all internal components are intact."""
+        return (
+                self.logic_board_intact
+                and self.bus_bar_intact
+                and self.surge_protector_intact
+                and self.smoothing_capacitor_intact
+                and self.isolation_switch_intact
+        )
 
 
 class Breaker:
@@ -350,7 +367,12 @@ class ElectricalSystem:
                 panel_id: {
                     'name': panel.name,
                     'location': panel.location,
-                    'operational': panel.operational
+                    'operational': panel.operational,
+                    'logic_board_intact': panel.logic_board_intact,
+                    'bus_bar_intact': panel.bus_bar_intact,
+                    'surge_protector_intact': panel.surge_protector_intact,
+                    'smoothing_capacitor_intact': panel.smoothing_capacitor_intact,
+                    'isolation_switch_intact': panel.isolation_switch_intact,
                 }
                 for panel_id, panel in self.panels.items()
             },

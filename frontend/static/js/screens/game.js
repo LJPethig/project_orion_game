@@ -280,6 +280,13 @@ async function _debugCheckComponent(componentId) {
         } else if (data.component_type === 'panel') {
             const state = data.operational ? 'OPERATIONAL' : 'DAMAGED';
             _debugLog(`PANEL [${data.component_id}] → ${state}`, data.operational ? 'ok' : 'warn');
+            if (!data.operational) {
+                if (!data.logic_board_intact)         _debugLog(`  logic board — DAMAGED`, 'warn');
+                if (!data.bus_bar_intact)             _debugLog(`  bus bar — DAMAGED`, 'warn');
+                if (!data.surge_protector_intact)     _debugLog(`  surge protector — DAMAGED`, 'warn');
+                if (!data.smoothing_capacitor_intact) _debugLog(`  smoothing capacitor — DAMAGED`, 'warn');
+                if (!data.isolation_switch_intact)    _debugLog(`  isolation switch — DAMAGED`, 'warn');
+            }
         }
 
     } catch (err) {

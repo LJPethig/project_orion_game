@@ -14,7 +14,7 @@ Result dict on success:
       'success':        True,
       'component_type': str,   # 'cable' | 'breaker' | 'panel' | 'power_source'
       'component_id':   str,   # normalised key as stored in electrical system
-      'action':         str,   # e.g. 'severed', 'tripped+destroyed', 'repaired'
+      'action':         str,   # e.g. 'severed', 'damaged', 'tripped', 'repaired', 'hv_logic_board_damaged'
       'power_changed':  True,
       'room_power':     dict,  # room_id -> bool
       'batteries':      dict,
@@ -97,10 +97,12 @@ def break_component(component_id: str) -> dict:
         return _build_result(sys, 'breaker', key, 'damaged')
 
     # --- Panels ---
-    key = _find_key(sys.panels, component_id)
-    if key:
-        sys.panels[key].operational = False
-        return _build_result(sys, 'panel', key, 'destroyed')
+    # Panels are not broken directly — use break_panel_component() instead.
+    if _find_key(sys.panels, component_id):
+        return {
+            'success': False,
+            'error': f"Panels cannot be broken directly. Use break_panel_component() to break a specific internal component.",
+        }
 
     # --- Power sources ---
     key = _find_key(sys.power_sources, component_id)
@@ -121,6 +123,43 @@ def break_component(component_id: str) -> dict:
         'success': False,
         'error': f"Component '{component_id}' not found. Check the ID against electrical.json.",
     }
+
+
+def break_panel_component(panel_id: str, component: str) -> dict:
+    """
+    Break a specific internal component of a circuit panel by panel ID and component name.
+    Valid component names: 'hv_logic_board', 'hv_bus_bar', 'hv_surge_protector',
+                           'hv_smoothing_capacitor', 'hv_isolation_switch'
+    Returns a result dict — caller builds the HTTP response or handles directly.
+    """
+    sys = game_manager.electrical_system
+    if not sys:
+        return {'success': False, 'error': 'Electrical system not initialized'}
+
+    key = _find_key(sys.panels, panel_id)
+    if not key:
+        return {'success': False, 'error': f"Panel '{panel_id}' not found."}
+
+    panel = sys.panels[key]
+
+    component_map = {
+        'hv_logic_board':         'logic_board_intact',
+        'hv_bus_bar':             'bus_bar_intact',
+        'hv_surge_protector':     'surge_protector_intact',
+        'hv_smoothing_capacitor': 'smoothing_capacitor_intact',
+        'hv_isolation_switch':    'isolation_switch_intact',
+    }
+
+    flag = component_map.get(component)
+    if not flag:
+        return {
+            'success': False,
+            'error': f"Unknown panel component '{component}'. "
+                     f"Valid: {', '.join(component_map.keys())}",
+        }
+
+    setattr(panel, flag, False)
+    return _build_result(sys, 'panel', key, f"{component}_damaged")
 
 
 def trip_component(component_id: str) -> dict:
@@ -217,7 +256,12 @@ def fix_component(component_id: str) -> dict:
     # --- Panels ---
     key = _find_key(sys.panels, component_id)
     if key:
-        sys.panels[key].operational = True
+        panel = sys.panels[key]
+        panel.logic_board_intact = True
+        panel.bus_bar_intact = True
+        panel.surge_protector_intact = True
+        panel.smoothing_capacitor_intact = True
+        panel.isolation_switch_intact = True
         return _build_result(sys, 'panel', key, 'restored')
 
     # --- Power sources ---

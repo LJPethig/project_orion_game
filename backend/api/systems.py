@@ -115,6 +115,11 @@ def check_component_route(component_id):
             'component_type': 'panel',
             'component_id': key,
             'operational': p.operational,
+            'logic_board_intact': p.logic_board_intact,
+            'bus_bar_intact': p.bus_bar_intact,
+            'surge_protector_intact': p.surge_protector_intact,
+            'smoothing_capacitor_intact': p.smoothing_capacitor_intact,
+            'isolation_switch_intact': p.isolation_switch_intact,
         })
 
     return jsonify({'success': False, 'error': f"Component '{component_id}' not found."}), 404

@@ -218,5 +218,32 @@
     "description": "A resettable circuit breaker for 800V DC systems",
     "keywords": ["breaker", "1200a breaker", "1200 amp breaker", "circuit breaker", "1200a circuit breaker", "1200 amp circuit breaker"],
     "mass": 0.8
-  }
+  },
+  {
+    "id": "hv_surge_protector",
+    "name": "HV Surge Protector",
+    "manufacturer": "Harju Elekter Power",
+    "model": "SPD-800-DC",
+    "description": "A surge protection device for 800V DC systems. Absorbs and dissipates voltage transients.",
+    "keywords": ["surge protector", "surge protection", "spd"],
+    "mass": 0.3
+  },
+  {
+    "id": "hv_smoothing_capacitor",
+    "name": "HV Smoothing Capacitor",
+    "manufacturer": "OmniSwitch Dynamics",
+    "model": "OMD-CAP-800V",
+    "description": "A large film capacitor for filtering voltage ripple on 800V DC distribution buses.",
+    "keywords": ["capacitor", "smoothing capacitor", "filter capacitor"],
+    "mass": 0.4
+  },
+  {
+    "id": "hv_isolation_switch",
+    "name": "HV Isolation Switch",
+    "manufacturer": "Matsuri Energy Systems",
+    "model": "IS360-800V",
+    "description": "A lockable isolation switch for safe isolation of 800V DC panel circuits before maintenance.",
+    "keywords": ["isolation switch", "isolator", "iso switch"],
+    "mass": 0.6
+}
 ]

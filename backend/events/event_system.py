@@ -81,16 +81,24 @@ class EventSystem:
 
     def _handle_impact_event(self, event: GameEvent, break_component, game_manager) -> None:
         """Break all affected components and write ship log."""
-        from backend.systems.electrical.electrical_service import trip_component
+        from backend.systems.electrical.electrical_service import trip_component, break_panel_component
         components = event.data.get('affected_components', [])
         for entry in components:
             if isinstance(entry, dict):
                 component_id = entry['id']
                 mode = entry.get('mode', 'damaged')
+                panel_component = entry.get('component')
             else:
                 component_id = entry
                 mode = 'damaged'
-            self._break_component_by_id(component_id, mode, break_component, trip_component, game_manager)
+                panel_component = None
+
+            if panel_component:
+                result = break_panel_component(component_id, panel_component)
+                if not result['success']:
+                    print(f"[EventSystem] WARNING: {result['error']}")
+            else:
+                self._break_component_by_id(component_id, mode, break_component, trip_component, game_manager)
 
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
