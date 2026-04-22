@@ -5,6 +5,9 @@
     "components": [
       {"electrical_id": null, "item_id": "hv_logic_board", "qty": 1, "diag_time_mins": 20, "repair_time_mins": 30},
       {"electrical_id": null, "item_id": "hv_bus_bar",     "qty": 1, "diag_time_mins": 10, "repair_time_mins": 30},
+      {"electrical_id": null, "item_id": "hv_surge_protector",     "qty": 1, "diag_time_mins": 8, "repair_time_mins": 20},
+      {"electrical_id": null, "item_id": "hv_smoothing_capacitor", "qty": 1, "diag_time_mins": 8, "repair_time_mins": 25},
+      {"electrical_id": null, "item_id": "hv_isolation_switch",    "qty": 1, "diag_time_mins": 5, "repair_time_mins": 15},
       {"electrical_id": "FUS-ENG-01", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-ENG-02", "item_id": "63A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-ENG-03", "item_id": "63A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
@@ -29,6 +32,9 @@
     "components": [
       {"electrical_id": null, "item_id": "hv_logic_board", "qty": 1, "diag_time_mins": 20, "repair_time_mins": 30},
       {"electrical_id": null, "item_id": "hv_bus_bar",     "qty": 1, "diag_time_mins": 10, "repair_time_mins": 30},
+      {"electrical_id": null, "item_id": "hv_surge_protector",     "qty": 1, "diag_time_mins": 8, "repair_time_mins": 20},
+      {"electrical_id": null, "item_id": "hv_smoothing_capacitor", "qty": 1, "diag_time_mins": 8, "repair_time_mins": 25},
+      {"electrical_id": null, "item_id": "hv_isolation_switch",    "qty": 1, "diag_time_mins": 5, "repair_time_mins": 15},
       {"electrical_id": "FUS-PRO-00", "item_id": "250A_breaker",  "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-PRO-01", "item_id": "600A_breaker",  "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-PRO-02", "item_id": "1200A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
@@ -44,6 +50,9 @@
     "components": [
       {"electrical_id": null, "item_id": "hv_logic_board", "qty": 1, "diag_time_mins": 20, "repair_time_mins": 30},
       {"electrical_id": null, "item_id": "hv_bus_bar",     "qty": 1, "diag_time_mins": 10, "repair_time_mins": 30},
+      {"electrical_id": null, "item_id": "hv_surge_protector",     "qty": 1, "diag_time_mins": 8, "repair_time_mins": 20},
+      {"electrical_id": null, "item_id": "hv_smoothing_capacitor", "qty": 1, "diag_time_mins": 8, "repair_time_mins": 25},
+      {"electrical_id": null, "item_id": "hv_isolation_switch",    "qty": 1, "diag_time_mins": 5, "repair_time_mins": 15},
       {"electrical_id": "FUS-MC-01", "item_id": "10A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-MC-02", "item_id": "10A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-MC-03", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
@@ -60,6 +69,9 @@
     "components": [
       {"electrical_id": null, "item_id": "hv_logic_board", "qty": 1, "diag_time_mins": 20, "repair_time_mins": 30},
       {"electrical_id": null, "item_id": "hv_bus_bar",     "qty": 1, "diag_time_mins": 10, "repair_time_mins": 30},
+      {"electrical_id": null, "item_id": "hv_surge_protector",     "qty": 1, "diag_time_mins": 8, "repair_time_mins": 20},
+      {"electrical_id": null, "item_id": "hv_smoothing_capacitor", "qty": 1, "diag_time_mins": 8, "repair_time_mins": 25},
+      {"electrical_id": null, "item_id": "hv_isolation_switch",    "qty": 1, "diag_time_mins": 5, "repair_time_mins": 15},
       {"electrical_id": "FUS-SC-01", "item_id": "10A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-SC-02", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-SC-04", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
@@ -76,6 +88,9 @@
     "components": [
       {"electrical_id": null, "item_id": "hv_logic_board", "qty": 1, "diag_time_mins": 20, "repair_time_mins": 30},
       {"electrical_id": null, "item_id": "hv_bus_bar",     "qty": 1, "diag_time_mins": 10, "repair_time_mins": 30},
+      {"electrical_id": null, "item_id": "hv_surge_protector",     "qty": 1, "diag_time_mins": 8, "repair_time_mins": 20},
+      {"electrical_id": null, "item_id": "hv_smoothing_capacitor", "qty": 1, "diag_time_mins": 8, "repair_time_mins": 25},
+      {"electrical_id": null, "item_id": "hv_isolation_switch",    "qty": 1, "diag_time_mins": 5, "repair_time_mins": 15},
       {"electrical_id": "FUS-REC-01", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-REC-02", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
       {"electrical_id": "FUS-REC-03", "item_id": "32A_breaker", "qty": 1, "diag_time_mins": 3, "repair_time_mins": 5, "repair_time_tripped": 1},
