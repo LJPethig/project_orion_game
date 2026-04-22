@@ -200,6 +200,55 @@ def repair_next():
     return jsonify(result)
 
 
+@command_bp.route('/elec_repair_complete', methods=['POST'])
+def elec_repair_complete():
+    """
+    Called by frontend after an electrical component repair timed action completes.
+    Consumes parts, marks component repaired, returns next action or completion.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data          = request.get_json()
+    panel_id      = data.get('panel_id')
+    component_key = data.get('component_key')
+
+    from backend.handlers.electrical_repair import electrical_repair_handler
+    result = electrical_repair_handler.complete_component_repair(panel_id, component_key)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
+
+
+@command_bp.route('/elec_repair_next', methods=['POST'])
+def elec_repair_next():
+    """
+    Called by frontend to proceed to the next electrical component repair.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data     = request.get_json()
+    panel_id = data.get('panel_id')
+
+    from backend.models.interactable import PowerJunction
+    from backend.handlers.electrical_repair import electrical_repair_handler
+    room     = game_manager.get_current_room()
+    junction = next(
+        (o for o in room.objects if isinstance(o, PowerJunction) and o.panel_id == panel_id),
+        None
+    )
+    if not junction:
+        return jsonify({'error': f"Junction '{panel_id}' not found"}), 400
+
+    profile = electrical_repair_handler._profiles.get(panel_id)
+    if not profile:
+        return jsonify({'error': f"No repair profile for '{panel_id}'"}), 400
+
+    result = electrical_repair_handler.begin_next_repair(junction, profile)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
+
+
 @command_bp.route('/pin', methods=['POST'])
 def submit_pin():
     """

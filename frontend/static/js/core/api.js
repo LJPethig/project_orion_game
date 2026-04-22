@@ -73,6 +73,24 @@ const API = {
         return r.json();
     },
 
+    async completeElecRepair(panel_id, component_key) {
+        const r = await fetch('/api/command/elec_repair_complete', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ panel_id, component_key }),
+        });
+        return r.json();
+    },
+
+    async elecRepairNext(panel_id) {
+        const r = await fetch('/api/command/elec_repair_next', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ panel_id }),
+        });
+        return r.json();
+    },
+
     async completeElecDiagnosis(panel_id, game_minutes) {
         const r = await fetch('/api/command/elec_diagnose_complete', {
             method:  'POST',

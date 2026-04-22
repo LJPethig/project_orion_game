@@ -175,6 +175,22 @@ function handleResult(result) {
         return;
     }
 
+    // ── Elec repair component — lock input, wait, call elec_repair_complete ──
+    if (result.action_type === 'elec_repair_component') {
+        Loop.setRepairInProgress(true);
+        showRepairAnimation(result.real_seconds);
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const repairResult = await API.completeElecRepair(
+                result.panel_id,
+                result.component_key
+            );
+            clearResponse();
+            handleResult(repairResult);
+        });
+        return;
+    }
+
     // ── Repair component — lock input, wait, call repair_complete ──
     if (result.action_type === 'repair_component') {
         Loop.setRepairInProgress(true);
@@ -274,6 +290,21 @@ function handleResult(result) {
     // ── Always clear PIN mode before processing result ────
     pendingPin = null;
     setInputMode('normal');
+
+    // Elec repair complete — panel restored or auto-chain to next component
+    if (result.action_type === 'elec_repair_complete') {
+        if (result.panel_restored) {
+            Loop.setRepairInProgress(false);
+            loadRoom();
+        } else {
+            setTimeout(async () => {
+                const nextResult = await API.elecRepairNext(result.panel_id);
+                clearResponse();
+                handleResult(nextResult);
+            }, CONSTANTS.REPAIR_COMPONENT_PAUSE_MS);
+        }
+        return;
+    }
 
     // Repair complete — panel restored or auto-chain to next component
     if (result.action_type === 'repair_complete') {
