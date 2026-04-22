@@ -169,7 +169,9 @@ class RepairHandler:
             junction = _get_junction(room)
             if not junction:
                 return _instant("There is no electrical junction panel in this room.")
-            return _instant(f"[STUB] Electrical handler — {verb} {junction.panel_id}")
+            return electrical_repair_handler.handle_diagnose(junction) \
+                if verb == 'diagnose' \
+                else electrical_repair_handler.handle_repair(junction)
 
         # ── 2. Fixed object target (future) ───────────────────
         if _is_fixed_object_target(args, room):
@@ -192,7 +194,9 @@ class RepairHandler:
                     else door_panel_repair_handler.handle_repair(args)
 
             if not broken_door_panels and junction:
-                return _instant(f"[STUB] Electrical handler — {verb} {junction.panel_id}")
+                return electrical_repair_handler.handle_diagnose(junction) \
+                    if verb == 'diagnose' \
+                    else electrical_repair_handler.handle_repair(junction)
 
             if broken_door_panels and not junction:
                 return door_panel_repair_handler.handle_diagnose(args) \
