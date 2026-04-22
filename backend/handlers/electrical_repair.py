@@ -282,6 +282,12 @@ class ElectricalRepairHandler(BaseHandler):
         """Human-readable label for a profile component."""
         if 'length_m' in component:
             return f"{item_name(component['item_id'])} ({component['length_m']}m)"
+        eid = component.get('electrical_id')
+        if eid:
+            sys = game_manager.electrical_system
+            breaker = sys.breakers.get(eid)
+            if breaker and breaker.tripped and not breaker.damaged:
+                return f"{item_name(component['item_id'])} (Tripped)"
         return item_name(component['item_id'])
 
     def _broken_component_entries(self, junction, profile: dict) -> list:
@@ -359,6 +365,12 @@ class ElectricalRepairHandler(BaseHandler):
 
             # ── Breaker or internal part — check qty ──────────
             else:
+                # Tripped breakers need resetting only — no replacement part required
+                if eid:
+                    sys = game_manager.electrical_system
+                    breaker = sys.breakers.get(eid)
+                    if breaker and breaker.tripped and not breaker.damaged:
+                        continue
                 qty_required = component.get('qty', 1)
                 matches = [i for i in inventory if getattr(i, 'id', None) == item_id]
                 if len(matches) < qty_required:

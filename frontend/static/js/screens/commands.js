@@ -141,6 +141,22 @@ function handleResult(result) {
     }
 
 
+    // ── Elec diagnose panel — lock input, wait, call elec_diagnose_complete ──
+    if (result.action_type === 'elec_diagnose_panel') {
+        showDiagnosisAnimation(result.real_seconds);
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const diagResult = await API.completeElecDiagnosis(
+                result.panel_id,
+                result.game_minutes
+            );
+            clearResponse();
+            handleResult(diagResult);
+        });
+        return;
+    }
+
+
     // ── Diagnose panel — lock input, wait, call diagnose_complete ──
     if (result.action_type === 'diagnose_panel') {
         setDamagedPanelImage(result.security_level);

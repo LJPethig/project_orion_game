@@ -155,6 +155,24 @@ def repair_complete():
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 
+@command_bp.route('/elec_diagnose_complete', methods=['POST'])
+def elec_diagnose_complete():
+    """
+    Called by frontend after the electrical diagnosis timed action completes.
+    Advances ship time, writes log, returns diagnosis report.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data         = request.get_json()
+    panel_id     = data.get('panel_id')
+    game_minutes = data.get('game_minutes', 0)
+
+    from backend.handlers.electrical_repair import electrical_repair_handler
+    result = electrical_repair_handler.complete_diagnosis(panel_id, game_minutes)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
+
 @command_bp.route('/repair_next', methods=['POST'])
 def repair_next():
     """
