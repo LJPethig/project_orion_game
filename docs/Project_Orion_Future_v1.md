@@ -13,13 +13,14 @@
 
 > ⚠️ Sequence changes frequently. Treat as a guide only.
 
-1. **Room descriptions and images** — complete all 17 rooms following the style guide. Generate unpowered (and where applicable reactor-off) images in Reve alongside authoring. Recreation room and engineering complete — use as reference.
+1. **Room descriptions and images** — complete all 15 remaining rooms following the style guide. Generate unpowered (and where applicable reactor-off) images in Reve alongside authoring. Recreation room and engineering complete — use as reference.
 2. **Power junction placement** — add junctions to main corridor, sub corridor, propulsion bay descriptions and fixed_objects.
-3. **Electrical repair system** — diagnose/repair for cables, breakers, panels via power junction. `electrical_repair.py` handler, `electrical_repair_profiles.json`.
+3. **Electrical repair system** ✅ — diagnose/repair for cables, breakers, panels via power junction. `electrical_repair.py` handler, `electrical_repair_profiles.json`.
 4. **Fixed object repair** — engines and reactors using same profile-driven pattern.
 5. **Event system expansion** — randomisation flags, more event types, `event_effects` implementation.
-6. **Codebase review** — clean baseline before save/load.
-7. **Save/load system** — autosave only, JSON format.
+6. **Jury-rigging system** — portable power pack mechanic. See Section 16.
+7. **Codebase review** — clean baseline before save/load.
+8. **Save/load system** — autosave only, JSON format.
 
 ---
 
@@ -82,25 +83,28 @@ Jack cannot repair without landing at port: reactor cores, engine internals, maj
 
 ---
 
-## 4. ELECTRICAL REPAIR SYSTEM — DESIGN
+## 4. ELECTRICAL REPAIR SYSTEM — DESIGN ✅ IMPLEMENTED
 
 ### Overview
-Same diagnose/repair gameplay as door panels. Key differences:
-- Access point: PowerJunction fixed object (player must be in junction's room)
-- Tool: HV service kit (not scan tool, no manual validation)
-- Components: cables, breakers, the panel itself
-- Post-repair: calls `electrical_service.fix_component()` which already exists
+Diagnose/repair gameplay via PowerJunction fixed object. Player must be in the junction's room.
+- Tool: `hv_service_kit` + `power_screwdriver_set`
+- Components: internal panel parts, cables, breakers
+- Tripped breakers reset only — no replacement part consumed
+- Post-repair: calls `electrical_service.fix_component()` or sets internal flag directly
 
-### Implementation plan
-- `electrical_repair_profiles.json` keyed by panel ID
-- `electrical_repair.py` handler — routed from `repair_handler.py` dispatcher
-- Imports shared utilities from `repair_utils.py`
-- Junction panel images: `junction_closed.png` (default), `junction_open.png` (during repair)
+### What was built
+- `electrical_repair_profiles.json` — keyed by panel ID, all 5 panels
+- `electrical_repair.py` — full diagnose/repair handler
+- `repair_handler.py` — 5-step routing dispatcher, handles all diagnose/repair verbs
+- Internal panel components: `hv_logic_board`, `hv_bus_bar`, `hv_surge_protector`, `hv_smoothing_capacitor`, `hv_isolation_switch`
+- `CircuitPanel.operational` is derived from internal component flags
+- Event system breaks specific internal components via `{"id": "PNL-X", "component": "hv_logic_board"}`
+- `random_component_pool` field in events.json — deferred, structure ready
 
-### Key design decisions still to make ⚠️
-- Exact command syntax: `diagnose junction` / `diagnose PNL-REC-SUB-C`?
-- Panel failure severity randomisation — event sets damage level, profile defines max parts
-- Repair profiles need `cable length_m` added to `electrical.json` first
+### Deferred
+- Junction panel images: `junction_closed.png`, `junction_open.png`
+- Post-repair failure roll
+- Event system randomisation (`randomise_damage: true`)
 
 ---
 
@@ -138,8 +142,14 @@ Engines and reactors repairable using same profile-driven pattern as door panels
 | `reactor_overload_event` | Random junction failures from overloaded propulsion reactor |
 
 ### Randomisation flags (deferred)
-- `randomise_damage: true` — pick N random components from `affected_components` list
+- `randomise_damage: true` — pick N random components from `random_component_pool` list
 - `randomise_time: true` — fire anywhere within a time window
+- `randomise_count` — how many components to pick from the pool
+
+### Two-list damage system
+- `affected_components` — always broken, exact components specified
+- `random_component_pool` — pool to pick from when `randomise_damage: true`
+- Both lists support: plain string (door panels), `{"id", "mode"}` (breakers/cables), `{"id", "component"}` (panel internals)
 
 ### `event_effects` array (deferred)
 Future side effects beyond component damage:
@@ -336,6 +346,41 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 **EVA phase** — suit mechanics, hull attachment, external modifications.
 
 **Trading phase** — cargo barter, underground contacts, transponder obfuscator.
+
+---
+
+## 16. JURY-RIGGING SYSTEM — DESIGN
+
+### Overview
+A portable power pack provides emergency low-voltage (24V DC) power to compatible fixed objects when ship power is unavailable. Cannot connect to the ship grid or run HV equipment.
+
+### Narrative context
+The automated storage facility requires ship power to operate — Enso VeilTech mandates this to log all additions and retrievals and to reserve the right to withhold components remotely. When `PNL-REC-SUB-C` is broken, the storage room loses power and the facility becomes inaccessible — exactly when Jack needs the repair parts inside it. The portable power pack is the jury-rigged solution.
+
+### Portable power pack
+- Located in the cargo bay — emergency equipment
+- `max_watts` field — output limit e.g. 150W
+- `voltage` — 24V DC output
+- Cannot power HV systems, ship grid, or door panels
+
+### Compatible fixed objects
+Fixed objects that can accept jury-rigged power carry:
+- `power_watts` — consumption rating e.g. 80W
+- `power_voltage` — acceptable input voltage e.g. 24V DC
+
+### Connection mechanic
+Player connects the power pack to a compatible fixed object. Handler checks:
+1. Voltage matches
+2. Watts do not exceed pack limit
+3. If compatible — sets `jury_rigged_power: true` on the fixed object
+4. Fixed object operates normally despite room power being out
+
+### Implementation — deferred
+- `PortablePowerPack` item class or fields on `PortableItem`
+- `jury_rigged_power` flag on `FixedObject`
+- `connect` command verb — routes to jury-rig handler
+- Handler checks compatibility and sets flag
+- Terminal/storage handler checks `jury_rigged_power` alongside room power
 
 ---
 
