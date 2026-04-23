@@ -18,9 +18,10 @@
 3. **Electrical repair system** ✅ — diagnose/repair for cables, breakers, panels via power junction. `electrical_repair.py` handler, `electrical_repair_profiles.json`.
 4. **Fixed object repair** — engines and reactors using same profile-driven pattern.
 5. **Event system expansion** — randomisation flags, more event types, `event_effects` implementation.
-6. **Jury-rigging system** — portable power pack mechanic. See Section 16.
-7. **Codebase review** — clean baseline before save/load.
-8. **Save/load system** — autosave only, JSON format.
+6. **Sack barrow and portable container system** — See Section 17.
+7. **Jury-rigging system** — portable power pack mechanic. See Section 16.
+8. **Codebase review** — clean baseline before save/load.
+9. **Save/load system** — autosave only, JSON format.
 
 ---
 
@@ -347,6 +348,10 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 
 **Trading phase** — cargo barter, underground contacts, transponder obfuscator.
 
+**Door panel power check** — door panels should not be diagnosable or repairable when the room has no power. Check room power before allowing diagnosis or repair to proceed.
+
+**Cable aggregation in reports** — multiple cables of the same type should be summed in fault lists, missing items lists, ship log and tablet notes. e.g. four runs of `cable_hv_standard` totalling 17.0m shows as one line requiring 17.0m cable and 8x connectors.
+
 ---
 
 ## 16. JURY-RIGGING SYSTEM — DESIGN
@@ -381,6 +386,33 @@ Player connects the power pack to a compatible fixed object. Handler checks:
 - `connect` command verb — routes to jury-rig handler
 - Handler checks compatibility and sets flag
 - Terminal/storage handler checks `jury_rigged_power` alongside room power
+
+---
+
+## 17. SACK BARROW AND PORTABLE CONTAINER SYSTEM — DESIGN
+
+### Overview
+The sack barrow allows Jack to transport a portable container between rooms, effectively extending his carry capacity for repair operations. Essential for heavy repair jobs where parts exceed Jack's personal carry limit.
+
+### Narrative context
+Jack's carry capacity is limited — a full junction repair requiring multiple cables, breakers and connectors can exceed what one person can carry. The sack barrow is the practical solution for moving a parts container from storage to the repair site.
+
+### Mechanics
+- `use sack barrow` — Jack loads a portable container onto the barrow. The container and its contents become accessible as part of Jack's effective inventory for repair part checks.
+- `leave sack barrow` — Jack leaves the barrow (and container) in the current room. It is no longer part of his effective inventory.
+- The sack barrow itself is a portable item Jack must be carrying or have in the room.
+- Only one container can be loaded at a time.
+- The barrow cannot be taken up ladders or through certain hatches — deferred constraint.
+
+### Repair system integration
+The repair handler's part check (`_check_all_parts`) must be extended to include contents of any container currently loaded on Jack's sack barrow, in addition to his personal inventory.
+
+### Implementation — deferred
+- `SackBarrow` item class or fields on `PortableItem`
+- `loaded_container` reference on `SackBarrow`
+- `use` command verb — routes to sack barrow handler
+- Repair handler checks `player.sack_barrow.loaded_container.contents` alongside inventory
+- Jack's carry capacity temporarily increased to 40kg for testing until this is implemented
 
 ---
 

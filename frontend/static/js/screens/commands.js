@@ -143,7 +143,8 @@ function handleResult(result) {
 
     // ── Elec diagnose panel — lock input, wait, call elec_diagnose_complete ──
     if (result.action_type === 'elec_diagnose_panel') {
-        showDiagnosisAnimation(result.real_seconds);
+        setJunctionImage(result.panel_id, 'closed');
+        showJunctionDiagnosisAnimation(result.real_seconds, result.panel_id);
         Loop.lockInput(result.real_seconds, async () => {
             hideRepairAnimation();
             const diagResult = await API.completeElecDiagnosis(
@@ -151,6 +152,7 @@ function handleResult(result) {
                 result.game_minutes
             );
             clearResponse();
+            setJunctionImage(result.panel_id, diagResult.no_faults ? 'intact' : 'burnt');
             handleResult(diagResult);
         });
         return;
@@ -178,7 +180,8 @@ function handleResult(result) {
     // ── Elec repair component — lock input, wait, call elec_repair_complete ──
     if (result.action_type === 'elec_repair_component') {
         Loop.setRepairInProgress(true);
-        showRepairAnimation(result.real_seconds);
+        setJunctionImage(result.panel_id, 'burnt');
+        showJunctionRepairAnimation(result.real_seconds, result.panel_id);
         Loop.lockInput(result.real_seconds, async () => {
             hideRepairAnimation();
             const repairResult = await API.completeElecRepair(
@@ -295,7 +298,8 @@ function handleResult(result) {
     if (result.action_type === 'elec_repair_complete') {
         if (result.panel_restored) {
             Loop.setRepairInProgress(false);
-            loadRoom();
+            setJunctionImage(result.panel_id, 'intact');
+            setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
             setTimeout(async () => {
                 const nextResult = await API.elecRepairNext(result.panel_id);

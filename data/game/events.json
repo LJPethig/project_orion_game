@@ -6,9 +6,12 @@
       "trigger_minutes": 2,
       "event_message": "⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics",
       "affected_components": [
-        { "id": "PNL-REC-SUB-C", "component": "hv_logic_board" },
         { "id": "FUS-REC-01", "mode": "damaged" },
         { "id": "FUS-REC-02", "mode": "tripped" },
+        "PWC-REC-01",
+        "PWC-REC-02",
+        "PWC-REC-03",
+        "PWC-REC-06",
         "recreation_room_cockpit_panel_rec",
         "recreation_room_main_corridor_panel_rec"
       ],

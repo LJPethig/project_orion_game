@@ -15,7 +15,7 @@ class Player:
     def __init__(self, name: str):
         self.name            = name
         self._inventory:     List[PortableItem]           = []
-        self.max_carry_mass: float                        = 10.0
+        self.max_carry_mass: float                        = 40.0
 
         # Fixed equipment slots
         self.head_slot:  Optional[PortableItem] = None

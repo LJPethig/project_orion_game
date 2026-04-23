@@ -123,6 +123,52 @@ function showDiagnosisAnimation(realSeconds) {
     _startProgressCounter(realSeconds, 'scan-progress');
 }
 
+function showJunctionDiagnosisAnimation(realSeconds, panelId) {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'repair-animation';
+    el.className  = 'scan-animation';
+    el.innerHTML  = `
+        <span>DIAGNOSING JUNCTION ${panelId}</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
+    `;
+    content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
+}
+
+function showJunctionRepairAnimation(realSeconds, panelId) {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'repair-animation';
+    el.className  = 'scan-animation';
+    el.innerHTML  = `
+        <span>REPAIRING JUNCTION ${panelId}</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
+    `;
+    content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
+}
+
+function setJunctionImage(panelId, state) {
+    closeInventoryIfOpen();
+    closeDatapadIfOpen();
+    let path;
+    if (state === 'closed') {
+        path = `/static/images/junctions/${panelId}.png`;
+    } else if (state === 'burnt') {
+        path = '/static/images/junctions/junction_burnt.png';
+    } else {
+        path = '/static/images/junctions/junction_intact.png';
+    }
+    setRoomImage(path);
+}
+
 // ── Repair message ────────────────────────────────────────────
 
 function appendRepairMessage(result) {
