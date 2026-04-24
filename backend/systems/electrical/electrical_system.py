@@ -1,7 +1,14 @@
 # backend/systems/electrical/electrical_system.py
 """
-Electrical System - Power distribution management
-Loads electrical.json and manages all power components
+Electrical system — power distribution management.
+
+Defines all electrical component classes and the ElectricalSystem container.
+Loads configuration from electrical.json and maintains runtime state for all
+power sources, circuit panels, breakers, and cables.
+
+Runtime state (operational, damaged, tripped, active etc.) is set here and
+mutated by electrical_service.py. Never import electrical_service.py from
+this file — that direction causes a circular import.
 """
 
 import json
@@ -10,7 +17,7 @@ from typing import Dict, Optional
 
 
 class PowerSource:
-    """Base class for power generation sources"""
+    """Base class for power generation sources."""
 
     def __init__(self, obj_id: str, name: str, location: str):
         self.id = obj_id
@@ -19,7 +26,7 @@ class PowerSource:
 
 
 class FissionReactor(PowerSource):
-    """Thermionic fission reactor - primary power source"""
+    """Thermionic fission reactor — primary power source for the ship."""
 
     def __init__(self, obj_id: str, name: str, location: str, output_kw: float,
                  critical_temp: int, normal_temp: int):
@@ -35,7 +42,16 @@ class FissionReactor(PowerSource):
 
 
 class BackupBattery(PowerSource):
-    """Emergency backup battery for critical systems"""
+    """
+        Emergency backup battery for critical ship systems.
+        Two batteries are installed — one in the Mainframe Room, one in Life Support.
+        Each covers only its designated room. Activates automatically when mains power
+        to that room is lost, and deactivates when mains is restored.
+
+        charge_percent tracks remaining capacity.
+        Future: batteries will drain over time and require recharging — they cannot
+        run indefinitely.
+    """
 
     def __init__(self, obj_id: str, name: str, location: str, capacity_kwh: int,
                  powers_room: str, auto_activate: bool):
@@ -50,7 +66,10 @@ class BackupBattery(PowerSource):
 
 
 class CircuitPanel:
-    """Circuit breaker panel containing multiple breakers"""
+    """ Circuit breaker panel containing multiple breakers.
+        Operational state is derived from internal component flags — if any
+        internal component is damaged the panel is considered non-operational.
+    """
 
     def __init__(self, obj_id: str, panel_type: str, name: str, location: str, breaker_count: int):
         self.id = obj_id
@@ -81,7 +100,10 @@ class CircuitPanel:
 
 
 class Breaker:
-    """Individual circuit breaker protecting one circuit"""
+    """ Individual circuit breaker protecting one circuit.
+        Can be damaged (requires replacement) or tripped (requires resetting only).
+        Operational only when neither damaged nor tripped.
+    """
 
     def __init__(self, obj_id: str, panel_id: str, name: str, feeds: str, rating_amps: int):
         self.id = obj_id
@@ -101,7 +123,18 @@ class Breaker:
 
 
 class PowerCable:
-    """Power cable connecting two components"""
+    """
+        Power cable connecting two electrical components.
+            intact:     the cable is physically undamaged — not severed or burnt through.
+                        A damaged cable requires a replacement spool of sufficient length to repair.
+            connected:  the cable is present and plugged in at both ends. False means
+                        the cable does not physically exist at that location — either it was
+                        never run (emergency bypass placeholders), was destroyed by an event
+                        (explosive decompression etc.), or was deliberately disconnected.
+                        Currently, connected: false only applies to emergency bypass placeholder cables.
+                        Disconnected cables are invisible to power flow tracing.
+                        Reconnecting requires a spool of sufficient length, which is consumed.
+        """
 
     def __init__(self, obj_id: str, from_id: str, to_id: str, name: str, location: str):
         self.id = obj_id
@@ -117,8 +150,10 @@ class PowerCable:
 
 class ElectricalSystem:
     """
-    Main electrical system - manages all power distribution
-    Loads configuration from JSON and maintains runtime state
+        Main electrical system — manages all power distribution.
+        Loads configuration from electrical.json. Maintains runtime state for all
+        power sources, panels, breakers, and cables. Power tracing is recursive —
+        check_room_power() walks the component graph back to the reactor.
     """
 
     def __init__(self):

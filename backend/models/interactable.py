@@ -18,6 +18,16 @@ Interactable object hierarchy.
 
 from typing import List, Optional
 
+def _format_contents(contents: list) -> str:
+    """Shared helper — format a contents list as a human-readable string."""
+    if not contents:
+        return "It is empty."
+    names = [item.name for item in contents]
+    if len(names) == 1:
+        return names[0]
+    if len(names) == 2:
+        return f"{names[0]} and {names[1]}"
+    return ", ".join(names[:-1]) + f", and {names[-1]}"
 
 class Interactable:
     """Base class for all objects the player can interact with."""
@@ -131,14 +141,7 @@ class StorageUnit(FixedObject):
 
     def contents_str(self) -> str:
         """Formatted contents list for examine/look responses."""
-        if not self.contents:
-            return "It is empty."
-        names = [item.name for item in self.contents]
-        if len(names) == 1:
-            return names[0]
-        if len(names) == 2:
-            return f"{names[0]} and {names[1]}"
-        return ", ".join(names[:-1]) + f", and {names[-1]}"
+        return _format_contents(self.contents)
 
 
 class Surface(FixedObject):
@@ -170,14 +173,8 @@ class Surface(FixedObject):
         return False
 
     def contents_str(self) -> str:
-        if not self.contents:
-            return "It is empty."
-        names = [item.name for item in self.contents]
-        if len(names) == 1:
-            return names[0]
-        if len(names) == 2:
-            return f"{names[0]} and {names[1]}"
-        return ", ".join(names[:-1]) + f", and {names[-1]}"
+        """Formatted contents list for examine/look responses."""
+        return _format_contents(self.contents)
 
 
 class Terminal(FixedObject):

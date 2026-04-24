@@ -16,6 +16,8 @@ from config import REPAIR_TIME_BASE_SECONDS, REPAIR_TIME_SCALE_SECONDS, \
                    REPAIR_TIME_PIVOT_MINUTES, REPAIR_TIME_CAP_SECONDS
 
 # ── Item registry — loaded once at import ─────────────────────
+# Read-only template cache — item definitions never change at runtime.
+# Does not need to be serialised for save/load.
 _item_registry: dict = load_item_registry()
 
 
