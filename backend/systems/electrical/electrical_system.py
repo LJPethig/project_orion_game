@@ -11,8 +11,8 @@ from typing import Dict, Optional
 class PowerSource:
     """Base class for power generation sources"""
 
-    def __init__(self, id: str, name: str, location: str):
-        self.id = id
+    def __init__(self, obj_id: str, name: str, location: str):
+        self.id = obj_id
         self.name = name
         self.location = location
 
@@ -20,9 +20,9 @@ class PowerSource:
 class FissionReactor(PowerSource):
     """Thermionic fission reactor - primary power source"""
 
-    def __init__(self, id: str, name: str, location: str, output_kw: float,
+    def __init__(self, obj_id: str, name: str, location: str, output_kw: float,
                  critical_temp: int, normal_temp: int):
-        super().__init__(id, name, location)
+        super().__init__(obj_id, name, location)
         self.output_kw = output_kw
         self.critical_temp = critical_temp
         self.normal_temp = normal_temp
@@ -36,9 +36,9 @@ class FissionReactor(PowerSource):
 class BackupBattery(PowerSource):
     """Emergency backup battery for critical systems"""
 
-    def __init__(self, id: str, name: str, location: str, capacity_kwh: int,
+    def __init__(self, obj_id: str, name: str, location: str, capacity_kwh: int,
                  powers_room: str, auto_activate: bool):
-        super().__init__(id, name, location)
+        super().__init__(obj_id, name, location)
         self.capacity_kwh = capacity_kwh
         self.powers_room = powers_room
         self.auto_activate = auto_activate
@@ -51,9 +51,9 @@ class BackupBattery(PowerSource):
 class CircuitPanel:
     """Circuit breaker panel containing multiple breakers"""
 
-    def __init__(self, id: str, type: str, name: str, location: str, breaker_count: int):
-        self.id = id
-        self.type = type
+    def __init__(self, obj_id: str, panel_type: str, name: str, location: str, breaker_count: int):
+        self.id = obj_id
+        self.type = panel_type
         self.name = name
         self.location = location
         self.breaker_count = breaker_count
@@ -82,8 +82,8 @@ class CircuitPanel:
 class Breaker:
     """Individual circuit breaker protecting one circuit"""
 
-    def __init__(self, id: str, panel_id: str, name: str, feeds: str, rating_amps: int):
-        self.id = id
+    def __init__(self, obj_id: str, panel_id: str, name: str, feeds: str, rating_amps: int):
+        self.id = obj_id
         self.panel_id = panel_id
         self.name = name
         self.feeds = feeds
@@ -102,8 +102,8 @@ class Breaker:
 class PowerCable:
     """Power cable connecting two components"""
 
-    def __init__(self, id: str, from_id: str, to_id: str, name: str, location: str):
-        self.id = id
+    def __init__(self, obj_id: str, from_id: str, to_id: str, name: str, location: str):
+        self.id = obj_id
         self.from_id = from_id
         self.to_id = to_id
         self.name = name
@@ -139,7 +139,7 @@ class ElectricalSystem:
         for ps_data in data.get('power_sources', []):
             if ps_data['type'] == 'fission_reactor':
                 ps = FissionReactor(
-                    id=ps_data['id'],
+                    obj_id=ps_data['id'],
                     name=ps_data['name'],
                     location=ps_data['location'],
                     output_kw=ps_data['output_kw'],
@@ -148,7 +148,7 @@ class ElectricalSystem:
                 )
             elif ps_data['type'] == 'backup_battery':
                 ps = BackupBattery(
-                    id=ps_data['id'],
+                    obj_id=ps_data['id'],
                     name=ps_data['name'],
                     location=ps_data['location'],
                     capacity_kwh=ps_data['capacity_kwh'],
@@ -163,8 +163,8 @@ class ElectricalSystem:
         # Load panels
         for panel_data in data.get('panels', []):
             panel = CircuitPanel(
-                id=panel_data['id'],
-                type=panel_data['type'],
+                obj_id=panel_data['id'],
+                panel_type=panel_data['type'],
                 name=panel_data['name'],
                 location=panel_data['location'],
                 breaker_count=panel_data['breaker_count']
@@ -174,7 +174,7 @@ class ElectricalSystem:
         # Load breakers
         for breaker_data in data.get('breakers', []):
             breaker = Breaker(
-                id=breaker_data['id'],
+                obj_id=breaker_data['id'],
                 panel_id=breaker_data['panel_id'],
                 name=breaker_data['name'],
                 feeds=breaker_data['feeds'],
@@ -185,7 +185,7 @@ class ElectricalSystem:
         # Load cables
         for cable_data in data.get('cables', []):
             cable = PowerCable(
-                id=cable_data['id'],
+                obj_id=cable_data['id'],
                 from_id=cable_data['from'],
                 to_id=cable_data['to'],
                 name=cable_data['name'],

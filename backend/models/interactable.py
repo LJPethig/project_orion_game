@@ -16,7 +16,7 @@ Interactable object hierarchy.
 
 """
 
-from typing import List, Optional, Any
+from typing import List, Optional
 
 
 class Interactable:
@@ -24,7 +24,7 @@ class Interactable:
 
     def __init__(
         self,
-        id:           str,
+        id:       str,
         name:         str,
         description:  str,
         keywords:     Optional[List[str]] = None,

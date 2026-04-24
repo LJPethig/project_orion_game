@@ -1,7 +1,7 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Technical Reference & Current State
-**Version 23.0 — April 2026**
+**Version 24.0 — April 2026**
 
 > ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
@@ -77,14 +77,19 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Terminal auto-close on power cut: closes session, system response, Jack's monologue ✅
 - Electrical system: reactor, panels, breakers, cables, batteries, power tracing ✅
 - Electrical integrated into gameplay: door panels and terminals check room power ✅
-- Electrical service layer: `electrical_service.py` — `break_component()` / `fix_component()` / `eject_reactor()` / `install_reactor()` callable from any backend code ✅
+- Electrical service layer: `electrical_service.py` — `break_component()` / `trip_component()` / `fix_component()` / `connect_cable()` / `disconnect_cable()` / `break_panel_component()` / `eject_reactor()` / `install_reactor()` callable from any backend code ✅
+- Breaker state model: `damaged` and `tripped` as separate flags, `operational` derived property ✅
+- CircuitPanel internal components: `logic_board_intact`, `bus_bar_intact`, `surge_protector_intact`, `smoothing_capacitor_intact`, `isolation_switch_intact` — `operational` derived from all flags ✅
+- Cable fields: `length_m`, `connected`, `emergency_bypass` on all cables ✅
+- Emergency bypass path: `PWC-ENG-00` and `PWC-PRO-04` start `connected: false`, `intact: false` ✅
 - Engineering terminal: Technical Data, Electrical sub-menu (Power Status map, Circuit Diagram placeholder) ✅
-- Debug console: Ctrl+D, break/fix/eject/install commands, live map refresh, room description reload on state change ✅
-- Full repair system: diagnose + repair commands, scan tool manual validation, per-component repair, cable consumption by length, auto-chain, event hook ✅
-- Repair handler split: `repair_handler.py` (dispatcher) + `door_panel_repair.py` + `repair_utils.py` ✅
+- Debug console: Ctrl+D, break/trip/fix/check/connect/disconnect/eject/install commands, live map refresh ✅
+- Full door panel repair system: diagnose + repair commands, scan tool manual validation, per-component repair, cable consumption by length, auto-chain, event hook ✅
+- Door panel diagnosis blocked when room has no power — 5 min timed action, informative message, log entry ✅
+- Repair handler: 5-step routing dispatcher — electrical keywords, fixed object stub, door targets, ambiguous args, unrecognised args ✅
 - Repair/diagnosis real-time scaling: formula-based with config constants, 20s cap ✅
 - Diagnosis timing: based on actual failed components + 25% access overhead + ±10% jitter ✅
-- Diagnosis response: formatted duration, failed components, required tools, missing items ✅
+- Diagnosis response: formatted duration, failed components, required tools, missing items — cables aggregated by type ✅
 - Progress counter (%) on all timed action animations ✅
 - Door panel type system: panel_type field, door_access_panel_types.json, security level resolved at load time ✅
 - Security level 0 panels: no card required, instant lock/unlock ✅
@@ -97,24 +102,32 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Ship log structured entries: timestamp, event, location, detail fields ✅
 - Messages system stub — datapad Messages menu functional, shows placeholder ✅
 - Trade items: `trade_items.json` with 5 items, cargo containers populated ✅
-- Propulsion bypass electrical path: `PWC-ENG-00` connects propulsion reactor to `PNL-ENG-MAIN` (starts broken) ✅
+- Propulsion bypass electrical path: `PWC-ENG-00` connects propulsion reactor to `PNL-ENG-MAIN` (starts disconnected) ✅
 - Propulsion circuit panel `PNL-PRO-MAIN` with bypass, sub-light, and FTL breakers ✅
 - Power tracer: any operational `FissionReactor` terminates trace, multiple inbound cables tried ✅
 - Engine fixed objects: `Engine` class with `powered` and `online` flags, propulsion bay engines ✅
 - SVG map: engine icons, reactor eject overlays, engine hover tooltips, Share Tech Mono font ✅
 - Ship time multiplier: 40 real seconds = 1 ship minute ✅
 - Event system: JSON-driven from `data/game/events.json`, frontend poll every 15 seconds ✅
-- Event system: `impact_event` type breaks electrical components and door panels via `electrical_service` ✅
-- Event system: `_break_component_by_id()` resolves IDs against electrical system then door panels ✅
-- Impact event: fires 2 ship minutes after game start, breaks `PNL-REC-SUB-C` + two rec room door panels ✅
-- Electrical repair parts: circuit breakers (6 sizes), HV cable (2 gauges), HV connectors, bus bars, logic boards, HV service kit ✅
+- Event system: `affected_components` supports plain strings, `{"id", "mode"}` for breakers/cables, `{"id", "component"}` for panel internals ✅
+- Event system: `random_component_pool` field — structure ready, randomisation deferred ✅
+- Event system: `break_panel_component()` breaks specific internal panel components ✅
+- Impact event: fires 2 ship minutes after game start, breaks `hv_logic_board` in `PNL-REC-SUB-C` + two rec room door panels + breakers + cables ✅
+- Electrical repair parts: circuit breakers (6 sizes), HV cable (2 gauges), HV connectors, bus bars, logic boards, surge protectors, smoothing capacitors, isolation switches, HV service kit ✅
+- Electrical repair system: full diagnose/repair via PowerJunction — cables, breakers, internal panel components ✅
+- Electrical repair profiles: `electrical_repair_profiles.json` — all 5 panels, complete component lists ✅
+- Electrical repair: tripped breakers reset only (no part consumed), damaged breakers require replacement ✅
+- Electrical repair: cable fault lists and missing items aggregated by type — total length and total connectors ✅
+- Electrical repair: repair complete log reads fault labels from tablet note — preserves Tripped distinction ✅
+- Junction images: 5 panel-specific closed images, `junction_intact.png`, `junction_burnt.png` ✅
+- Junction image flow: closed during diagnosis, burnt/intact after diagnosis result, burnt during repair, intact after repair complete ✅
 - UI font: Share Tech Mono replacing Courier New across all player-facing UI (terminal panels excluded) ✅
 - Room image swap: powered/unpowered and reactor on/off variants via suffix naming convention ✅
 - Jack's internal monologue: `appendMonologue()` function, styled box with rounded corners ✅
 - Reactor state system: `@reactor_state@` token, online/offline/ejected states, `_get_reactor_state()` helper ✅
 - Eject/install reactor debug commands: `/api/systems/electrical/reactor/eject|install/<id>` ✅
 - Engineering room: fully updated prose with all state tokens and image variants ✅
-- Corridor naming: Main Corridor / Sub Corridor throughout ✅
+- Recreation room: fully updated prose with all state tokens ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -146,6 +159,13 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Terminal power cut** — auto-close on power loss, Jack monologue box ✅
 - **Reactor state system** — @reactor_state@ token, eject/install debug commands, image variants ✅
 - **Description panel UX** — fixed title, panel priority toggle, ghost divider ✅
+- **Breaker state refactor** — damaged/tripped flags, operational as derived property ✅
+- **CircuitPanel internal components** — 5 internal flags, operational derived, break_panel_component() ✅
+- **Cable fields** — length_m, connected, emergency_bypass on all cables ✅
+- **Electrical repair system** — full diagnose/repair, profiles, routing dispatcher, junction images ✅
+- **Event system component format** — per-component mode/component fields, random_component_pool ✅
+- **Door panel power check** — no-power diagnosis path, 5 min timed action, log entry ✅
+- **Cable aggregation** — fault lists, missing items, log, tablet note all aggregate by type ✅
 
 ---
 
@@ -160,30 +180,32 @@ project_orion_game/
 │
 ├── backend/
 │   ├── models/
-│   │   ├── game_manager.py        ← owns all game state, event_system, storage_manifest, cargo_manifest
+│   │   ├── game_manager.py        ← owns all game state, event_system, storage_manifest, cargo_manifest, tablet_notes
 │   │   ├── ship.py
 │   │   ├── room.py                ← description_powered/unpowered/reactor_online/offline/ejected fields
 │   │   ├── door.py                ← panel_type, security_level resolved at load time
 │   │   ├── interactable.py        ← StorageUnit, Surface, Terminal, Engine, PowerJunction, PalletContainer, Pallet
+│   │   │                             PowerJunction carries broken_components, repaired_components
 │   │   ├── player.py
 │   │   └── chronometer.py
 │   │
 │   ├── systems/
 │   │   └── electrical/
-│   │       ├── electrical_system.py
-│   │       └── electrical_service.py  ← break/fix/eject/install — shared service layer
+│   │       ├── electrical_system.py   ← CircuitPanel internal flags, Breaker damaged/tripped, PowerCable connected/length_m/emergency_bypass
+│   │       └── electrical_service.py  ← break/trip/fix/connect_cable/disconnect_cable/break_panel_component/eject/install
 │   │
 │   ├── events/
 │   │   ├── __init__.py
-│   │   └── event_system.py        ← JSON-driven, _break_component_by_id(), handles electrical + door panels
+│   │   └── event_system.py        ← JSON-driven, handles electrical + door panels, per-component mode/component
 │   │
 │   ├── handlers/
 │   │   ├── base_handler.py
 │   │   ├── command_handler.py
 │   │   ├── movement_handler.py
 │   │   ├── door_handler.py
-│   │   ├── repair_handler.py      ← thin dispatcher only
+│   │   ├── repair_handler.py      ← 5-step routing dispatcher
 │   │   ├── door_panel_repair.py   ← door panel diagnosis and repair logic
+│   │   ├── electrical_repair.py   ← electrical junction diagnosis and repair logic
 │   │   ├── repair_utils.py        ← shared pure utilities, cached item registry
 │   │   ├── item_handler.py
 │   │   ├── container_handler.py
@@ -196,44 +218,45 @@ project_orion_game/
 │   │
 │   └── api/
 │       ├── game.py                ← _get_reactor_state(), room response includes reactor state fields
-│       ├── command.py
-│       ├── systems.py             ← thin HTTP wrappers, eject/install reactor routes
+│       ├── command.py             ← diagnose_complete, repair_complete, elec_diagnose_complete, elec_repair_complete, elec_repair_next, no_power_diagnose_complete
+│       ├── systems.py             ← thin HTTP wrappers, break/trip/fix/check/connect/disconnect/eject/install routes
 │       └── events.py              ← /api/events/check endpoint
 │
 ├── frontend/
 │   ├── templates/
 │   │   ├── splash.html
-│   │   └── game.html              ← fixed description title, ghost divider, panel priority toggle
+│   │   └── game.html
 │   │
 │   └── static/
 │       ├── css/
 │       │   ├── splash.css
-│       │   ├── game.css           ← colour variables, Share Tech Mono, panel flex ratios, priority toggle
-│       │   ├── description.css    ← markup classes, addendum flash, ~ italic, fixed title styles
+│       │   ├── game.css
+│       │   ├── description.css
 │       │   ├── inventory.css
-│       │   ├── response.css       ← monologue-box style
+│       │   ├── response.css
 │       │   ├── terminal.css
 │       │   ├── datapad.css
-│       │   └── events.css         ← blink iterations 7
+│       │   └── events.css
 │       ├── js/
 │       │   ├── core/
 │       │   │   ├── constants.js
-│       │   │   ├── api.js
-│       │   │   └── loop.js        ← event poll, repairInProgress flag, loadRoom() after events
+│       │   │   ├── api.js         ← completeDiagnosis, completeRepair, completeElecDiagnosis, completeElecRepair, elecRepairNext, completeNoPowerDiagnosis
+│       │   │   └── loop.js
 │       │   └── screens/
 │       │       ├── splash.js
-│       │       ├── ui.js          ← appendMonologue()
-│       │       ├── commands.js
-│       │       ├── description.js ← all token injection, markup parsing, tooltips
+│       │       ├── ui.js          ← setJunctionImage, showJunctionDiagnosisAnimation, showJunctionRepairAnimation
+│       │       ├── commands.js    ← elec_diagnose_panel, elec_repair_component, elec_repair_complete, diagnose_panel_no_power handlers
+│       │       ├── description.js
 │       │       ├── inventory.js
 │       │       ├── terminal_core.js
 │       │       ├── terminal_engineering.js
 │       │       ├── terminal_manifest.js
 │       │       ├── map.js
-│       │       └── game.js        ← room/reactor state tracking, image selection, debug console
+│       │       └── game.js
 │       └── images/
-│           ├── rooms/             ← powered + _unpowered + _reactor_off + _unpowered_reactor_off variants
+│           ├── rooms/
 │           ├── doors/
+│           ├── junctions/         ← PNL-ENG-MAIN.png, PNL-PRO-MAIN.png, PNL-MC-SUB-A.png, PNL-SC-SUB-B.png, PNL-REC-SUB-C.png, junction_intact.png, junction_burnt.png
 │           └── ship_layout.svg
 │
 └── data/
@@ -241,32 +264,33 @@ project_orion_game/
     │   ├── tools.json
     │   ├── wearables.json
     │   ├── misc_items.json
-    │   ├── consumables.json       ← HV parts, circuit breakers, wire gauges
+    │   ├── consumables.json       ← HV parts, circuit breakers, cable gauges, hv_surge_protector, hv_smoothing_capacitor, hv_isolation_switch
     │   ├── trade_items.json
     │   ├── terminals.json
     │   ├── storage_units.json
     │   ├── surfaces.json
     │   ├── engines.json
-    │   ├── power_junctions.json   ← five junction definitions with panel_id and keywords
+    │   ├── power_junctions.json
     │   ├── cargo_containers.json
     │   └── pallet_platforms.json
     ├── game/
-    │   └── events.json            ← JSON-driven event definitions
+    │   └── events.json            ← affected_components with mode/component per-entry, random_component_pool
     ├── terminals/
     │   └── engineering.json
     ├── repair/
-    │   └── repair_profiles.json
+    │   ├── repair_profiles.json
+    │   └── electrical_repair_profiles.json  ← all 5 panels, full component lists
     └── ship/
         ├── structure/
-        │   ├── ship_rooms.json    ← rec room and engineering fully updated with new prose system
+        │   ├── ship_rooms.json
         │   ├── door_status.json
         │   ├── door_access_panel_types.json
-        │   ├── initial_ship_state.json  ← panels array empty (damage via event system)
+        │   ├── initial_ship_state.json
         │   ├── initial_ship_items.json
         │   ├── initial_cargo.json
         │   └── player_items.json
         └── systems/
-            └── electrical.json    ← description field removed from panels
+            └── electrical.json    ← length_m, connected, emergency_bypass on all cables
 ```
 
 ---
@@ -318,7 +342,8 @@ CARGO_CONTAINERS_JSON_PATH = 'data/items/cargo_containers.json'
 PALLET_PLATFORMS_JSON_PATH = 'data/items/pallet_platforms.json'
 
 # Repair
-REPAIR_PROFILES_PATH       = 'data/repair/repair_profiles.json'
+REPAIR_PROFILES_PATH            = 'data/repair/repair_profiles.json'
+ELECTRICAL_REPAIR_PROFILES_PATH = 'data/repair/electrical_repair_profiles.json'
 
 # Terminal content
 TERMINAL_CONTENT_PATH      = 'data/terminals'
@@ -361,12 +386,25 @@ All typed commands and UI clicks pass through `command_handler.process()`:
 | `remove`, `take off`, `unequip` | EquipHandler |
 | `access` | TerminalHandler |
 
+### Repair/diagnose routing — repair_handler.py
+5-step routing in order:
+1. Unambiguous electrical keywords (`junction`, `electrical panel`, `PNL-` prefix etc.) → electrical handler
+2. Fixed object keywords (stub — no repairable fixed objects yet) → fixed object handler
+3. Unambiguous door targets (exit labels, door noise words) → door panel handler
+4. Ambiguous/empty args → check room contents:
+   - No damaged door panels, no junction → door handler (returns no panels message)
+   - No damaged door panels, junction present → electrical handler
+   - Damaged door panels, no junction → door handler
+   - Both present → clarification prompt
+5. Unrecognised args → "You can't diagnose that."
+
 ### Door action values
-| Value | Behaviour |
-|-------|-----------|
-| `'open'` | Unlock and open the door |
+| Value      | Behaviour                      |
+|------------|--------------------------------|
+| `'open'`   | Unlock and open the door       |
+| `'close'`  | Close the door                 |
 | `'unlock'` | Unlock only, door stays closed |
-| `'lock'` | Lock the door |
+| `'lock'`   | Lock the door                  |
 
 ---
 
@@ -392,8 +430,6 @@ All typed commands and UI clicks pass through `command_handler.process()`:
 Clicking the divider between description and response flips the flex ratios:
 - Default: description flex 5, response flex 2
 - Toggled: description flex 2, response flex 5
-
-Useful when dialogue trees or long repair sequences fill the response panel.
 
 ### Colour palette
 | Variable | Hex | Use |
@@ -432,8 +468,6 @@ Share Tech Mono is the primary UI font. CRT terminal panels use a separate font 
 Lines wrapped in `~text~` render in italic. Pure prose only — no interactive markup inside `~` lines.
 
 ### Token injection system
-The `description` array is a mixed array of prose strings and state tokens:
-
 | Token | Resolves to | JSON fields required |
 |-------|-------------|---------------------|
 | `^power_state^` | Room power addendum | `description_powered`, `description_unpowered` |
@@ -443,7 +477,6 @@ The `description` array is a mixed array of prose strings and state tokens:
 Addendums render in italic with 8-second orange flash animation on state change.
 
 ### Room image selection
-Images use suffix naming convention — the frontend builds the path from current state:
 - Powered + reactor online → `roomname.png`
 - Powered + reactor offline/ejected → `roomname_reactor_off.png`
 - Unpowered + reactor online → `roomname_unpowered.png`
@@ -459,16 +492,13 @@ Missing image variants fall back gracefully via `img.onerror`.
 5. **Layer 3** — expanded surface contents (purple, on demand)
 6. **Floor line** — italic label, purple items, only when occupied
 
-### Room description authoring
-See `Project_Orion_Room_Description_Style_v1.md` for full authoring rules.
-
 ---
 
 ## 10. INVENTORY SYSTEM
 
-**Player inventory** — INV tab slide-out panel. Equipped slots + carried items. Store button visible in storage room.
+**Player inventory** — INV tab slide-out panel. Equipped slots + carried items. Store button visible in storage room. Carry capacity currently 40kg (temporarily increased for testing — sack barrow not yet implemented).
 
-**Ship inventory** — automated storage facility in storage room. Store via inventory panel, retrieve via terminal UI. No typed commands.
+**Ship inventory** — automated storage facility in storage room. Store via inventory panel, retrieve via terminal UI. No typed commands. Requires room power to operate.
 
 ---
 
@@ -487,7 +517,7 @@ See `Project_Orion_Room_Description_Style_v1.md` for full authoring rules.
 - `model` — model or part number
 - `description` — written with character, not generic
 
-### cable consumables — special fields
+### Cable consumables — special fields
 - `mass_per_metre` instead of `mass`
 - `max_length_m` — maximum spool capacity
 - `length_m` — actual instance length, decremented on use
@@ -552,7 +582,6 @@ reactor_core (25kW)
         ├── FUS-ENG-03 → PWC-ENG-04/PWC-MC-07/PWC-SC-05 → PNL-SC-SUB-B (Sub Corridor)
         │   ├── FUS-SC-01 → PWC-SC-01 → head
         │   ├── FUS-SC-02 → PWC-SC-02 → cargo_bay
-        │   ├── FUS-SC-03 → PWC-SC-03 → storage_room
         │   ├── FUS-SC-04 → PWC-SC-04 → airlock
         │   └── PWC-SC-06 → sub_corridor (local)
         ├── FUS-ENG-04 → PWC-ENG-05/PWC-MC-08/PWC-REC-05 → PNL-REC-SUB-C (Rec Room)
@@ -560,21 +589,42 @@ reactor_core (25kW)
         │   ├── FUS-REC-02 → PWC-REC-02 → hypersleep_chamber
         │   ├── FUS-REC-03 → PWC-REC-03 → galley
         │   ├── FUS-REC-04 → PWC-REC-04 → cockpit
+        │   ├── FUS-REC-05 → PWC-REC-07 → storage_room
         │   └── PWC-REC-06 → recreation_room (local)
         ├── FUS-ENG-05 → PWC-ENG-06 → engineering (local)
         └── FUS-ENG-06 → PWC-ENG-07 → propulsion_bay
 
-propulsion_reactor (120kW) — independent tree
-├── PWC-PROP-01 → sublight_engines
-└── PWC-PROP-02 → ftl_drive
-
-PWC-ENG-00 — bypass path: propulsion_reactor → PNL-ENG-MAIN (starts broken)
+propulsion_reactor (120kW)
+└── PWC-PRO-01 → PNL-PRO-MAIN
+    ├── FUS-PRO-01 → PWC-PRO-02 → sublight_engine
+    ├── FUS-PRO-02 → PWC-PRO-03 → ftl_engine
+    └── FUS-PRO-00 → PWC-PRO-04 → PWC-ENG-00 → PNL-ENG-MAIN (bypass, starts disconnected)
 ```
 
-### Reactor ejection
-The main reactor core can be ejected via explosive bolts. The reactor shell remains in place and maintains hull integrity — it is rated to contain fission, so vacuum is not a concern. The ejection port goes with the core, leaving the shell as the hull seal. Through the crystalline alumina casing, space is visible where the core used to be.
+### Breaker state model
+Each `Breaker` has two independent flags:
+- `damaged` — physically broken, requires replacement part
+- `tripped` — overload trip, requires reset only (no part consumed)
+- `operational` — derived property: `not damaged and not tripped`
 
-**Ejection is irreversible in deep space.** The propulsion reactor takes over via the bypass path (`PWC-ENG-00`). See Future doc Section 3 for full dual-reactor design.
+### CircuitPanel internal components
+Each `CircuitPanel` has five internal component flags, all defaulting to `True`:
+- `logic_board_intact`
+- `bus_bar_intact`
+- `surge_protector_intact`
+- `smoothing_capacitor_intact`
+- `isolation_switch_intact`
+- `operational` — derived property: `True` only when all five flags are `True`
+
+### Cable fields
+Each `PowerCable` carries:
+- `intact` — runtime state, severed by damage events
+- `connected` — whether physically installed in circuit (bypass cables start `False`)
+- `emergency_bypass` — marks bypass path cables, excluded from normal diagnosis
+- `length_m` — physical cable length for repair part calculation
+
+### Reactor ejection
+The main reactor core can be ejected. The shell remains, hull integrity maintained. Ejection is irreversible in deep space. See Future doc Section 3 for full dual-reactor design.
 
 ### Reactor state values
 | State | Condition |
@@ -588,29 +638,50 @@ The main reactor core can be ejected via explosive bolts. The reactor shell rema
 |----------|--------|-------------|
 | `/api/systems/electrical/status` | GET | Full system status |
 | `/api/systems/electrical/room/<id>` | GET | Single room power check |
-| `/api/systems/electrical/break/<id>` | POST | Break any component |
+| `/api/systems/electrical/break/<id>` | POST | Break any component (damage) |
+| `/api/systems/electrical/trip/<id>` | POST | Trip a breaker |
 | `/api/systems/electrical/fix/<id>` | POST | Fix any component |
+| `/api/systems/electrical/check/<id>` | GET | Check component state |
+| `/api/systems/electrical/connect/<id>` | POST | Connect bypass cable |
+| `/api/systems/electrical/disconnect/<id>` | POST | Disconnect bypass cable |
 | `/api/systems/electrical/reactor/eject/<id>` | POST | Eject reactor core (debug) |
 | `/api/systems/electrical/reactor/install/<id>` | POST | Install reactor core (debug) |
 
 ### Debug console
 - `Ctrl+D` toggles debug panel
-- `break <id>` / `fix <id>` — electrical components
+- `break <id>` — damage a component
+- `trip <id>` — trip a breaker
+- `fix <id>` — fix any component
+- `check <id>` — check state of breaker, cable, or panel
+- `connect <id>` — connect a bypass cable
+- `disconnect <id>` — disconnect a bypass cable
 - `eject <id>` / `install <id>` — reactor cores (debug only)
 
 ---
 
-## 14. REPAIR SYSTEM (PHASE 18)
+## 14. REPAIR SYSTEM
 
 ### Overview
-Profile-driven multi-step repair. Phase 18 scope is door panels. Architecture is generic — same pattern applies to electrical repair and future fixed object repair.
+Profile-driven multi-step repair. Door panels and electrical junctions both use this pattern. Architecture is generic — same pattern applies to future fixed object repair.
 
 ### Door panel state machine
 ```
 is_broken = False → operational
 is_broken = True, broken_components empty → diagnose
+  → if room has no power: 5 min timed action, informative message, no state set
+  → if room powered: full diagnosis with scan tool
 is_broken = True, components populated → repair per-component
 repaired_components == broken_components → panel restored
+```
+
+### Electrical junction state machine
+```
+broken_components empty → diagnose (reads live electrical state)
+broken_components populated, unrepaired remain → repair per-component
+  → tripped breakers: reset only, no part consumed
+  → damaged breakers/cables: consume parts, fix_component()
+  → internal parts: consume parts, set CircuitPanel flag directly
+repaired_components == broken_components → junction restored
 ```
 
 ### Security levels
@@ -622,17 +693,22 @@ repaired_components == broken_components → panel restored
 | 3 | KEYCARD_HIGH_PIN | High security card + PIN |
 
 ### Repair system architecture
-- `repair_handler.py` — thin dispatcher
+- `repair_handler.py` — 5-step routing dispatcher
 - `door_panel_repair.py` — door panel logic
+- `electrical_repair.py` — electrical junction logic
 - `repair_utils.py` — shared utilities, cached item registry
-- Future: `electrical_repair.py`, `fixed_object_repair.py` — same pattern
+- Future: `fixed_object_repair.py` — same pattern
 
 ### API endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/command/diagnose_complete` | POST | Populates broken_components |
-| `/api/command/repair_complete` | POST | Consumes parts, marks repaired |
-| `/api/command/repair_next` | POST | Event check then next component |
+| `/api/command/diagnose_complete` | POST | Door panel diagnosis completion |
+| `/api/command/repair_complete` | POST | Door panel component repair completion |
+| `/api/command/repair_next` | POST | Door panel next component |
+| `/api/command/no_power_diagnose_complete` | POST | Door panel no-power diagnosis completion |
+| `/api/command/elec_diagnose_complete` | POST | Junction diagnosis completion |
+| `/api/command/elec_repair_complete` | POST | Junction component repair completion |
+| `/api/command/elec_repair_next` | POST | Junction next component |
 
 ---
 
@@ -648,12 +724,30 @@ Scheduled events triggered by game-time thresholds. Defined in `data/game/events
   "type": "impact_event",
   "trigger_minutes": 2,
   "event_message": "⚠ IMPACT EVENT — Electrical faults detected — Run diagnostics",
-  "affected_components": ["PNL-REC-SUB-C", "recreation_room_cockpit_panel_rec"],
+  "affected_components": [
+    { "id": "PNL-REC-SUB-C", "component": "hv_logic_board" },
+    "recreation_room_cockpit_panel_rec",
+    { "id": "FUS-REC-01", "mode": "damaged" },
+    { "id": "FUS-REC-02", "mode": "tripped" },
+    "PWC-REC-01"
+  ],
+  "random_component_pool": [],
   "event_effects": [],
   "randomise_damage": false,
   "randomise_time": false
 }
 ```
+
+### affected_components entry formats
+| Format | Behaviour |
+|--------|-----------|
+| `"component_id"` (plain string) | Door panel break, or cable/breaker break with default mode |
+| `{"id": "FUS-X", "mode": "damaged"}` | Break breaker/cable as physically damaged |
+| `{"id": "FUS-X", "mode": "tripped"}` | Trip a breaker (reset only, no part needed) |
+| `{"id": "PNL-X", "component": "hv_logic_board"}` | Break specific internal panel component |
+
+### random_component_pool
+Same format as `affected_components`. When `randomise_damage: true`, `randomise_count` entries are picked randomly from this pool and added to the break list. Currently always empty — randomisation deferred.
 
 ### Supported event types
 | Type | Behaviour | Status |
@@ -663,15 +757,6 @@ Scheduled events triggered by game-time thresholds. Defined in `data/game/events
 | `solar_flare_event` | Future | Planned |
 | `reactor_overload_event` | Future | Planned |
 
-### Component damage resolution
-`_break_component_by_id()` resolves each ID in order:
-1. Electrical components via `electrical_service.break_component()`
-2. Door panels — `panel.is_broken = True`
-3. TODO: Engines, fixed objects
-
-### `event_effects` array
-Reserved for future side effects — room description changes, atmosphere venting, narrative state changes. Currently always empty.
-
 ---
 
 ## 16. SHIP INVENTORY SYSTEM
@@ -680,6 +765,7 @@ Reserved for future side effects — room description changes, atmosphere ventin
 - `game_manager.storage_manifest` — dict keyed by `instance_id` → `PortableItem`
 - Store via inventory panel button (storage room only)
 - Retrieve via storage terminal `[R]` key
+- Requires room power — if unpowered, terminal is inaccessible
 - API: `GET /api/game/storage/manifest`, `POST /api/game/storage/store`, `POST /api/game/storage/retrieve`
 
 ### Cargo bay — freight space
@@ -699,7 +785,7 @@ Interactable
 │   │   └── Pallet
 │   ├── Terminal
 │   ├── Engine
-│   └── PowerJunction         ← panel_id links to electrical CircuitPanel
+│   └── PowerJunction         ← panel_id links to CircuitPanel, carries broken_components + repaired_components
 ```
 
 ### Container dimensions
@@ -721,6 +807,9 @@ Portable handheld device. When in inventory, PAD tab appears. Shows: ship power 
 ### Ship's Log
 Structured dicts: `timestamp`, `event`, `location` (optional), `detail`.
 
+### Tablet notes
+`game_manager.tablet_notes` — dict keyed by `panel_id`. Written at diagnosis time, deleted on repair completion. Preserves fault labels (including Tripped distinction) for repair complete log entry.
+
 ### Messages System
 Narrative delivery mechanism. Types: automated ship alerts, external communications, narrative events. Distinct from ship's log.
 
@@ -732,47 +821,55 @@ Narrative delivery mechanism. Types: automated ship alerts, external communicati
 Hardcoded for one trigger only — terminal power cut. `appendMonologue(text)` renders text in a styled box (dark background, muted blue-grey italic, rounded corners).
 
 ### Future
-JSON-driven keyed response system (`monologue.json`). Keys: `terminal_power_failure`, `reactor_offline`, `hull_breach` etc. Ties into NPC dialogue tree system. Design: tone variations by game state, one-shot vs repeatable lines, per-character voice box colours.
+JSON-driven keyed response system (`monologue.json`). Keys: `terminal_power_failure`, `reactor_offline`, `hull_breach` etc. Ties into NPC dialogue tree system.
 
 ---
 
-## 19. ELECTRICAL REPAIR — DESIGN
+## 19. ELECTRICAL REPAIR — IMPLEMENTED ✅
 
 ### Overview
-Same diagnose/repair gameplay as door panels. HV test kit required instead of scan tool. Access point is the PowerJunction fixed object. Each junction owns its panel, breakers, and adjacent cables.
+Full diagnose/repair system via PowerJunction fixed object. Player must be in the junction's room.
+- Tools: `hv_service_kit` + `power_screwdriver_set`
+- Components: internal panel parts (5 types), breakers (6 ratings), cables (standard + heavy duty)
+- Tripped breakers reset only — no replacement part consumed, uses `repair_time_tripped`
+- Internal parts fixed by setting `CircuitPanel` flag directly
+- Cables and damaged breakers fixed via `fix_component()`
 
-### Repair scope boundary
-Jack can repair: cables, breakers, circuit panels, door access panels.
-Jack cannot repair without port: reactor cores, engine internals, major structural damage.
-
-Reactor ejection is irreversible in deep space. See Future doc Section 3.
+### Panel ownership — cable assignment rule
+Each junction owns: its incoming cable(s), all outgoing cables to endpoints or to the next junction's incoming cable (exclusive). Emergency bypass cables (`PWC-ENG-00`, `PWC-PRO-04`) are excluded from normal diagnosis — only visible when `connected: true`.
 
 ### Component types and parts
 | Type | Parts required |
 |------|---------------|
-| Breaker | 1x matching amp-rated circuit breaker |
-| Cable (standard) | `cable_hv_standard` by length + 2x `hv_connect_standard` |
-| Cable (heavy duty) | `cable_hv_heavy_duty` by length + 2x `hv_connect_heavy` |
-| Panel | 1x `hv_logic_board` + 1x `hv_bus_bar` |
+| `hv_logic_board` | 1x `hv_logic_board` |
+| `hv_bus_bar` | 1x `hv_bus_bar` |
+| `hv_surge_protector` | 1x `hv_surge_protector` |
+| `hv_smoothing_capacitor` | 1x `hv_smoothing_capacitor` |
+| `hv_isolation_switch` | 1x `hv_isolation_switch` |
+| Breaker (damaged) | 1x matching amp-rated circuit breaker |
+| Breaker (tripped) | No part — reset only |
+| Cable (standard) | `cable_hv_standard` by total length + 2x `hv_connect_standard` per run |
+| Cable (heavy duty) | `cable_hv_heavy_duty` by total length + 2x `hv_connect_heavy` per run |
 
 ### Heavy duty cables
-`PWC-ENG-01`, `PWC-PRO-01`, `PWC-PRO-04`, `PWC-ENG-00`, `PWC-PRO-02`, `PWC-PRO-03`
+`PWC-ENG-01`, `PWC-ENG-00`, `PWC-PRO-01`, `PWC-PRO-02`, `PWC-PRO-03`, `PWC-PRO-04`
 
 ### Circuit breaker sizes
 | Item ID | Rating | Used for |
 |---------|--------|---------|
-| `10A_breaker` | 10A | Small rooms |
+| `10A_breaker` | 10A | Small rooms (head, storage) |
 | `32A_breaker` | 32A | Medium rooms |
 | `63A_breaker` | 63A | Sub-panel branch feeds |
 | `250A_breaker` | 250A | Bypass breaker FUS-PRO-00 |
 | `600A_breaker` | 600A | Sub-light engine FUS-PRO-01 |
 | `1200A_breaker` | 1200A | FTL engine FUS-PRO-02 |
 
-### Key design decisions still to make ⚠️
-- Exact command syntax for electrical diagnose/repair
-- Panel failure severity randomisation
-- Repair profiles need cable length_m added to electrical.json first
-- Junction panel images needed: `junction_closed.png`, `junction_open.png`
+### Junction images
+| Image | When shown |
+|-------|-----------|
+| `PNL-XXX-XXX.png` | During diagnosis timed action |
+| `junction_burnt.png` | After diagnosis with faults found; during repair |
+| `junction_intact.png` | After diagnosis with no faults; after repair complete |
 
 ---
 
@@ -783,25 +880,26 @@ Reactor ejection is irreversible in deep space. See Future doc Section 3.
 - **Terminal shutdown edge case** — power cut while mid-repair with terminal open. Deferred.
 - **Unpowered room images** — naming convention implemented. Recreation room and engineering complete. Remaining 15 rooms need Reve generation alongside description authoring.
 - **`^room_state^` token** — reserved for permanent room state changes (hull breach etc.). Deferred.
-- **Dynamic room descriptions** — 15 rooms still need ~ italic prose, powered/unpowered addendums. Recreation room and engineering complete.
+- **Dynamic room descriptions** — 15 rooms still need ~ italic prose, powered/unpowered addendums.
 - **Power junction placement** — recreation room and engineering complete. Three remaining rooms (main corridor, sub corridor, propulsion bay) need junctions added.
 - **Circuit diagram SVG** — being built manually in Inkscape. Integrate into engineering terminal when complete.
 - **Repair post-repair failure roll** — always succeeds. Future: probability-based.
 - **Scan tool software updates** — future exotic systems require purchased updates.
-- **Python built-in shadowing** — `id` and `type` used as parameter names throughout. Dedicated cleanup pass needed.
 - **CRT terminal font** — Share Tech Mono inherited by CRT panels. Separate font TBD.
 - **Event system save/load** — `GameEvent.fired` and `GameEvent.resolved` in-memory only. Must be serialised.
 - **Event effects** — `event_effects` reserved but not implemented.
+- **Event system randomisation** — `randomise_damage`, `randomise_count`, `random_component_pool` structure ready but logic not implemented.
 - **Engine damage via events** — `_break_component_by_id()` TODO stub for engine resolution.
 - **`PalletContainer.pallet` flag** — purpose unclear, appears unused.
 - **Cargo contents** — `initial_cargo.json` containers empty.
 - **Cargo handler operational flag** — stub needed before cargo movement phase.
 - **Long repair auto-chain threshold** — pause for survival mechanics. Phase 21.
-- **Repair failure mechanic** — `Loop.setRepairInProgress(false)` needed on failure path.
 - **`command_handler.py` process() cleanup** — preposition blocks duplicate `_resolve_for_verb()` logic.
 - **Room temperature** — deferred until life support is designed.
 - **Description panel priority toggle** — future: auto-flip when dialogue tree is active.
 - **`reactor_offline` monologue** — Jack's reaction to finding the reactor cold. First candidate for monologue JSON system.
+- **Sack barrow** — Jack's carry capacity temporarily 40kg. Sack barrow system deferred. See Future doc Section 17.
+- **Jury-rigging system** — portable power pack for unpowered fixed objects. Deferred. See Future doc Section 16.
 
 ### Input lockout behaviour — known inconsistency
 Terminal active (`setTerminalMode`) — tooltips remain active.
@@ -811,17 +909,24 @@ Whether to unify these is an open question.
 ### Recently completed deferred items
 - ✅ Terminal auto-close on power cut
 - ✅ Jack's monologue box
-- ✅ Corridor rename throughout
 - ✅ PowerJunction FixedObject system
 - ✅ ~ italic markup
 - ✅ Addendum flash animation
 - ✅ Unpowered room image swap
 - ✅ Reactor state token system
 - ✅ Eject/install debug commands
-- ✅ Engineering room fully described with all state variants
+- ✅ Engineering room fully described
 - ✅ Description panel fixed title
 - ✅ Panel priority toggle
-- ✅ Ghost divider padding
+- ✅ Electrical repair system — full diagnose/repair for junctions
+- ✅ Breaker damaged/tripped state distinction
+- ✅ CircuitPanel internal component flags
+- ✅ Cable length_m, connected, emergency_bypass fields
+- ✅ Event system per-component mode and component fields
+- ✅ Door panel diagnosis blocked when no room power
+- ✅ Cable aggregation in fault lists and missing items
+- ✅ Junction images wired into diagnosis and repair flow
+- ✅ Debug console check/trip/connect/disconnect commands
 
 ---
 
@@ -843,6 +948,7 @@ Whether to unify these is an open question.
 14. **All JSON fields have a use** — never partially load type definitions
 15. **Suggest before adding** — flag missing spec items before writing code
 16. **Never output complete game.html or game.js — targeted changes only**
+17. **No smelly code** — separation of concerns, no dead code, no unnecessary fallbacks
 
 ---
 
@@ -860,4 +966,4 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game — Technical Reference v23.0 — April 2026*
+*Project Orion Game — Technical Reference v24.0 — April 2026*
