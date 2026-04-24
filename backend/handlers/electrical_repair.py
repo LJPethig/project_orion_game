@@ -398,11 +398,12 @@ class ElectricalRepairHandler(BaseHandler):
         if set(junction.repaired_components) == set(junction.broken_components):
             current_room = game_manager.get_current_room()
             location_str = f"Location: {current_room.name}  |  Junction {panel_id}"
-            components_str = ', '.join(
-                self._component_label(c)
-                for c in profile['components']
-                if (c.get('electrical_id') or c['item_id']) in junction.broken_components
-            )
+            # Fault labels are read from the tablet note written at diagnosis time.
+            # By this point fix_component() has already been called on all components
+            # so live electrical state no longer reflects tripped/damaged distinction.
+            # The tablet note preserves the correct labels — e.g. '32 Amp Circuit Breaker (Tripped)'.
+            tablet_note = game_manager.tablet_notes[panel_id]
+            components_str = ', '.join(tablet_note['faults'])
             total_repair_mins = sum(
                 c.get('repair_time_mins', c.get('repair_time_tripped', 1))
                 for c in profile['components']
