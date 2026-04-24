@@ -4,15 +4,17 @@ Game API routes.
 /api/game/state  — current game state (ship time, etc.)
 /api/game/new    — start a new game
 """
+import os
+import json
 
 from flask import Blueprint, jsonify, request
 from backend.models.game_manager import game_manager
 from backend.models.interactable import StorageUnit, Surface, Terminal, PowerJunction
 from backend.handlers.storage_handler import storage_handler
 from backend.handlers.repair_utils import item_name
-from config import SHIP_NAME
+from backend.systems.electrical.electrical_system import FissionReactor
+from config import SHIP_NAME, TERMINAL_CONTENT_PATH
 
-import os
 
 game_bp = Blueprint("game", __name__)
 
@@ -121,7 +123,6 @@ def _get_reactor_state(es) -> str:
     if not es:
         return 'online'
     for source in es.power_sources.values():
-        from backend.systems.electrical.electrical_system import FissionReactor
         if isinstance(source, FissionReactor) and source.id == 'reactor_core':
             if source.ejected:
                 return 'ejected'
@@ -207,9 +208,6 @@ def get_terminal_content():
     """Return content for a terminal sub-menu action."""
     if not game_manager.initialised:
         return jsonify({"error": "Game not initialised"}), 400
-
-    from config import TERMINAL_CONTENT_PATH
-    import json
 
     data      = request.get_json()
     term_type = data.get('terminal_type')

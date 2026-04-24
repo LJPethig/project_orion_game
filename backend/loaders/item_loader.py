@@ -16,6 +16,7 @@ Duplicate IDs across files are flagged as warnings — last one wins.
 """
 
 import json
+
 from backend.models.interactable import PortableItem, UtilityBelt
 from config import ITEM_FILES
 

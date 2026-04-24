@@ -5,6 +5,7 @@ Single source of truth. One instance lives for the lifetime of the Flask app.
 """
 
 import json
+
 from backend.models.chronometer import Chronometer
 from backend.models.ship import Ship
 from backend.models.player import Player

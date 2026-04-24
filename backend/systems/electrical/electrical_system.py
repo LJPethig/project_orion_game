@@ -5,6 +5,7 @@ Loads electrical.json and manages all power components
 """
 
 import json
+
 from typing import Dict, Optional
 
 

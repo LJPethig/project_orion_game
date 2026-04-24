@@ -9,6 +9,9 @@ take off <item> — alias for remove
 unequip <item> — alias for remove
 """
 
+
+import random
+
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
 from backend.models.interactable import Surface
@@ -64,7 +67,6 @@ class EquipHandler(BaseHandler):
         setattr(player, f"{matched_slot}_slot", None)
         surfaces = [o for o in current_room.objects if isinstance(o, Surface)]
         if surfaces:
-            import random
             surface = random.choice(surfaces)
             surface.add_item(item)
             result = self._instant(

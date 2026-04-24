@@ -6,6 +6,7 @@ Interacts with game_manager.storage_manifest directly.
 """
 
 import random
+
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
 

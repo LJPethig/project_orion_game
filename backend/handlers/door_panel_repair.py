@@ -24,6 +24,7 @@ Post-repair failure roll: hook only — always succeeds for now.
 
 import json
 import random
+
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
 from backend.handlers.repair_utils import (

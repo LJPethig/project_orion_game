@@ -5,6 +5,7 @@ Loads rooms from ship_rooms.json and doors from door_status.json.
 """
 
 import json
+
 from typing import Dict, Optional, List
 from backend.models.room import Room
 from backend.models.door import Door, SecurityPanel

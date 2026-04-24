@@ -8,6 +8,7 @@ debug_inventory     — dump player inventory to response panel
 """
 
 import random
+
 from backend.handlers.base_handler import BaseHandler
 from backend.models.game_manager import game_manager
 from backend.models.interactable import PortableItem, StorageUnit, Surface
