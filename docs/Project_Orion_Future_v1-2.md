@@ -336,7 +336,6 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 
 **`command_handler.py` cleanup** — preposition command blocks partially duplicate `_resolve_for_verb()` logic. Targeted cleanup pass.
 
-**Python built-in shadowing audit** — `id` and `type` as parameter names throughout. Dedicated cleanup pass.
 
 **Scan tool software updates** — future exotic systems require purchased scan tool manuals.
 
@@ -348,9 +347,7 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 
 **Trading phase** — cargo barter, underground contacts, transponder obfuscator.
 
-**Door panel power check** — door panels should not be diagnosable or repairable when the room has no power. Check room power before allowing diagnosis or repair to proceed.
 
-**Cable aggregation in reports** — multiple cables of the same type should be summed in fault lists, missing items lists, ship log and tablet notes. e.g. four runs of `cable_hv_standard` totalling 17.0m shows as one line requiring 17.0m cable and 8x connectors.
 
 ---
 

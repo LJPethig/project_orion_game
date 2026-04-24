@@ -257,7 +257,7 @@ def elec_repair_next():
     if not junction:
         return jsonify({'error': f"Junction '{panel_id}' not found"}), 400
 
-    profile = electrical_repair_handler._profiles.get(panel_id)
+    profile = electrical_repair_handler.get_profile(panel_id)
     if not profile:
         return jsonify({'error': f"No repair profile for '{panel_id}'"}), 400
 

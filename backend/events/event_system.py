@@ -9,7 +9,7 @@ Supported event types:
   impact_event      — breaks a list of components (electrical and/or door panels)
   message_event     — delivers a message notification (stub)
 
-Unknown event types are logged as warnings and skipped — no silent failures.
+Unknown event types or component IDs raise ValueError immediately — bad data in events.json must be fixed.
 """
 
 import json
@@ -70,7 +70,10 @@ class EventSystem:
                 # Stub — message delivery not yet implemented
                 print(f"[EventSystem] message_event '{event.event_id}' fired — not yet implemented")
             else:
-                print(f"[EventSystem] WARNING: unknown event type '{event_type}' for event '{event.event_id}' — skipped")
+                raise ValueError(
+                    f"[EventSystem] unknown event type '{event_type}' for event '{event.event_id}'. "
+                    f"Check events.json."
+                )
 
             due.append({
                 'event_id': event.event_id,
@@ -137,13 +140,10 @@ class EventSystem:
             return
 
         # ── Not found ─────────────────────────────────────────
-        print(f"[EventSystem] WARNING: component '{component_id}' not found in any damageable system — skipped")
-
-        game_manager.add_log_entry({
-            'timestamp': game_manager.get_ship_time(),
-            'event':     'Impact Event',
-            'detail':    'Hull impact detected. Electrical faults reported on multiple circuits.',
-        })
+        raise ValueError(
+            f"[EventSystem] component '{component_id}' not found in any damageable system. "
+            f"Check affected_components in events.json."
+        )
 
     def resolve(self, event_id: str) -> None:
         """Mark an event as resolved — clears the event strip message."""

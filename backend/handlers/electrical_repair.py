@@ -101,6 +101,10 @@ class ElectricalRepairHandler(BaseHandler):
 
         return self.begin_next_repair(junction, profile)
 
+    def get_profile(self, panel_id: str) -> dict | None:
+        """Return the repair profile for the given panel_id, or None if not found."""
+        return self._profiles.get(panel_id)
+
     # ── Diagnosis stage ───────────────────────────────────────
 
     def _begin_diagnosis(self, junction, profile: dict) -> dict:

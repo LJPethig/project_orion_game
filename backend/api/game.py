@@ -7,8 +7,9 @@ Game API routes.
 
 from flask import Blueprint, jsonify, request
 from backend.models.game_manager import game_manager
-from backend.models.interactable import PortableItem, StorageUnit, Surface, Terminal, PowerJunction
+from backend.models.interactable import StorageUnit, Surface, Terminal, PowerJunction
 from backend.handlers.storage_handler import storage_handler
+from backend.handlers.repair_utils import item_name
 from config import SHIP_NAME
 
 import os
@@ -144,16 +145,6 @@ def _build_room_data(room) -> dict:
             'panel_powered': powered,
         }
 
-    # Portable items on the room floor (safety net — surfaces are primary)
-    portable_objects = [
-        {'id': obj.id, 'name': obj.display_name()}
-        for obj in room.objects
-        if isinstance(obj, PortableItem)
-        and not isinstance(obj, StorageUnit)
-        and not isinstance(obj, Surface)
-        and obj.takeable
-    ]
-
     # Object states — containers (open/closed + contents), surfaces (has_items + contents), terminals
     object_states = {}
     for obj in room.objects:
@@ -207,7 +198,6 @@ def _build_room_data(room) -> dict:
         'room_powered': room_powered,
         'background_image': room.background_image,
         'exits': exits,
-        'portable_objects': portable_objects,
         'object_states': object_states,
         'floor_items': floor_items,
     }
@@ -322,16 +312,11 @@ def cargo_manifest():
     if not game_manager.initialised:
         return jsonify({"error": "Game not initialised"}), 400
 
-    from backend.loaders.item_loader import load_item_registry
-    registry = load_item_registry()
-
     def resolve_contents(contents):
-        resolved = []
-        for entry in contents:
-            item_data = registry.get(entry['item'])
-            name = item_data['name'] if item_data else entry['item']
-            resolved.append({'name': name, 'quantity': entry['quantity']})
-        return resolved
+        return [
+            {'name': item_name(entry['item']), 'quantity': entry['quantity']}
+            for entry in contents
+        ]
 
     containers = []
     for c in game_manager.cargo_manifest.get('containers', []):
