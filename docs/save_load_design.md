@@ -1,5 +1,5 @@
 # Project Orion — Save/Load System Design
-**Status: In progress — agreed decisions only**
+**Status: Complete — agreed decisions only**
 **Phase: 19.5**
 
 This document contains only finalised, agreed design decisions.
@@ -131,3 +131,87 @@ never receive a duplicate ID.
 
 This rule was established during the instance ID refactor (March 2026) and must
 be respected by the save/load implementation.
+
+---
+
+## Full serialisation list
+
+Everything listed here must be written to the save file and restored on load.
+
+### Meta
+- `dead` — bool. Written to both files simultaneously on death.
+- `ship_time` — current ship time in minutes (chronometer state).
+
+### Player
+- `current_room_id` — the room Jack is currently in.
+- `inventory` — full list of carried `PortableItem` instances with all instance state.
+- `equipped_slots` — all five slots (head, body, torso, waist, feet), occupied or empty.
+- Note: `max_carry_mass` is a config constant — not saved. `current_carry_mass` is
+  recalculated from inventory items on load — not saved.
+
+### Portable items — per instance
+Every `PortableItem` instance (in inventory, equipped, on surfaces, in containers,
+on floors, in storage manifest) must save:
+- `id` — item type ID
+- `instance_id` — unique runtime ID, must be preserved exactly
+- All mutable fields: `length_m` (cables, decremented on use), `installed_manuals`
+  (scan tool), any other fields that can change at runtime
+
+### Rooms — per room
+- `floor` — list of item instances currently on the room floor
+- Open/closed state of every `StorageUnit` in the room
+- Contents of every `StorageUnit` and `Surface` in the room
+
+### Door state — per door
+- `state` — open / closed / locked
+- `is_broken` flag on each security panel
+
+### Repair state — per panel
+- `SecurityPanel.broken_components` — list of component IDs found at diagnosis
+- `SecurityPanel.repaired_components` — list of component IDs successfully repaired
+- `PowerJunction.broken_components` — same for electrical junctions
+- `PowerJunction.repaired_components` — same for electrical junctions
+- `game_manager.tablet_notes` — entire dict (keyed by panel_id). Must be saved and
+  restored alongside repair state — repair completion reads the note and crashes if
+  it is missing.
+
+### Electrical system — per component
+**FissionReactor:** `operational`, `ejected`, `temperature`
+Two instances: `reactor_core` (main, 25kW, engineering) and `propulsion_reactor`
+(propulsion, 120kW, propulsion bay). Both must be saved, keyed by their `id`.
+Note: `operational` is currently a direct flag. When reactor internal components are
+implemented it will become a derived property (same pattern as `CircuitPanel.operational`)
+and the internal flags will be saved instead.
+**BackupBattery:** `active`, `charge_percent`
+**CircuitPanel:** `logic_board_intact`, `bus_bar_intact`, `surge_protector_intact`,
+  `smoothing_capacitor_intact`, `isolation_switch_intact`
+**Breaker:** `damaged`, `tripped`
+**PowerCable:** `intact`, `connected`
+
+### Engine state — per engine
+- `online` — damaged/undamaged flag. Currently a direct flag. When engine internal
+  components are implemented it will become derived and the internal flags saved instead.
+- Note: `powered` is derived from electrical trace on load — not saved
+
+### Event system — per event
+- `fired` — bool
+- `resolved` — bool
+- Note: if not restored, events re-fire on load
+
+### Storage and cargo
+- `game_manager.storage_manifest` — full dict of stored items with all instance state
+- `game_manager.cargo_manifest` — containers and pallets with contents
+
+### Ship log
+- `game_manager.ship_log` — full list of structured log entries
+  (`timestamp`, `event`, `location`, `detail`)
+
+### Not saved — future systems
+These systems do not exist yet. Listed here so save/load is extended correctly
+when they are implemented:
+- Survival state (hunger, thirst, fatigue)
+- Room atmosphere state (temperature, pressure)
+- Monologue fired keys (one-shot trigger tracking)
+- `jury_rigged_power` flag on fixed objects (jury-rigging system)
+- `room.room_states` dict (room state token system)
+- Sack barrow loaded container reference

@@ -26,7 +26,11 @@ class PowerSource:
 
 
 class FissionReactor(PowerSource):
-    """Thermionic fission reactor — primary power source for the ship."""
+    """
+        Thermionic fission reactor. Two instances exist: the main reactor (25kW,
+        engineering) and the propulsion reactor (120kW, propulsion bay). Both are
+        loaded from electrical.json and managed identically at runtime.
+    """
 
     def __init__(self, obj_id: str, name: str, location: str, output_kw: float,
                  critical_temp: int, normal_temp: int):
