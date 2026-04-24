@@ -4,6 +4,7 @@
 # ── Ship & Player ────────────────────────────────────────────
 SHIP_NAME       = "Tempus Fugit"
 PLAYER_NAME     = "Jack Harrow"
+PLAYER_MAX_CARRY_MASS = 40.0
 STARTING_ROOM   = "engineering"
 
 # ── Game Clock ───────────────────────────────────────────────

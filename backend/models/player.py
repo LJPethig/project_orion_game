@@ -5,6 +5,7 @@ Ported from Project Dark Star — Arcade dependencies removed.
 """
 
 from typing import Optional, List, Tuple
+from config import PLAYER_MAX_CARRY_MASS
 from backend.models.interactable import PortableItem
 
 
@@ -15,7 +16,7 @@ class Player:
     def __init__(self, name: str):
         self.name            = name
         self._inventory:     List[PortableItem]           = []
-        self.max_carry_mass: float                        = 40.0
+        self.max_carry_mass: float                        = PLAYER_MAX_CARRY_MASS
 
         # Fixed equipment slots
         self.head_slot:  Optional[PortableItem] = None
