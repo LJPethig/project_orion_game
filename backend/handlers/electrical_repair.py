@@ -532,11 +532,57 @@ class ElectricalRepairHandler(BaseHandler):
         return result
 
     def _fault_names_for(self, junction, profile: dict) -> list:
-        """Return human-readable fault names for all broken components."""
-        return [
-            self._component_label(c)
-            for c in self._broken_component_entries(junction, profile)
-        ]
+        """Return aggregated human-readable fault names for all broken components."""
+        return self._aggregate_fault_names(self._broken_component_entries(junction, profile))
+
+    def _aggregate_fault_names(self, component_entries: list) -> list:
+        """
+        Aggregate component entries into human-readable display strings.
+        Cables of the same type are summed into a single length entry.
+        Breakers are grouped by label — damaged and tripped variants stay separate
+        since they require different repair actions.
+        Internal parts are grouped by item_id.
+
+        Returns a list of aggregated display strings ready for fault lists and logs.
+        """
+        # ── Cables — group by item_id, sum length_m and connector_qty ──────────
+        cable_groups = {}
+        for c in component_entries:
+            if 'length_m' not in c:
+                continue
+            item_id = c['item_id']
+            if item_id not in cable_groups:
+                cable_groups[item_id] = {
+                    'item_id': item_id,
+                    'total_length': 0.0,
+                    'connector_id': c.get('connector_id'),
+                    'total_connectors': 0,
+                }
+            cable_groups[item_id]['total_length'] += c['length_m']
+            cable_groups[item_id]['total_connectors'] += c.get('connector_qty', 0)
+
+        # ── Non-cables — group by label (preserves Tripped distinction) ─────────
+        label_counts = {}
+        for c in component_entries:
+            if 'length_m' in c:
+                continue
+            label = self._component_label(c)
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        # ── Build result list ─────────────────────────────────────────────────────
+        result = []
+
+        # Non-cables first — internal parts and breakers
+        for label, count in label_counts.items():
+            result.append(f"{count}x {label}" if count > 1 else label)
+
+        # Cables
+        for group in cable_groups.values():
+            length = round(group['total_length'], 1)
+            name = item_name(group['item_id'])
+            result.append(f"{name} ({length}m)")
+
+        return result
 
     def _calc_diag_mins(self, broken_ids: list, profile: dict) -> int:
         """Sum diag_time_mins for all broken components."""
@@ -552,61 +598,92 @@ class ElectricalRepairHandler(BaseHandler):
     def _check_all_parts(self, junction, profile: dict) -> list:
         """
         Check player has all required parts for all remaining unrepaired components.
-        Returns list of human-readable missing part descriptions.
-        Cable components also check for connectors.
+        Returns aggregated list of human-readable missing part descriptions.
+
+        Cables of the same type are aggregated — total length checked against a
+        single spool, total connectors checked against held stock.
+        Breakers are aggregated by item_id — tripped breakers excluded (no part needed).
         """
-        missing   = []
         inventory = game_manager.player.get_inventory()
+        sys = game_manager.electrical_system
+
+        # ── Collect relevant components ───────────────────────────────────────────
+        # Separate cables from non-cables for different aggregation logic.
+        cable_components = []
+        non_cable_components = []
 
         for component in profile['components']:
-            eid     = component.get('electrical_id')
+            eid = component.get('electrical_id')
             item_id = component['item_id']
-            key     = item_id if eid is None else eid
+            key = item_id if eid is None else eid
 
             if key not in junction.broken_components:
                 continue
             if key in junction.repaired_components:
                 continue
 
-            name = item_name(item_id)
+            # Tripped breakers need resetting only — no replacement part required
+            if eid and eid in sys.breakers:
+                breaker = sys.breakers.get(eid)
+                if breaker and breaker.tripped and not breaker.damaged:
+                    continue
 
-            # ── Cable — check spool length and connectors ──────
             if 'length_m' in component:
-                required = component['length_m']
-                spool = next(
-                    (i for i in inventory
-                     if getattr(i, 'id', None) == item_id
-                     and getattr(i, 'length_m', 0) >= required),
-                    None
-                )
-                if not spool:
-                    missing.append(f"{required}m {name}")
-
-                connector_id  = component.get('connector_id')
-                connector_qty = component.get('connector_qty', 0)
-                if connector_id and connector_qty:
-                    connector_name  = item_name(connector_id)
-                    held = [i for i in inventory if getattr(i, 'id', None) == connector_id]
-                    if len(held) < connector_qty:
-                        missing.append(
-                            f"{connector_qty}x {connector_name}"
-                            if connector_qty > 1 else connector_name
-                        )
-
-            # ── Breaker or internal part — check qty ──────────
+                cable_components.append(component)
             else:
-                # Tripped breakers need resetting only — no replacement part required
-                if eid:
-                    sys = game_manager.electrical_system
-                    breaker = sys.breakers.get(eid)
-                    if breaker and breaker.tripped and not breaker.damaged:
-                        continue
-                qty_required = component.get('qty', 1)
-                matches = [i for i in inventory if getattr(i, 'id', None) == item_id]
-                if len(matches) < qty_required:
-                    missing.append(name if qty_required == 1 else f"{qty_required}x {name}")
+                non_cable_components.append(component)
+
+        missing = []
+
+        # ── Non-cables — group by item_id, check total qty needed ────────────────
+        non_cable_totals = {}
+        for c in non_cable_components:
+            item_id = c['item_id']
+            non_cable_totals[item_id] = non_cable_totals.get(item_id, 0) + c.get('qty', 1)
+
+        for item_id, qty_needed in non_cable_totals.items():
+            held = [i for i in inventory if getattr(i, 'id', None) == item_id]
+            if len(held) < qty_needed:
+                name = item_name(item_id)
+                missing.append(name if qty_needed == 1 else f"{qty_needed}x {name}")
+
+        # ── Cables — group by item_id, sum total length needed ───────────────────
+        # A single spool must cover the total length required across all runs.
+        cable_totals = {}
+        for c in cable_components:
+            item_id = c['item_id']
+            if item_id not in cable_totals:
+                cable_totals[item_id] = {
+                    'total_length': 0.0,
+                    'connector_id': c.get('connector_id'),
+                    'total_connectors': 0,
+                }
+            cable_totals[item_id]['total_length'] += c['length_m']
+            cable_totals[item_id]['total_connectors'] += c.get('connector_qty', 0)
+
+        for item_id, totals in cable_totals.items():
+            name = item_name(item_id)
+            required = round(totals['total_length'], 1)
+            spool = next(
+                (i for i in inventory
+                 if getattr(i, 'id', None) == item_id
+                 and getattr(i, 'length_m', 0) >= required),
+                None
+            )
+            if not spool:
+                missing.append(f"{required}m {name}")
+
+            connector_id = totals['connector_id']
+            total_conn = totals['total_connectors']
+            if connector_id and total_conn:
+                connector_name = item_name(connector_id)
+                held_conn = [i for i in inventory if getattr(i, 'id', None) == connector_id]
+                if len(held_conn) < total_conn:
+                    missing.append(
+                        f"{total_conn}x {connector_name}"
+                        if total_conn > 1 else connector_name
+                    )
 
         return missing
-
 
 electrical_repair_handler = ElectricalRepairHandler()
