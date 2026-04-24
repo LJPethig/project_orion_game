@@ -252,8 +252,6 @@ class ElectricalRepairHandler(BaseHandler):
             'panel_id':     panel_id,
         })
 
-        broken_components = self._broken_component_entries(junction, profile)
-
         return {
             'response':      f"You spent {duration} diagnosing {panel_id}.",
             'action_type':   'diagnose_complete',
@@ -266,14 +264,6 @@ class ElectricalRepairHandler(BaseHandler):
             'tools_label':   'This repair will require the following tools:',
             'missing_items': missing_items,
             'no_faults':     False,
-            'parts': [
-                {
-                    'name':     self._component_label(c),
-                    'qty':      c.get('qty'),
-                    'length_m': c.get('length_m'),
-                }
-                for c in broken_components
-            ],
         }
 
     def begin_next_repair(self, junction, profile: dict) -> dict:
@@ -381,7 +371,6 @@ class ElectricalRepairHandler(BaseHandler):
         else:
             # Internal panel component — consume parts and set flag
             self._consume_parts(component)
-            from backend.systems.electrical.electrical_service import break_panel_component
             circuit_panel = sys.panels.get(panel_id)
             if circuit_panel:
                 flag = _INTERNAL_COMPONENT_FLAGS.get(item_id)
