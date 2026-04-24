@@ -160,6 +160,29 @@ class DoorPanelRepairHandler(BaseHandler):
         if not profile:
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
+        # ── Check room power ──────────────────────────────────
+        current_room = game_manager.get_current_room()
+        if not game_manager.electrical_system.check_room_power(current_room.id):
+            access_mins = 5
+            real_seconds = calc_diagnose_real_seconds(access_mins)
+            panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
+            location_str = f"Location: {current_room.name}  |  {exit_label} door panel  {panel_model}"
+            game_manager.add_log_entry({
+                'timestamp': game_manager.get_ship_time(),
+                'event': 'Diagnosis incomplete',
+                'location': location_str,
+                'detail': 'No power — full diagnosis not possible.',
+            })
+            return {
+                'response': f"Opening the {exit_label} access panel...",
+                'action_type': 'diagnose_panel_no_power',
+                'lock_input': True,
+                'real_seconds': real_seconds,
+                'game_minutes': access_mins,
+                'room_changed': False,
+                'panel_model': panel_model,
+            }
+
         # ── Check diag tools ──────────────────────────────────
         missing_tools = check_tools(profile['diag_tools_required'], game_manager.player)
         if missing_tools:
@@ -236,6 +259,20 @@ class DoorPanelRepairHandler(BaseHandler):
             'exit_label':      exit_label,
             'panel_type':      panel.panel_type,
             'security_level': panel.security_level.value,
+        }
+
+    def complete_no_power_diagnosis(self, panel_model: str, game_minutes: int) -> dict:
+        """
+        Called by /no_power_diagnose_complete endpoint after timed action.
+        Advances ship time and returns a message — no diagnosis state is set.
+        """
+        game_manager.advance_time(game_minutes)
+        return {
+            'response': f"You spent {format_duration(game_minutes)} examining the {panel_model}. "
+                        f"This panel has no power — a full diagnosis is not possible until power is restored.",
+            'action_type': 'instant',
+            'lock_input': False,
+            'room_changed': False,
         }
 
     def _check_scan_tool_manual(self, panel) -> str | None:

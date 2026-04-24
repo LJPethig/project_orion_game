@@ -159,6 +159,22 @@ function handleResult(result) {
     }
 
 
+    // ── Diagnose panel no power — short timed action, no diagnosis state set ──
+    if (result.action_type === 'diagnose_panel_no_power') {
+        setDamagedPanelImage(result.security_level);
+        showDiagnosisAnimation(result.real_seconds);
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRepairAnimation();
+            const diagResult = await API.completeNoPowerDiagnosis(
+                result.panel_model,
+                result.game_minutes
+            );
+            clearResponse();
+            handleResult(diagResult);
+        });
+        return;
+    }
+
     // ── Diagnose panel — lock input, wait, call diagnose_complete ──
     if (result.action_type === 'diagnose_panel') {
         setDamagedPanelImage(result.security_level);

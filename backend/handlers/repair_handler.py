@@ -224,6 +224,10 @@ class RepairHandler:
         """Delegate to door panel handler — called by command.py diagnose_complete endpoint."""
         return door_panel_repair_handler.complete_diagnosis(panel_id, door_id, game_minutes, exit_label)
 
+    def complete_no_power_diagnosis(self, panel_model: str, game_minutes: int) -> dict:
+        """Delegate to door panel handler — called by command.py no_power_diagnose_complete endpoint."""
+        return door_panel_repair_handler.complete_no_power_diagnosis(panel_model, game_minutes)
+
     def complete_component_repair(self, panel_id: str, door_id: str,
                                   component_id: str, exit_label: str) -> dict:
         """Delegate to door panel handler — called by command.py repair_complete endpoint."""

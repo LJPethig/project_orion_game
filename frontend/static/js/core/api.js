@@ -64,6 +64,15 @@ const API = {
         return r.json();
     },
 
+    async completeNoPowerDiagnosis(panel_model, game_minutes) {
+        const r = await fetch('/api/command/no_power_diagnose_complete', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ panel_model, game_minutes }),
+        });
+        return r.json();
+    },
+
     async completeRepair(panel_id, door_id, component_id, exit_label) {
         const r = await fetch('/api/command/repair_complete', {
             method:  'POST',

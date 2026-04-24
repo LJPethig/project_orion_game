@@ -136,6 +136,23 @@ def diagnose_complete():
     return jsonify(result)
 
 
+@command_bp.route('/no_power_diagnose_complete', methods=['POST'])
+def no_power_diagnose_complete():
+    """
+    Called by frontend after the no-power door panel diagnosis timed action completes.
+    Advances ship time and returns a message — no diagnosis state is set.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data        = request.get_json()
+    panel_model = data.get('panel_model')
+    game_minutes = data.get('game_minutes', 5)
+
+    result = repair_handler.complete_no_power_diagnosis(panel_model, game_minutes)
+    result['ship_time'] = game_manager.get_ship_time()
+    return jsonify(result)
+
 @command_bp.route('/repair_complete', methods=['POST'])
 def repair_complete():
     """
