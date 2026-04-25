@@ -6,7 +6,7 @@ Time only advances when a game action causes it to (repairs, waits, etc.)
 Not real-time — the frontend polls for display updates only.
 """
 
-from config import START_DATE_TIME
+from config import START_DATE_TIME, SHIP_COMMISSION_DATE
 
 
 class Chronometer:
@@ -16,8 +16,11 @@ class Chronometer:
     """
 
     def __init__(self):
-        year, month, day, hour, minute = START_DATE_TIME
-        self.total_minutes = self._to_minutes(year, month, day, hour, minute)
+        # total_minutes is elapsed since ship commission date.
+        # At game start this reads ~45 years, matching the ship's physical clock.
+        start = self._to_minutes(*START_DATE_TIME)
+        commission = self._to_minutes(*SHIP_COMMISSION_DATE)
+        self.total_minutes = start - commission
 
     # ── Time conversion ──────────────────────────────────────
 
@@ -51,7 +54,9 @@ class Chronometer:
 
     def get_formatted(self) -> str:
         """Return ship time as a display string: 'DD-MM-YYYY  HH:MM'"""
-        year, month, day, hour, minute = self._from_minutes(self.total_minutes)
+        # Add commission offset back to get the actual calendar date for display.
+        commission = self._to_minutes(*SHIP_COMMISSION_DATE)
+        year, month, day, hour, minute = self._from_minutes(commission + self.total_minutes)
         return f"{day:02d}-{month:02d}-{year:04d}  {hour:02d}:{minute:02d}"
 
     def get_total_minutes(self) -> int:

@@ -118,6 +118,11 @@ const API = {
         return r.json();
     },
 
+    async saveGame() {
+        const r = await fetch('/api/command/save', { method: 'POST' });
+        return r.json();
+    },
+
     async completeRest() {
         const r = await fetch('/api/command/rest_complete', {
             method:  'POST',

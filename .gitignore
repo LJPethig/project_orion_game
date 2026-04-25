@@ -25,3 +25,6 @@ Thumbs.db
 # Environment variables
 .env
 *.env
+
+# Game saves
+saves/*.json

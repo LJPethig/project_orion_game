@@ -167,13 +167,6 @@ class DoorPanelRepairHandler(BaseHandler):
             access_mins = 5
             real_seconds = calc_diagnose_real_seconds(access_mins)
             panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
-            location_str = f"Location: {current_room.name}  |  {exit_label} door panel  {panel_model}"
-            game_manager.add_log_entry({
-                'timestamp': game_manager.get_ship_time(),
-                'event': 'Diagnosis incomplete',
-                'location': location_str,
-                'detail': 'No power — full diagnosis not possible.',
-            })
             return {
                 'response': f"Opening the {exit_label} access panel...",
                 'action_type': 'diagnose_panel_no_power',
@@ -268,8 +261,15 @@ class DoorPanelRepairHandler(BaseHandler):
         Advances ship time and returns a message — no diagnosis state is set.
         """
         game_manager.advance_time(game_minutes)
+        location_str = f"Location: {game_manager.get_current_room().name}  |  {panel_model}"
+        game_manager.add_log_entry({
+            'timestamp': game_manager.get_ship_time(),
+            'event': 'Diagnosis incomplete',
+            'location': location_str,
+            'detail': 'No power — full diagnosis not possible.',
+        })
         return {
-            'response': f"You spent {format_duration(game_minutes)} examining the {panel_model}. "
+            'response': f"You spent {format_duration(game_minutes)} testing the {panel_model}. "
                         f"This panel has no power — a full diagnosis is not possible until power is restored.",
             'action_type': 'instant',
             'lock_input': False,

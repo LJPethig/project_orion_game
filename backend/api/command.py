@@ -287,6 +287,17 @@ def rest_complete():
     })
 
 
+@command_bp.route('/save', methods=['POST'])
+def save_game_route():
+    """Save the current game state."""
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    from backend.systems.save.save_manager import save_game
+    save_game(game_manager)
+    return jsonify({'success': True})
+
+
 @command_bp.route('/pin', methods=['POST'])
 def submit_pin():
     """

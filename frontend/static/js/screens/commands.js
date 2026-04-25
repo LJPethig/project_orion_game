@@ -329,11 +329,12 @@ function handleResult(result) {
             const span = document.createElement('span');
             span.className   = 'clarification-option';
             span.textContent = choice.label;
-            span.addEventListener('click', () => {
+            span.addEventListener('click', async () => {
                 if (choice.action === 'quit') {
                     // Future: trigger save here before redirecting
                     window.location.href = '/';
                 } else {
+                    await API.saveGame();
                     clearResponse();
                     document.getElementById('command-input').focus();
                 }
