@@ -229,6 +229,18 @@ function handleResult(result) {
         return;
     }
 
+    // ── Rest — show rest animation, lock input, call rest_complete ──
+    if (result.action_type === 'rest') {
+        showRestAnimation(result.real_seconds, CONSTANTS.REST_SHIP_HOURS);
+        Loop.lockInput(result.real_seconds, async () => {
+            hideRestAnimation();
+            const restResult = await API.completeRest();
+            clearResponse();
+            handleResult(restResult);
+        });
+        return;
+    }
+
     // ── Card swipe — show panel image, scanning animation, lock input ──
     if (result.action_type === 'card_swipe') {
         setPanelImage(result.security_level);
@@ -305,6 +317,34 @@ function handleResult(result) {
         openDatapadPanel();
         return;
     }
+
+    // ── Rest complete — show get up / quit choice ─────────
+    if (result.action_type === 'rest_complete') {
+        const container = document.createElement('div');
+        container.className = 'clarification-options';
+        [
+            { label: 'Get up', action: 'get_up' },
+            { label: 'Quit',   action: 'quit'   },
+        ].forEach((choice, i, arr) => {
+            const span = document.createElement('span');
+            span.className   = 'clarification-option';
+            span.textContent = choice.label;
+            span.addEventListener('click', () => {
+                if (choice.action === 'quit') {
+                    // Future: trigger save here before redirecting
+                    window.location.href = '/';
+                } else {
+                    clearResponse();
+                    document.getElementById('command-input').focus();
+                }
+            });
+            container.appendChild(span);
+            if (i < arr.length - 1) container.appendChild(document.createTextNode('| '));
+        });
+        document.getElementById('response-content').appendChild(container);
+        return;
+    }
+
 
     // ── Always clear PIN mode before processing result ────
     pendingPin = null;

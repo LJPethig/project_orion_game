@@ -266,6 +266,27 @@ def elec_repair_next():
     return jsonify(result)
 
 
+@command_bp.route('/rest_complete', methods=['POST'])
+def rest_complete():
+    """
+    Called by frontend after the rest timed action completes.
+    Advances ship time by REST_SHIP_HOURS and returns the get up / quit choice.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    from config import REST_SHIP_HOURS
+    game_manager.advance_time(REST_SHIP_HOURS * 60)
+
+    return jsonify({
+        'response':     'You wake up, feeling ready for the next drama, but first, you need a shot of synth-coffee.',
+        'action_type':  'rest_complete',
+        'lock_input':   False,
+        'room_changed': False,
+        'ship_time':    game_manager.get_ship_time(),
+    })
+
+
 @command_bp.route('/pin', methods=['POST'])
 def submit_pin():
     """

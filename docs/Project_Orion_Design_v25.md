@@ -1,13 +1,15 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Technical Reference & Current State
-**Version 24.0 — April 2026**
+**Version 25.0 — April 2026**
 
 > ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
 > **Companion documents:**
-> - `Project_Orion_Future_v1.md` — build plan, future system designs, narrative
+> - `Project_Orion_Future_v3.md` — build plan, future system designs, narrative
 > - `Project_Orion_Room_Description_Style_v1.md` — room description authoring rules
+> - `docs/save_load_design.md` — save/load system design (Phase 19.5)
+> - `docs/archive/review_april_2026.md` — April 2026 codebase review
 
 ---
 
@@ -128,6 +130,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Eject/install reactor debug commands: `/api/systems/electrical/reactor/eject|install/<id>` ✅
 - Engineering room: fully updated prose with all state tokens and image variants ✅
 - Recreation room: fully updated prose with all state tokens ✅
+- `PLAYER_MAX_CARRY_MASS` moved to `config.py` — no longer hardcoded in player class ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -145,7 +148,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Phase 18** — Full repair system ✅
 - **Post-18** — Diagnosis timing refactor, inventory improvements, floor source, progress counters ✅
 - **Phase 19** — Storage room automated facility + cargo bay manifest system ✅
-- **Codebase review (April 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log ✅
+- **Codebase review #1 (early 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log ✅
 - **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer, engine fixed objects, SVG map ✅
 - **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
 - **Electrical repair parts** — HV items, circuit breakers, cable gauges, storage quantity support ✅
@@ -166,6 +169,8 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Event system component format** — per-component mode/component fields, random_component_pool ✅
 - **Door panel power check** — no-power diagnosis path, 5 min timed action, log entry ✅
 - **Cable aggregation** — fault lists, missing items, log, tablet note all aggregate by type ✅
+- **Codebase review #2 (April 2026)** — private access fix, dead code removal, lazy imports, DRY refactor, loud failures, docstrings. See `docs/archive/review_april_2026.md` ✅
+- **Save/load design (April 2026)** — full system design completed. See `docs/save_load_design.md` ✅
 
 ---
 
@@ -259,38 +264,46 @@ project_orion_game/
 │           ├── junctions/         ← PNL-ENG-MAIN.png, PNL-PRO-MAIN.png, PNL-MC-SUB-A.png, PNL-SC-SUB-B.png, PNL-REC-SUB-C.png, junction_intact.png, junction_burnt.png
 │           └── ship_layout.svg
 │
-└── data/
-    ├── items/
-    │   ├── tools.json
-    │   ├── wearables.json
-    │   ├── misc_items.json
-    │   ├── consumables.json       ← HV parts, circuit breakers, cable gauges, hv_surge_protector, hv_smoothing_capacitor, hv_isolation_switch
-    │   ├── trade_items.json
-    │   ├── terminals.json
-    │   ├── storage_units.json
-    │   ├── surfaces.json
-    │   ├── engines.json
-    │   ├── power_junctions.json
-    │   ├── cargo_containers.json
-    │   └── pallet_platforms.json
-    ├── game/
-    │   └── events.json            ← affected_components with mode/component per-entry, random_component_pool
-    ├── terminals/
-    │   └── engineering.json
-    ├── repair/
-    │   ├── repair_profiles.json
-    │   └── electrical_repair_profiles.json  ← all 5 panels, full component lists
-    └── ship/
-        ├── structure/
-        │   ├── ship_rooms.json
-        │   ├── door_status.json
-        │   ├── door_access_panel_types.json
-        │   ├── initial_ship_state.json
-        │   ├── initial_ship_items.json
-        │   ├── initial_cargo.json
-        │   └── player_items.json
-        └── systems/
-            └── electrical.json    ← length_m, connected, emergency_bypass on all cables
+├── data/
+│   ├── items/
+│   │   ├── tools.json
+│   │   ├── wearables.json
+│   │   ├── misc_items.json
+│   │   ├── consumables.json       ← HV parts, circuit breakers, cable gauges, hv_surge_protector, hv_smoothing_capacitor, hv_isolation_switch
+│   │   ├── trade_items.json
+│   │   ├── terminals.json
+│   │   ├── storage_units.json
+│   │   ├── surfaces.json
+│   │   ├── engines.json
+│   │   ├── power_junctions.json
+│   │   ├── cargo_containers.json
+│   │   └── pallet_platforms.json
+│   ├── game/
+│   │   └── events.json            ← affected_components with mode/component per-entry, random_component_pool
+│   ├── terminals/
+│   │   └── engineering.json
+│   ├── repair/
+│   │   ├── repair_profiles.json
+│   │   └── electrical_repair_profiles.json  ← all 5 panels, full component lists
+│   └── ship/
+│       ├── structure/
+│       │   ├── ship_rooms.json
+│       │   ├── door_status.json
+│       │   ├── door_access_panel_types.json
+│       │   ├── initial_ship_state.json
+│       │   ├── initial_ship_items.json
+│       │   ├── initial_cargo.json
+│       │   └── player_items.json
+│       └── systems/
+│           └── electrical.json    ← length_m, connected, emergency_bypass on all cables
+│
+└── docs/
+    ├── save_load_design.md        ← Phase 19.5 save/load system design
+    ├── Project_Orion_Design_v25.md
+    ├── Project_Orion_Future_v3.md
+    ├── Project_Orion_Room_Description_Style_v1.md
+    └── archive/
+        └── review_april_2026.md
 ```
 
 ---
@@ -298,10 +311,11 @@ project_orion_game/
 ## 5. CONFIG.PY — KEY CONSTANTS
 
 ```python
-SHIP_NAME       = "Tempus Fugit"
-PLAYER_NAME     = "Jack Harrow"
-STARTING_ROOM   = "engineering"
-START_DATE_TIME = (2276, 1, 1, 0, 0)
+SHIP_NAME             = "Tempus Fugit"
+PLAYER_NAME           = "Jack Harrow"
+PLAYER_MAX_CARRY_MASS = 40.0          # kg — temporary testing value, sack barrow not yet implemented
+STARTING_ROOM         = "engineering"
+START_DATE_TIME       = (2276, 1, 1, 0, 0)
 
 # Timed actions
 CARD_SWIPE_REAL_SECONDS   = 5
@@ -496,7 +510,7 @@ Missing image variants fall back gracefully via `img.onerror`.
 
 ## 10. INVENTORY SYSTEM
 
-**Player inventory** — INV tab slide-out panel. Equipped slots + carried items. Store button visible in storage room. Carry capacity currently 40kg (temporarily increased for testing — sack barrow not yet implemented).
+**Player inventory** — INV tab slide-out panel. Equipped slots + carried items. Store button visible in storage room. Max carry mass defined by `PLAYER_MAX_CARRY_MASS` in `config.py` (currently 40kg — temporary testing value, sack barrow not yet implemented).
 
 **Ship inventory** — automated storage facility in storage room. Store via inventory panel, retrieve via terminal UI. No typed commands. Requires room power to operate.
 
@@ -558,7 +572,7 @@ If room loses power while terminal is active, terminal closes automatically. Sys
 ## 13. ELECTRICAL SYSTEM
 
 ### Overview
-25kW thermionic fission reactor. Power distributed through hierarchical network of circuit panels, breakers, and cables to all 17 compartments. Two backup batteries for Life Support and Mainframe.
+Two fission reactors. Main reactor (25kW) powers ship systems. Propulsion reactor (120kW) powers engines. Power distributed through hierarchical network of circuit panels, breakers, and cables to all 17 compartments. Two backup batteries for Life Support and Mainframe.
 
 ### Component naming convention
 | Code | Type | Example |
@@ -618,13 +632,13 @@ Each `CircuitPanel` has five internal component flags, all defaulting to `True`:
 
 ### Cable fields
 Each `PowerCable` carries:
-- `intact` — runtime state, severed by damage events
-- `connected` — whether physically installed in circuit (bypass cables start `False`)
+- `intact` — runtime state. A severed cable requires a replacement spool of sufficient length to repair.
+- `connected` — whether the cable is physically present and plugged in at both ends. Currently only emergency bypass cables start `False`. Future: any cable can be disconnected via events or player action.
 - `emergency_bypass` — marks bypass path cables, excluded from normal diagnosis
 - `length_m` — physical cable length for repair part calculation
 
 ### Reactor ejection
-The main reactor core can be ejected. The shell remains, hull integrity maintained. Ejection is irreversible in deep space. See Future doc Section 3 for full dual-reactor design.
+Either reactor core can be ejected. The shell remains, hull integrity maintained. Ejection is irreversible in deep space. See Future doc Section 3 for full dual-reactor design.
 
 ### Reactor state values
 | State | Condition |
@@ -716,6 +730,7 @@ repaired_components == broken_components → junction restored
 
 ### Overview
 Scheduled events triggered by game-time thresholds. Defined in `data/game/events.json`.
+Unknown event types or component IDs raise `ValueError` immediately — bad data must be fixed, never silently skipped.
 
 ### Event JSON structure
 ```json
@@ -808,7 +823,7 @@ Portable handheld device. When in inventory, PAD tab appears. Shows: ship power 
 Structured dicts: `timestamp`, `event`, `location` (optional), `detail`.
 
 ### Tablet notes
-`game_manager.tablet_notes` — dict keyed by `panel_id`. Written at diagnosis time, deleted on repair completion. Preserves fault labels (including Tripped distinction) for repair complete log entry.
+`game_manager.tablet_notes` — dict keyed by `panel_id`. Written at diagnosis time, deleted on repair completion. Preserves fault labels (including Tripped distinction) for repair complete log entry. Multiple notes can exist simultaneously. See `docs/save_load_design.md` for serialisation requirements.
 
 ### Messages System
 Narrative delivery mechanism. Types: automated ship alerts, external communications, narrative events. Distinct from ship's log.
@@ -821,7 +836,7 @@ Narrative delivery mechanism. Types: automated ship alerts, external communicati
 Hardcoded for one trigger only — terminal power cut. `appendMonologue(text)` renders text in a styled box (dark background, muted blue-grey italic, rounded corners).
 
 ### Future
-JSON-driven keyed response system (`monologue.json`). Keys: `terminal_power_failure`, `reactor_offline`, `hull_breach` etc. Ties into NPC dialogue tree system.
+JSON-driven keyed response system (`monologue.json`). Keys: `terminal_power_failure`, `reactor_offline`, `hull_breach` etc. Ties into NPC dialogue tree system. One-shot triggers — each key fires once only. Also serves as the mechanism for guiding the player through genuinely hopeless situations via Jack's survival instinct.
 
 ---
 
@@ -873,7 +888,22 @@ Each junction owns: its incoming cable(s), all outgoing cables to endpoints or t
 
 ---
 
-## 20. KNOWN ISSUES / DEFERRED
+## 20. SAVE/LOAD SYSTEM
+
+See `docs/save_load_design.md` for the complete Phase 19.5 design. This section is intentionally brief — the design doc is the authoritative reference.
+
+### Summary
+- Autosave only — no manual save, no scum saving
+- Two files written simultaneously: `save.json` and `save_backup.json`
+- JSON format
+- Jack rests at designated locations (captain's quarters bunk, future: hypersleep pod) to save and optionally quit
+- Real-time autosave timer (5 minutes) runs as crash protection fallback
+- Death is permanent — dead flag written to both files, cannot be reloaded
+- One save slot — New Game warns player and requires confirmation before deleting existing save
+
+---
+
+## 21. KNOWN ISSUES / DEFERRED
 
 - **PAM** — clips to utility belt. Dormant until life support phase.
 - **Examine command** — `examine <item>` prints name, manufacturer, model, description. New verb, deferred.
@@ -886,7 +916,6 @@ Each junction owns: its incoming cable(s), all outgoing cables to endpoints or t
 - **Repair post-repair failure roll** — always succeeds. Future: probability-based.
 - **Scan tool software updates** — future exotic systems require purchased updates.
 - **CRT terminal font** — Share Tech Mono inherited by CRT panels. Separate font TBD.
-- **Event system save/load** — `GameEvent.fired` and `GameEvent.resolved` in-memory only. Must be serialised.
 - **Event effects** — `event_effects` reserved but not implemented.
 - **Event system randomisation** — `randomise_damage`, `randomise_count`, `random_component_pool` structure ready but logic not implemented.
 - **Engine damage via events** — `_break_component_by_id()` TODO stub for engine resolution.
@@ -898,7 +927,7 @@ Each junction owns: its incoming cable(s), all outgoing cables to endpoints or t
 - **Room temperature** — deferred until life support is designed.
 - **Description panel priority toggle** — future: auto-flip when dialogue tree is active.
 - **`reactor_offline` monologue** — Jack's reaction to finding the reactor cold. First candidate for monologue JSON system.
-- **Sack barrow** — Jack's carry capacity temporarily 40kg. Sack barrow system deferred. See Future doc Section 17.
+- **Sack barrow** — `PLAYER_MAX_CARRY_MASS` currently 40kg in config.py (temporary testing value). Sack barrow system deferred. See Future doc Section 17.
 - **Jury-rigging system** — portable power pack for unpowered fixed objects. Deferred. See Future doc Section 16.
 
 ### Input lockout behaviour — known inconsistency
@@ -927,10 +956,12 @@ Whether to unify these is an open question.
 - ✅ Cable aggregation in fault lists and missing items
 - ✅ Junction images wired into diagnosis and repair flow
 - ✅ Debug console check/trip/connect/disconnect commands
+- ✅ Event system save/load — covered in save_load_design.md
+- ✅ PLAYER_MAX_CARRY_MASS moved to config.py
 
 ---
 
-## 21. RULES FOR DEVELOPMENT
+## 22. RULES FOR DEVELOPMENT
 
 1. **Upload current files at start of every session** — never work from memory
 2. **Read the code before changing it** — ask to see files before editing
@@ -942,17 +973,18 @@ Whether to unify these is an open question.
 8. **All colours in CSS variables**
 9. **All JS timeouts in `constants.js`**
 10. **All Python durations in `config.py`**
-11. **Debate bad ideas** — push back if something seems wrong
-12. **Never add "type X to fix it" hints** — immersive messages only
-13. **New files as downloads** — never inline only
-14. **All JSON fields have a use** — never partially load type definitions
-15. **Suggest before adding** — flag missing spec items before writing code
-16. **Never output complete game.html or game.js — targeted changes only**
-17. **No smelly code** — separation of concerns, no dead code, no unnecessary fallbacks
+11. **All Python player/ship constants in `config.py`**
+12. **Debate bad ideas** — push back if something seems wrong
+13. **Never add "type X to fix it" hints** — immersive messages only
+14. **New files as downloads** — never inline only
+15. **All JSON fields have a use** — never partially load type definitions
+16. **Suggest before adding** — flag missing spec items before writing code
+17. **Never output complete game.html or game.js — targeted changes only**
+18. **No smelly code** — separation of concerns, no dead code, no unnecessary fallbacks
 
 ---
 
-## 22. PROJECT BACKGROUND
+## 23. PROJECT BACKGROUND
 
 *Written by the lead designer, April 2026.*
 
@@ -966,4 +998,4 @@ This project would never have got to this state without the various AI's (starti
 
 ---
 
-*Project Orion Game — Technical Reference v24.0 — April 2026*
+*Project Orion Game — Technical Reference v25.0 — April 2026*

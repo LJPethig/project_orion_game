@@ -1,6 +1,8 @@
 # config.py
 # All game constants for Project Orion
 
+import os
+
 # ── Ship & Player ────────────────────────────────────────────
 SHIP_NAME       = "Tempus Fugit"
 PLAYER_NAME     = "Jack Harrow"
@@ -34,8 +36,11 @@ REPAIR_TIME_CAP_SECONDS   = 20
 DIAG_ACCESS_OVERHEAD      = 0.25  # 25% of component diag time added for panel access
 DIAG_TIME_JITTER          = 0.10  # ±10% random variation on diagnosis time
 
+# Rest
+REST_REAL_SECONDS  = 8    # Real seconds the rest animation plays
+REST_SHIP_HOURS    = 8    # Ship hours that pass during rest
+
 # ── Data file paths ──────────────────────────────────────────
-import os
 
 # Ship structure
 ROOMS_JSON_PATH            = os.path.join('data', 'ship', 'structure', 'ship_rooms.json')

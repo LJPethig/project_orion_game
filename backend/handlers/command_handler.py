@@ -24,6 +24,7 @@ from backend.handlers.item_handler import ItemHandler
 from backend.handlers.container_handler import ContainerHandler
 from backend.handlers.equip_handler import EquipHandler
 from backend.handlers.terminal_handler import TerminalHandler
+from backend.handlers.rest_handler import rest_handler
 from backend.models.game_manager import game_manager
 from backend.models.interactable import Surface, StorageUnit
 
@@ -69,6 +70,8 @@ class CommandHandler:
             'remove':            self._equip.handle_remove,
             'take off':          self._equip.handle_remove,
             'unequip':           self._equip.handle_remove,
+            # Rest
+            'rest': lambda args: rest_handler.handle_rest(),
             # Container specific
             'look in':           self._container.handle_look_in,
             'take from':         self._container.handle_take_from,

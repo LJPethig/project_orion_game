@@ -24,6 +24,20 @@ function _stopProgressCounter() {
     }
 }
 
+function _startHoursCounter(realSeconds, shipHours, spanId) {
+    // Counts up in ship hours rather than percentage.
+    // Steps once per (realSeconds / shipHours) real seconds.
+    const span      = document.getElementById(spanId);
+    if (!span) return;
+    let hoursShown  = 0;
+    const stepMs    = (realSeconds / shipHours) * 1000;
+    _progressInterval = setInterval(() => {
+        hoursShown = Math.min(shipHours, hoursShown + 1);
+        span.textContent = `${hoursShown} hrs`;
+        if (hoursShown >= shipHours) _stopProgressCounter();
+    }, stepMs);
+}
+
 function setInputMode(mode) {
     const input = document.getElementById('command-input');
     if (mode === 'pin') {
@@ -153,6 +167,29 @@ function showJunctionRepairAnimation(realSeconds, panelId) {
     `;
     content.appendChild(el);
     _startProgressCounter(realSeconds, 'scan-progress');
+}
+
+function showRestAnimation(realSeconds, shipHours) {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'rest-animation';
+    el.className  = 'scan-animation';   // reuse existing animation CSS
+    el.innerHTML  = `
+        <span>RESTING</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span id="rest-progress" class="scan-progress">0h</span>
+    `;
+    content.appendChild(el);
+    content.scrollTop = content.scrollHeight;
+    _startHoursCounter(realSeconds, shipHours, 'rest-progress');
+}
+
+function hideRestAnimation() {
+    _stopProgressCounter();
+    const el = document.getElementById('rest-animation');
+    if (el) el.remove();
 }
 
 function setJunctionImage(panelId, state) {

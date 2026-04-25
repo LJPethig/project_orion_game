@@ -118,6 +118,15 @@ const API = {
         return r.json();
     },
 
+    async completeRest() {
+        const r = await fetch('/api/command/rest_complete', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({}),
+        });
+        return r.json();
+    },
+
     async getInventory() {
         const r = await fetch('/api/game/inventory');
         return r.json();
