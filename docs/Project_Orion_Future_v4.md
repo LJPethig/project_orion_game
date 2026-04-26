@@ -1,12 +1,12 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Future Design & Planning Document
-**Version 3.0 — April 2026**
+**Version 4.0 — April 2026**
 
 > This document covers future phases, system designs not yet built, narrative decisions, and open design questions.
-> For current state, architecture, and technical reference see `Project_Orion_Design_v25.md`.
+> For current state, architecture, and technical reference see `Project_Orion_Design_v26.md`.
 > For room description authoring rules see `Project_Orion_Room_Description_Style_v1.md`.
-> For save/load system design see `docs/save_load_design.md`.
+> For narrative canon see `docs/narrative_notes.md`.
 
 ---
 
@@ -14,13 +14,12 @@
 
 > ⚠️ Sequence changes frequently. Treat as a guide only.
 
-1. **Phase 19.5 — Save/load system** — design complete, see `docs/save_load_design.md`. Implementation next.
-2. **Room descriptions and images** — complete all 15 remaining rooms following the style guide. Generate unpowered (and where applicable reactor-off) images in Reve alongside authoring. Recreation room and engineering complete — use as reference.
-3. **Power junction placement** — add junctions to main corridor, sub corridor, propulsion bay descriptions and fixed_objects.
-4. **Fixed object repair** — engines and reactors using same profile-driven pattern as door panels and electrical.
-5. **Event system expansion** — randomisation flags, more event types, `event_effects` implementation.
-6. **Sack barrow and portable container system** — See Section 17.
-7. **Jury-rigging system** — portable power pack mechanic. See Section 16.
+1. **Room descriptions and images** — complete all 15 remaining rooms following the style guide. Generate unpowered (and where applicable reactor-off) images in Reve alongside authoring. Recreation room and engineering complete — use as reference.
+2. **Power junction placement** — add junctions to main corridor, sub corridor, propulsion bay descriptions and fixed_objects.
+3. **Fixed object repair** — engines and reactors using same profile-driven pattern as door panels and electrical.
+4. **Event system expansion** — randomisation flags, more event types, `event_effects` implementation.
+5. **Sack barrow and portable container system** — See Section 17.
+6. **Jury-rigging system** — portable power pack mechanic. See Section 16.
 
 ---
 
@@ -85,7 +84,7 @@ Jack cannot repair without landing at port: reactor cores, engine internals, maj
 
 ## 4. ELECTRICAL REPAIR SYSTEM — ✅ IMPLEMENTED
 
-See `Project_Orion_Design_v25.md` Section 19 for full details.
+See `Project_Orion_Design_v26.md` Section 19 for full details.
 
 ---
 
@@ -109,6 +108,12 @@ Engines and reactors repairable using same profile-driven pattern as door panels
 - `fixed_object_repair.py` handler
 - Routed from `repair_handler.py`
 - Same profile-driven pattern
+
+### Save/load note
+When reactor and engine internal components are implemented:
+- `FissionReactor.operational` becomes a derived property — save the internal component flags instead of the direct flag
+- `Engine.online` same pattern
+- Both are flagged in the existing `save_manager.py` comments
 
 ---
 
@@ -154,9 +159,9 @@ For permanent room description changes triggered by events. Room carries `room_s
 
 ---
 
-## 7. SAVE/LOAD SYSTEM — ✅ DESIGN COMPLETE
+## 7. SAVE/LOAD SYSTEM — ✅ COMPLETE AND TESTED
 
-See `docs/save_load_design.md` for the full design. Implementation is Phase 19.5.
+See `Project_Orion_Design_v26.md` Section 20 for full details. Phase 19.5 is complete.
 
 ---
 
@@ -173,7 +178,7 @@ Key design considerations:
 - **Tone variations by game state** — Jack early game (weary but functional) vs late game (desperate, post-compliance-order).
 - **Trigger keys** — `terminal_power_failure`, `reactor_offline`, `hull_breach`, `reactor_ejected`, `power_restored` etc.
 - **Survival guidance** — monologue also serves as the mechanism for guiding Jack (and the player) through genuinely hopeless situations. Jack's survival instinct fires as internal voice, giving the player a direction they wouldn't have found alone. This replaces any need for a mechanical lucky break system.
-- **Save/load** — fired monologue keys must be saved to prevent repeat triggers. See `docs/save_load_design.md`.
+- **Save/load** — fired monologue keys must be saved to prevent repeat triggers. Add to save_manager when implemented.
 
 ### Planned: NPC dialogue trees
 Full dialogue tree system for:
@@ -200,7 +205,7 @@ Biological needs impose a time pressure alongside ship systems. Jack must eat, d
 ### Mechanics
 - **Hunger** — must eat at regular intervals. Galley provides food.
 - **Thirst** — must drink. Water recycler in galley.
-- **Fatigue** — must rest/sleep. Bunk in captain's quarters.
+- **Fatigue** — must rest/sleep. Bunk in captain's quarters or rec-room sofa.
 - **Atmospheric survival** — breathable air, correct temperature, correct pressure.
 
 ### Interaction with repairs
@@ -209,8 +214,8 @@ Survival events do not interrupt repairs — they impose penalties instead (slow
 ### Long repair auto-chain threshold
 Repairs over N game minutes per component pause after completion and present the player with a "continue or take a break?" choice rather than auto-chaining. This is the natural save point for long repairs. Prevents player leaving a repair running unattended while survival mechanics tick down.
 
-### Rest and sleep
-Jack rests in his bunk in the captain's quarters. This is also the primary player-initiated save and quit point. See `docs/save_load_design.md` for full details.
+### Rest and save integration
+Jack must rest every 16 ship hours to avoid fatigue penalties. Rest is already the only save point. When survival mechanics are implemented, rest becomes a necessity rather than just a meta action — the save system becomes self-enforcing.
 
 ---
 
@@ -233,7 +238,13 @@ Binary operational states driven by electrical system. Room atmosphere depends o
 ## 11. OPENING NARRATIVE SEQUENCE
 
 ### Jack Harrow — starting situation
-Jack Harrow is an Enso VeilTech employee operating the Tempus Fugit as a solo trader/courier. Currently in deep space, returning from a long haul run, in hypersleep.
+See `docs/narrative_notes.md` for full narrative canon. Summary:
+
+- Jack is 18 days from destination, in hypersleep
+- 3 months earlier, a bank hack destroyed his finances — he is blacklisted
+- Enso VeilTech knows, has arranged security and legal to meet him on arrival
+- The impact event wakes him early — only he can repair the ship
+- A security vessel is now diverted: **48 hours away**
 
 ### The opening sequence
 1. Impact event wakes Jack early. Ship has damage.
@@ -249,7 +260,7 @@ Jack Harrow is an Enso VeilTech employee operating the Tempus Fugit as a solo tr
 - The Ceres Base contact's name and personality
 - The mainframe AI's name and personality post-hack
 - Exact wording of the bank email and Enso VeilTech compliance message
-- The 72-hour countdown mechanic in gameplay terms
+- The 48-hour countdown mechanic in gameplay terms
 
 ---
 
@@ -309,7 +320,11 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 
 **Trading phase** — cargo barter, underground contacts, transponder obfuscator.
 
-**Hypersleep pod** — used for long-distance travel. Also a natural save and quit point (deferred). See `docs/save_load_design.md`.
+**Hypersleep pod** — used for long-distance travel. Also a natural rest and save point (deferred).
+
+**Death screen UI** — dead flag infrastructure in place. Splash screen death state UI not yet built. See `load_game_route()` docstring in `game.py` for required behaviour.
+
+**Door trap — unpowered panel on destination side** — potential softlock when Jack enters a room with a non-functional panel on the destination side. No decision made on fix. See Session Notes in design doc.
 
 ---
 
@@ -341,7 +356,7 @@ Player connects the power pack to a compatible fixed object. Handler checks:
 
 ### Implementation — deferred
 - `PortablePowerPack` item class or fields on `PortableItem`
-- `jury_rigged_power` flag on `FixedObject` — must be saved. See `docs/save_load_design.md`.
+- `jury_rigged_power` flag on `FixedObject` — must be saved when implemented
 - `connect` command verb — routes to jury-rig handler
 - Handler checks compatibility and sets flag
 - Terminal/storage handler checks `jury_rigged_power` alongside room power
@@ -368,11 +383,11 @@ The repair handler's part check (`_check_all_parts`) must be extended to include
 
 ### Implementation — deferred
 - `SackBarrow` item class or fields on `PortableItem`
-- `loaded_container` reference on `SackBarrow` — must be saved. See `docs/save_load_design.md`.
+- `loaded_container` reference on `SackBarrow` — must be saved when implemented
 - `use` command verb — routes to sack barrow handler
 - Repair handler checks `player.sack_barrow.loaded_container.contents` alongside inventory
 - `PLAYER_MAX_CARRY_MASS` in `config.py` currently 40kg for testing until this is implemented
 
 ---
 
-*Project Orion Game — Future Design & Planning v3.0 — April 2026*
+*Project Orion Game — Future Design & Planning v4.0 — April 2026*

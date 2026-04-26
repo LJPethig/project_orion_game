@@ -1,14 +1,13 @@
 # PROJECT ORION GAME
 ## Space Survival Simulator
 ### Technical Reference & Current State
-**Version 25.0 — April 2026**
+**Version 26.0 — April 2026**
 
 > ⚠️ **IMPORTANT — DO NOT ASSUME ALL CONTENT IN THIS DOCUMENT IS CORRECT.** This document has evolved organically over many development sessions. Not all sections have been manually verified against the current codebase. Where the code and the document conflict, the code is authoritative. Treat this document as a guide and reference, not a specification.
 
 > **Companion documents:**
-> - `Project_Orion_Future_v3.md` — build plan, future system designs, narrative
+> - `Project_Orion_Future_v4.md` — build plan, future system designs, narrative
 > - `Project_Orion_Room_Description_Style_v1.md` — room description authoring rules
-> - `docs/save_load_design.md` — save/load system design (Phase 19.5)
 > - `docs/archive/review_april_2026.md` — April 2026 codebase review
 
 ---
@@ -130,7 +129,12 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Eject/install reactor debug commands: `/api/systems/electrical/reactor/eject|install/<id>` ✅
 - Engineering room: fully updated prose with all state tokens and image variants ✅
 - Recreation room: fully updated prose with all state tokens ✅
-- `PLAYER_MAX_CARRY_MASS` moved to `config.py` — no longer hardcoded in player class ✅
+- `PLAYER_MAX_CARRY_MASS` moved to `config.py` ✅
+- Save/load system: full Phase 19.5 implementation — see Section 20 ✅
+- Rest command: `rest` in captain's quarters or rec-room sofa, 8-hour animation, get up / quit choice ✅
+- Rec-room sofa added as second rest location ✅
+- Splash screen: New Game / Continue buttons, two-step confirm before overwriting save ✅
+- Chronometer: tracks elapsed minutes since ship commission date (17-03-2223 13:47) ✅
 
 ### Phase history
 - **Phase 6** — Splash screen + game shell ✅
@@ -148,6 +152,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Phase 18** — Full repair system ✅
 - **Post-18** — Diagnosis timing refactor, inventory improvements, floor source, progress counters ✅
 - **Phase 19** — Storage room automated facility + cargo bay manifest system ✅
+- **Phase 19.5** — Save/load system, rest command, splash screen New Game/Continue ✅
 - **Codebase review #1 (early 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log ✅
 - **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer, engine fixed objects, SVG map ✅
 - **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
@@ -170,7 +175,6 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Door panel power check** — no-power diagnosis path, 5 min timed action, log entry ✅
 - **Cable aggregation** — fault lists, missing items, log, tablet note all aggregate by type ✅
 - **Codebase review #2 (April 2026)** — private access fix, dead code removal, lazy imports, DRY refactor, loud failures, docstrings. See `docs/archive/review_april_2026.md` ✅
-- **Save/load design (April 2026)** — full system design completed. See `docs/save_load_design.md` ✅
 
 ---
 
@@ -191,17 +195,18 @@ project_orion_game/
 │   │   ├── door.py                ← panel_type, security_level resolved at load time
 │   │   ├── interactable.py        ← StorageUnit, Surface, Terminal, Engine, PowerJunction, PalletContainer, Pallet
 │   │   │                             PowerJunction carries broken_components, repaired_components
-│   │   ├── player.py
-│   │   └── chronometer.py
+│   │   ├── player.py              ← clear_inventory(), restore_inventory_item()
+│   │   └── chronometer.py         ← commission date offset, total_minutes
 │   │
 │   ├── systems/
-│   │   └── electrical/
-│   │       ├── electrical_system.py   ← CircuitPanel internal flags, Breaker damaged/tripped, PowerCable connected/length_m/emergency_bypass
-│   │       └── electrical_service.py  ← break/trip/fix/connect_cable/disconnect_cable/break_panel_component/eject/install
+│   │   ├── electrical/
+│   │   │   ├── electrical_system.py   ← CircuitPanel internal flags, Breaker damaged/tripped, PowerCable connected/length_m/emergency_bypass
+│   │   │   └── electrical_service.py  ← break/trip/fix/connect_cable/disconnect_cable/break_panel_component/eject/install
+│   │   └── save/
+│   │       └── save_manager.py    ← save_game(), load_game(), save_exists(), is_save_dead(), mark_dead(), delete_save()
 │   │
 │   ├── events/
-│   │   ├── __init__.py
-│   │   └── event_system.py        ← JSON-driven, handles electrical + door panels, per-component mode/component
+│   │   └── event_system.py        ← JSON-driven, handles electrical + door panels, get_active_events() with message
 │   │
 │   ├── handlers/
 │   │   ├── base_handler.py
@@ -216,25 +221,26 @@ project_orion_game/
 │   │   ├── container_handler.py
 │   │   ├── equip_handler.py
 │   │   ├── terminal_handler.py
-│   │   └── storage_handler.py
+│   │   ├── storage_handler.py
+│   │   └── rest_handler.py        ← rest command, valid rest locations
 │   │
 │   ├── loaders/
-│   │   └── item_loader.py
+│   │   └── item_loader.py         ← reset/get/restore_instance_counters()
 │   │
 │   └── api/
-│       ├── game.py                ← _get_reactor_state(), room response includes reactor state fields
-│       ├── command.py             ← diagnose_complete, repair_complete, elec_diagnose_complete, elec_repair_complete, elec_repair_next, no_power_diagnose_complete
+│       ├── game.py                ← /api/game/new, /api/game/load, /api/game/save_status, DELETE /api/game/save
+│       ├── command.py             ← diagnose_complete, repair_complete, elec_*, rest_complete, save
 │       ├── systems.py             ← thin HTTP wrappers, break/trip/fix/check/connect/disconnect/eject/install routes
-│       └── events.py              ← /api/events/check endpoint
+│       └── events.py              ← /api/events/check, /api/events/active
 │
 ├── frontend/
 │   ├── templates/
-│   │   ├── splash.html
+│   │   ├── splash.html            ← New Game / Continue buttons, two-step confirm
 │   │   └── game.html
 │   │
 │   └── static/
 │       ├── css/
-│       │   ├── splash.css
+│       │   ├── splash.css         ← button styles, hidden utility class
 │       │   ├── game.css
 │       │   ├── description.css
 │       │   ├── inventory.css
@@ -245,19 +251,19 @@ project_orion_game/
 │       ├── js/
 │       │   ├── core/
 │       │   │   ├── constants.js
-│       │   │   ├── api.js         ← completeDiagnosis, completeRepair, completeElecDiagnosis, completeElecRepair, elecRepairNext, completeNoPowerDiagnosis
+│       │   │   ├── api.js         ← saveStatus(), loadGame(), getActiveEvents() added
 │       │   │   └── loop.js
 │       │   └── screens/
-│       │       ├── splash.js
+│       │       ├── splash.js      ← save_status check, New Game / Continue / confirm flow
 │       │       ├── ui.js          ← setJunctionImage, showJunctionDiagnosisAnimation, showJunctionRepairAnimation
-│       │       ├── commands.js    ← elec_diagnose_panel, elec_repair_component, elec_repair_complete, diagnose_panel_no_power handlers
+│       │       ├── commands.js    ← rest handler, get up / quit with save; quit command removed
 │       │       ├── description.js
 │       │       ├── inventory.js
 │       │       ├── terminal_core.js
 │       │       ├── terminal_engineering.js
 │       │       ├── terminal_manifest.js
 │       │       ├── map.js
-│       │       └── game.js
+│       │       └── game.js        ← active events restored on init via /api/events/active
 │       └── images/
 │           ├── rooms/
 │           ├── doors/
@@ -284,7 +290,7 @@ project_orion_game/
 │   │   └── engineering.json
 │   ├── repair/
 │   │   ├── repair_profiles.json
-│   │   └── electrical_repair_profiles.json  ← all 5 panels, full component lists
+│   │   └── electrical_repair_profiles.json
 │   └── ship/
 │       ├── structure/
 │       │   ├── ship_rooms.json
@@ -295,13 +301,17 @@ project_orion_game/
 │       │   ├── initial_cargo.json
 │       │   └── player_items.json
 │       └── systems/
-│           └── electrical.json    ← length_m, connected, emergency_bypass on all cables
+│           └── electrical.json
+│
+├── saves/                         ← runtime generated, in .gitignore
+│   ├── save.json
+│   └── save_backup.json
 │
 └── docs/
-    ├── save_load_design.md        ← Phase 19.5 save/load system design
-    ├── Project_Orion_Design_v25.md
-    ├── Project_Orion_Future_v3.md
+    ├── Project_Orion_Design_v26.md
+    ├── Project_Orion_Future_v4.md
     ├── Project_Orion_Room_Description_Style_v1.md
+    ├── narrative_notes.md
     └── archive/
         └── review_april_2026.md
 ```
@@ -315,10 +325,17 @@ SHIP_NAME             = "Tempus Fugit"
 PLAYER_NAME           = "Jack Harrow"
 PLAYER_MAX_CARRY_MASS = 40.0          # kg — temporary testing value, sack barrow not yet implemented
 STARTING_ROOM         = "engineering"
-START_DATE_TIME       = (2276, 1, 1, 0, 0)
+
+# Ship dates
+SHIP_COMMISSION_DATE  = (2223, 3, 17, 13, 47)   # Callisto Orbital Works
+START_DATE_TIME       = (2276, 9, 8, 3, 16)      # Game start — impact event wakes Jack
 
 # Timed actions
 CARD_SWIPE_REAL_SECONDS   = 5
+
+# Rest
+REST_REAL_SECONDS     = 8            # Real seconds for rest animation
+REST_SHIP_HOURS       = 8            # Ship hours advanced on rest
 
 # Repair/diagnosis real-time scaling
 REPAIR_TIME_BASE_SECONDS  = 8
@@ -399,6 +416,7 @@ All typed commands and UI clicks pass through `command_handler.process()`:
 | `wear`, `equip` | EquipHandler |
 | `remove`, `take off`, `unequip` | EquipHandler |
 | `access` | TerminalHandler |
+| `rest` | RestHandler |
 
 ### Repair/diagnose routing — repair_handler.py
 5-step routing in order:
@@ -522,6 +540,7 @@ Missing image variants fall back gracefully via `img.onerror`.
 - `item_loader.py` stores raw data dicts — not instances
 - `instantiate_item()` creates fresh `PortableItem` instance each call
 - Every placed item is a unique Python object with independent state
+- `get_instance_counters()` / `restore_instance_counters()` — used by save/load to preserve instance ID sequence across sessions
 
 ### Object ID naming convention
 `roomid_markuptext` — ensures unambiguous ID matching within a room.
@@ -633,7 +652,7 @@ Each `CircuitPanel` has five internal component flags, all defaulting to `True`:
 ### Cable fields
 Each `PowerCable` carries:
 - `intact` — runtime state. A severed cable requires a replacement spool of sufficient length to repair.
-- `connected` — whether the cable is physically present and plugged in at both ends. Currently only emergency bypass cables start `False`. Future: any cable can be disconnected via events or player action.
+- `connected` — whether the cable is physically present and plugged in at both ends. Currently only emergency bypass cables start `False`.
 - `emergency_bypass` — marks bypass path cables, excluded from normal diagnosis
 - `length_m` — physical cable length for repair part calculation
 
@@ -761,9 +780,6 @@ Unknown event types or component IDs raise `ValueError` immediately — bad data
 | `{"id": "FUS-X", "mode": "tripped"}` | Trip a breaker (reset only, no part needed) |
 | `{"id": "PNL-X", "component": "hv_logic_board"}` | Break specific internal panel component |
 
-### random_component_pool
-Same format as `affected_components`. When `randomise_damage: true`, `randomise_count` entries are picked randomly from this pool and added to the break list. Currently always empty — randomisation deferred.
-
 ### Supported event types
 | Type | Behaviour | Status |
 |------|-----------|--------|
@@ -771,6 +787,12 @@ Same format as `affected_components`. When `randomise_damage: true`, `randomise_
 | `message_event` | Delivers message to datapad | Stub only |
 | `solar_flare_event` | Future | Planned |
 | `reactor_overload_event` | Future | Planned |
+
+### API endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/events/check` | GET | Check for due events at current ship time |
+| `/api/events/active` | GET | Return all fired but unresolved events (for strip restoration on load) |
 
 ---
 
@@ -823,7 +845,7 @@ Portable handheld device. When in inventory, PAD tab appears. Shows: ship power 
 Structured dicts: `timestamp`, `event`, `location` (optional), `detail`.
 
 ### Tablet notes
-`game_manager.tablet_notes` — dict keyed by `panel_id`. Written at diagnosis time, deleted on repair completion. Preserves fault labels (including Tripped distinction) for repair complete log entry. Multiple notes can exist simultaneously. See `docs/save_load_design.md` for serialisation requirements.
+`game_manager.tablet_notes` — dict keyed by `panel_id`. Written at diagnosis time, deleted on repair completion. Preserves fault labels (including Tripped distinction) for repair complete log entry. Multiple notes can exist simultaneously.
 
 ### Messages System
 Narrative delivery mechanism. Types: automated ship alerts, external communications, narrative events. Distinct from ship's log.
@@ -888,18 +910,84 @@ Each junction owns: its incoming cable(s), all outgoing cables to endpoints or t
 
 ---
 
-## 20. SAVE/LOAD SYSTEM
+## 20. SAVE/LOAD SYSTEM — IMPLEMENTED ✅
 
-See `docs/save_load_design.md` for the complete Phase 19.5 design. This section is intentionally brief — the design doc is the authoritative reference.
+### Philosophy
+- No autosave. No manual save. No scum saving.
+- Save occurs only when Jack rests — this is the single save point.
+- One save slot. One backup slot. No other save files.
+- Jack's death is permanent — no reloading past a death.
 
-### Summary
-- Autosave only — no manual save, no scum saving
-- Two files written simultaneously: `save.json` and `save_backup.json`
-- JSON format
-- Jack rests at designated locations (captain's quarters bunk, future: hypersleep pod) to save and optionally quit
-- Real-time autosave timer (5 minutes) runs as crash protection fallback
-- Death is permanent — dead flag written to both files, cannot be reloaded
-- One save slot — New Game warns player and requires confirmation before deleting existing save
+### Save files
+Two files written simultaneously on every save:
+- `saves/save.json` — primary save file
+- `saves/save_backup.json` — identical backup, in .gitignore
+
+On load, `save.json` is tried first. If it cannot be read or fails validation, `save_backup.json` is loaded automatically. The player never needs to know the backup exists.
+
+### Save triggers
+- **Get up after rest** — save fires, ship time advances 8 hours, Jack gets up
+- **Quit after rest** — save fires, ship time advances 8 hours, game exits to splash
+
+Rest locations: captain's quarters bunk, rec-room sofa. Hypersleep pod deferred.
+
+### Splash screen
+- **Continue** — calls `/api/game/load`: `new_game()` then `load_game()`, then redirects to game
+- **New Game** (no save) — calls `/api/game/new` directly
+- **New Game** (save exists) — two-step confirm, then `DELETE /api/game/save` followed by `/api/game/new`
+- Continue hidden if no save exists
+
+### Death state
+Dead flag written to both save files simultaneously. On next launch, Continue is hidden. Only New Game available.
+
+TODO — death screen UI: when `save_status` returns `dead: true`, splash must show a death screen (black bg, red-tinted title, message explaining Jack is dead). See `load_game_route()` docstring in `game.py`.
+
+### Save file format
+JSON. Meta section + all game state. Human-readable — useful during development.
+
+### What is saved
+**Meta:** `dead` flag, `instance_counters` dict (verbatim — restored before any item is created post-load)
+
+**Player:** current room, inventory, equipped slots
+
+**Rooms:** floor items, container open/closed state and contents, surface contents
+
+**Doors:** open/locked state per door, `is_broken` + `broken_components` + `repaired_components` per panel
+
+**Electrical:** reactor operational/ejected/temperature, battery active/charge, panel internal flags, breaker damaged/tripped, cable intact/connected
+
+**Events:** fired/resolved flags per event
+
+**Ship log and tablet notes:** full structured lists
+
+**Storage and cargo manifests:** full item instances with all mutable fields
+
+### What is NOT saved
+Static data (item registry, room definitions, electrical.json etc.), derived properties (Engine.powered, CircuitPanel.operational, Breaker.operational), transient UI state.
+
+### Future — save/load extensions required when implemented
+- Survival state (hunger, thirst, fatigue)
+- Room atmosphere state
+- Monologue fired keys
+- `jury_rigged_power` flag on fixed objects
+- `room.room_states` dict
+- Sack barrow loaded container reference
+- Reactor/engine internal component flags (replace current direct `operational` flag)
+
+### Key files
+- `backend/systems/save/save_manager.py` — all serialisation/restore logic
+- `backend/handlers/rest_handler.py` — rest command
+- `backend/api/game.py` — `/api/game/load`, `/api/game/save_status`, `DELETE /api/game/save`
+- `backend/api/command.py` — `/api/command/rest_complete`, `/api/command/save`
+
+### API endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/game/save_status` | GET | Returns `{exists, dead}` |
+| `/api/game/load` | POST | `new_game()` + `load_game()`, returns active events |
+| `DELETE /api/game/save` | DELETE | Deletes both save files |
+| `/api/command/save` | POST | Saves current game state |
+| `/api/command/rest_complete` | POST | Advances ship time after rest animation |
 
 ---
 
@@ -927,8 +1015,11 @@ See `docs/save_load_design.md` for the complete Phase 19.5 design. This section 
 - **Room temperature** — deferred until life support is designed.
 - **Description panel priority toggle** — future: auto-flip when dialogue tree is active.
 - **`reactor_offline` monologue** — Jack's reaction to finding the reactor cold. First candidate for monologue JSON system.
-- **Sack barrow** — `PLAYER_MAX_CARRY_MASS` currently 40kg in config.py (temporary testing value). Sack barrow system deferred. See Future doc Section 17.
-- **Jury-rigging system** — portable power pack for unpowered fixed objects. Deferred. See Future doc Section 16.
+- **Sack barrow** — `PLAYER_MAX_CARRY_MASS` currently 40kg in config.py (temporary testing value). Sack barrow system deferred.
+- **Jury-rigging system** — portable power pack for unpowered fixed objects. Deferred.
+- **Death screen UI** — dead flag infrastructure in place. Splash screen death state UI not yet built.
+- **Door trap — unpowered panel on destination side** — when Jack passes through a closed door, if the destination-side panel is non-functional, the door auto-closes and traps him. Correct behaviour given current logic but creates a potential softlock. No decision made on fix — see Session Notes.
+- **Hypersleep pod** — future rest and save location for long-distance travel. Deferred.
 
 ### Input lockout behaviour — known inconsistency
 Terminal active (`setTerminalMode`) — tooltips remain active.
@@ -956,8 +1047,13 @@ Whether to unify these is an open question.
 - ✅ Cable aggregation in fault lists and missing items
 - ✅ Junction images wired into diagnosis and repair flow
 - ✅ Debug console check/trip/connect/disconnect commands
-- ✅ Event system save/load — covered in save_load_design.md
 - ✅ PLAYER_MAX_CARRY_MASS moved to config.py
+- ✅ Save/load system — Phase 19.5 complete and tested
+- ✅ Rest command — captain's quarters and rec-room sofa
+- ✅ Splash screen New Game / Continue buttons
+- ✅ Instance ID counter save/restore
+- ✅ Event strip restoration on load
+- ✅ Quit command removed — rest is the only quit point
 
 ---
 
@@ -976,11 +1072,10 @@ Whether to unify these is an open question.
 11. **All Python player/ship constants in `config.py`**
 12. **Debate bad ideas** — push back if something seems wrong
 13. **Never add "type X to fix it" hints** — immersive messages only
-14. **New files as downloads** — never inline only
+14. **Inline find/replace for existing file changes — new files as downloads**
 15. **All JSON fields have a use** — never partially load type definitions
 16. **Suggest before adding** — flag missing spec items before writing code
-17. **Never output complete game.html or game.js — targeted changes only**
-18. **No smelly code** — separation of concerns, no dead code, no unnecessary fallbacks
+17. **No smelly code** — separation of concerns, no dead code, no unnecessary fallbacks
 
 ---
 
@@ -994,8 +1089,8 @@ The development process has been organic, some has been planned for, but certain
 
 I am the lead designer, however virtually all coding is done by AI, my coding input has been minimal. The project started from several small projects aka feature experiments eg the electrical system and the typewriter terminal effects. Some experiments didn't work out such as the life support logic so this will need revisiting until I am happy with the result.
 
-This project would never have got to this state without the various AI's (starting with Grok, the SuperGrok, then Sonnet 4.5 and now Sonnet 4.6) and of course it also would not have got to this state without my input, design ideas and constant questions and debates between myself and the AI's such as yourself."
+This project would never have got to this state without the various AI's (starting with Grok, then SuperGrok, then Sonnet 4.5 and now Sonnet 4.6) and of course it also would not have got to this state without my input, design ideas and constant questions and debates between myself and the AI's such as yourself."
 
 ---
 
-*Project Orion Game — Technical Reference v25.0 — April 2026*
+*Project Orion Game — Technical Reference v26.0 — April 2026*
