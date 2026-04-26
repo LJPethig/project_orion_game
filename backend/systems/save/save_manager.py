@@ -30,20 +30,25 @@ SAVE_BACKUP_PATH = os.path.join(SAVE_DIR, 'save_backup.json')
 
 # ── Item serialisation helpers ────────────────────────────────
 
+# Fields that can change at runtime and must be saved alongside id and instance_id.
+# Everything else (name, description, keywords, mass, manufacturer etc.) is static
+# and reloaded from the item registry on restore.
+_ITEM_MUTABLE_FIELDS = {'length_m', 'installed_manuals'}
+
+
 def _serialise_item(item) -> dict:
     """
-    Serialise a PortableItem to a plain dict.
-    Captures all attributes set via __dict__ so mutable runtime fields
-    (length_m, installed_manuals etc.) are preserved alongside standard fields.
-    Excludes non-serialisable internals (takeable is always True for PortableItems
-    and is restored by instantiate_item, so we skip it).
+    Serialise a PortableItem to a minimal dict.
+    Only saves id, instance_id, and known mutable runtime fields.
+    All static fields are reloaded from the item registry on restore.
     """
-    data = {}
-    for key, value in item.__dict__.items():
-        # Skip non-serialisable or always-default fields
-        if key == 'takeable':
-            continue
-        data[key] = value
+    data = {
+        'id':          item.id,
+        'instance_id': item.instance_id,
+    }
+    for field in _ITEM_MUTABLE_FIELDS:
+        if hasattr(item, field):
+            data[field] = getattr(item, field)
     return data
 
 
@@ -86,6 +91,114 @@ def _restore_ship_time(chronometer, time_data: dict) -> None:
     """Restore ship time from save data."""
     chronometer.total_minutes = time_data['total_minutes']
 
+# ── Room serialisation ────────────────────────────────────────
+
+def _serialise_rooms(game_manager) -> dict:
+    """
+    Serialise runtime room state — floor items, container states, surface contents.
+    Only rooms with non-default state are included to keep the save file lean.
+    Static room data (description, exits, dimensions etc.) is always reloaded from JSON.
+    """
+    from backend.models.interactable import StorageUnit, Surface
+
+    rooms_data = {}
+    current_room_id = game_manager.current_room.id
+
+    for room_id, room in game_manager.ship.rooms.items():
+
+        # Floor items
+        floor = [_serialise_item(i) for i in room.floor]
+
+        # Container states
+        containers = {}
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit):
+                containers[obj.id] = {
+                    'is_open':  obj.is_open,
+                    'contents': [_serialise_item(i) for i in obj.contents],
+                }
+
+        # Surface contents
+        surfaces = {}
+        for obj in room.objects:
+            if isinstance(obj, Surface):
+                surfaces[obj.id] = {
+                    'contents': [_serialise_item(i) for i in obj.contents],
+                }
+
+        # Only save rooms that have non-default state
+        if floor or any(c['is_open'] or c['contents'] for c in containers.values()) or \
+           any(s['contents'] for s in surfaces.values()):
+            rooms_data[room_id] = {
+                'floor':      floor,
+                'containers': containers,
+                'surfaces':   surfaces,
+            }
+
+    return {
+        'current_room_id': current_room_id,
+        'rooms':           rooms_data,
+    }
+
+
+def _restore_rooms(game_manager, rooms_data: dict) -> None:
+    """
+    Restore runtime room state from save data.
+    Clears all room floor/container/surface state first, then restores from save.
+    Static room data is already loaded from JSON by new_game().
+    """
+    from backend.models.interactable import StorageUnit, Surface
+
+    # First clear all runtime room state — new_game() has already populated
+    # containers and surfaces from initial_ship_items.json, so we must wipe
+    # that before restoring save state
+    for room in game_manager.ship.rooms.values():
+        room.floor.clear()
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit):
+                obj.contents.clear()
+                obj.current_mass = 0.0
+                obj.is_open = False
+            elif isinstance(obj, Surface):
+                obj.contents.clear()
+                obj.current_mass = 0.0
+
+    # Restore current room
+    current_room_id = rooms_data.get('current_room_id')
+    if current_room_id:
+        game_manager.set_current_room(current_room_id)
+
+    # Restore saved room state
+    for room_id, room_state in rooms_data.get('rooms', {}).items():
+        room = game_manager.ship.get_room(room_id)
+        if not room:
+            raise ValueError(
+                f"[SaveManager] Room '{room_id}' in save file not found in ship. "
+                f"Was ship_rooms.json changed since this save was made?"
+            )
+
+        # Floor items
+        for item_data in room_state.get('floor', []):
+            room.floor.append(_restore_item(item_data))
+
+        # Container states
+        for obj in room.objects:
+            if isinstance(obj, StorageUnit):
+                container_data = room_state.get('containers', {}).get(obj.id)
+                if container_data:
+                    obj.is_open = container_data['is_open']
+                    for item_data in container_data.get('contents', []):
+                        item = _restore_item(item_data)
+                        obj.contents.append(item)
+                        obj.current_mass += item.mass
+
+            elif isinstance(obj, Surface):
+                surface_data = room_state.get('surfaces', {}).get(obj.id)
+                if surface_data:
+                    for item_data in surface_data.get('contents', []):
+                        item = _restore_item(item_data)
+                        obj.contents.append(item)
+                        obj.current_mass += item.mass
 
 # ── Player serialisation ──────────────────────────────────────
 
@@ -138,7 +251,8 @@ def save_game(game_manager) -> None:
     save_data = {
         'player': _serialise_player(game_manager.player),
         'ship_time': _serialise_ship_time(game_manager.chronometer),
-        # Stage 3+: rooms, doors, electrical, events, log, manifests
+        'rooms': _serialise_rooms(game_manager),
+        # Stage 4+: doors, electrical, events, log, manifests
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -162,7 +276,8 @@ def load_game(game_manager) -> None:
 
     _restore_player(game_manager.player, save_data['player'])
     _restore_ship_time(game_manager.chronometer, save_data['ship_time'])
-    # Stage 3+: restore rooms, doors, electrical, events, log, manifests
+    _restore_rooms(game_manager, save_data['rooms'])
+    # Stage 4+: restore doors, electrical, events, log, manifests
 
 
 def _read_save_file() -> dict:
