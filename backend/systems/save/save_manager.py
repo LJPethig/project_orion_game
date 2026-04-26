@@ -592,5 +592,14 @@ def mark_dead() -> None:
         with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
 
-
+def delete_save() -> None:
+    """
+    Delete both save files. Called when the player starts a new game over an existing save.
+    Silently ignores missing files — if one or both don't exist, that's fine.
+    """
+    for path in (SAVE_PATH, SAVE_BACKUP_PATH):
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
 

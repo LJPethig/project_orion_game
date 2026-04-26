@@ -102,6 +102,14 @@ def load_game_route():
     })
 
 
+@game_bp.route("/save", methods=["DELETE"])
+def delete_save_route():
+    """Delete both save files — called when player starts a new game over an existing save."""
+    from backend.systems.save.save_manager import delete_save
+    delete_save()
+    return jsonify({"success": True})
+
+
 @game_bp.route("/tick", methods=["POST"])
 def tick():
     """Advance ship time by 1 minute. Called by frontend every 60 real seconds."""

@@ -48,32 +48,6 @@ async function handleCommand() {
         return;
     }
 
-    // ── Quit ─────────────────────────────────────────────
-    if ((cmd.toLowerCase() === 'quit' || cmd.toLowerCase() === 'exit') && !isTerminalOpen()) {
-        appendResponse(`> ${cmd}`, 'player-cmd');
-        appendResponse('Are you sure you want to quit?');
-        const container = document.createElement('div');
-        container.className = 'clarification-options';
-        ['Yes', 'No'].forEach((label, i) => {
-            const span = document.createElement('span');
-            span.className   = 'clarification-option';
-            span.textContent = label;
-            span.addEventListener('click', () => {
-                if (i === 0) {
-                    window.location.href = '/';
-                } else {
-                    clearResponse();
-                }
-                document.getElementById('command-input').focus();
-            });
-            container.appendChild(span);
-            if (i === 0) container.appendChild(document.createTextNode('| '));
-        });
-        document.getElementById('response-content').appendChild(container);
-        document.getElementById('command-input').focus();
-        return;
-    }
-
     // ── Normal command ────────────────────────────────────
     appendResponse(`> ${cmd}`, 'player-cmd');
     const result = await API.sendCommand(cmd);
@@ -331,7 +305,7 @@ function handleResult(result) {
             span.textContent = choice.label;
             span.addEventListener('click', async () => {
                 if (choice.action === 'quit') {
-                    // Future: trigger save here before redirecting
+                    await API.saveGame();
                     window.location.href = '/';
                 } else {
                     await API.saveGame();

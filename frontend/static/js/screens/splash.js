@@ -70,12 +70,12 @@ function bindButtons(saveExists) {
         if (saveExists) {
             showConfirm();
         } else {
-            handleNewGame();
+            handleNewGame(false);
         }
     });
 
     document.getElementById('btn-confirm-yes').addEventListener('click', () => {
-        handleNewGame();
+        handleNewGame(true);
     });
 
     document.getElementById('btn-confirm-no').addEventListener('click', () => {
@@ -131,10 +131,19 @@ async function handleContinue() {
     }
 }
 
-async function handleNewGame() {
+async function handleNewGame(saveExists) {
     disableAllButtons();
 
     try {
+        if (saveExists) {
+            const deleted = await fetch('/api/game/save', { method: 'DELETE' }).then(r => r.json());
+            if (!deleted.success) {
+                console.error('Failed to delete save:', deleted);
+                enableAllButtons();
+                return;
+            }
+        }
+
         const data = await fetch('/api/game/new', { method: 'POST' }).then(r => r.json());
 
         if (!data.success) {
