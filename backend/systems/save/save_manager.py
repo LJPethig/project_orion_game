@@ -8,16 +8,6 @@ Two save files are written simultaneously on every save:
 
 On load, save.json is tried first. If it cannot be read or fails validation,
 save_backup.json is loaded automatically.
-
-Build order — each stage is tested before the next is added:
-  Stage 1: Player (inventory + equipped slots)          ← current
-  Stage 2: Ship time
-  Stage 3: Rooms (floor items, container states)
-  Stage 4: Doors (state, panel repair state)
-  Stage 5: Electrical system
-  Stage 6: Events (fired + resolved flags)
-  Stage 7: Ship log + tablet notes
-  Stage 8: Storage + cargo manifests
 """
 
 import json
@@ -402,6 +392,40 @@ def _restore_log_and_notes(game_manager, data: dict) -> None:
     game_manager.ship_log     = data['ship_log']
     game_manager.tablet_notes = data['tablet_notes']
 
+# ── Storage and cargo manifest serialisation ──────────────────
+
+def _serialise_manifests(game_manager) -> dict:
+    """
+    Serialise storage facility manifest and cargo manifest.
+    Storage manifest contains PortableItem instances — serialised minimally.
+    Cargo manifest is plain dicts — serialised as-is.
+    Both are new-game-only on load — initial_ship_items.json and initial_cargo.json
+    are never reloaded on a save restore.
+    """
+    storage = {
+        instance_id: _serialise_item(item)
+        for instance_id, item in game_manager.storage_manifest.items()
+    }
+    return {
+        'storage_manifest': storage,
+        'cargo_manifest':   game_manager.cargo_manifest,
+    }
+
+
+def _restore_manifests(game_manager, data: dict) -> None:
+    """
+    Restore storage and cargo manifests from save data.
+    Clears new_game() populated state before restoring.
+    """
+    # Clear storage manifest loaded by new_game()
+    game_manager.storage_manifest.clear()
+    for instance_id, item_data in data.get('storage_manifest', {}).items():
+        item = _restore_item(item_data)
+        game_manager.storage_manifest[item.instance_id] = item
+
+    # Cargo manifest is plain dicts — overwrite directly
+    game_manager.cargo_manifest = data['cargo_manifest']
+
 # ── Player serialisation ──────────────────────────────────────
 
 def _serialise_player(player) -> dict:
@@ -458,7 +482,7 @@ def save_game(game_manager) -> None:
         'electrical': _serialise_electrical(game_manager.electrical_system),
         'events': _serialise_events(game_manager),
         'log_notes': _serialise_log_and_notes(game_manager),
-        # Stage 8+: manifests
+        'manifests': _serialise_manifests(game_manager),
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -487,7 +511,7 @@ def load_game(game_manager) -> None:
     _restore_electrical(game_manager.electrical_system, save_data['electrical'], game_manager)
     _restore_events(game_manager, save_data['events'])
     _restore_log_and_notes(game_manager, save_data['log_notes'])
-    # Stage 8+: restore manifests
+    _restore_manifests(game_manager, save_data['manifests'])
 
 
 def _read_save_file() -> dict:
