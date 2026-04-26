@@ -9,7 +9,8 @@ Nothing is added until it has been explicitly discussed and confirmed.
 
 ## Philosophy
 
-- Autosave only — no manual save, no scum saving.
+- No autosave. No manual save. No scum saving.
+- Save occurs only when Jack rests — this is the single save point.
 - One save slot. One backup slot. No other save files.
 - Jack's death is permanent — no reloading past a death.
 - The monologue system (`monologue.json`) handles hopeless situations — Jack's survival
@@ -49,38 +50,39 @@ before showing any error to the player.
 
 ## Save triggers
 
-The game maintains a real-time autosave timer (default 5 minutes — defined in
-`config.py`). When the timer fires, the game waits for the next saveable moment
-then saves immediately.
+The game saves only when Jack rests at a designated rest location. There is no
+autosave timer and no other save point. The player controls when to save by
+choosing when to rest Jack.
 
-The game is in a saveable state when ALL of the following are true:
-- No timed action is currently running
-- No terminal, datapad, or inventory panel is open
-- Jack is not mid-repair timed action (between components is saveable — during
-  the timed action itself is not)
+This design is self-enforcing once basic survival mechanics are added — Jack must
+rest periodically (every 16 ship hours) to avoid fatigue penalties, making the
+save point a natural part of gameplay rather than a meta action.
 
-Timed actions are capped at a short real-time duration (`REPAIR_TIME_CAP_SECONDS`
-in `config.py`), so the maximum delay between the timer firing and the save
-completing is bounded and always short.
-
-### Quit behaviour
-The player quits the game by resting Jack. This is an in-world action — no meta
-quit command exists. Resting is only available at designated rest locations when
-the game is in a saveable state.
-
-**Designated rest locations:**
+### Rest locations
 - Captain's quarters bunk — available now
+- Rec-room sofa - available now
 - Hypersleep pod — deferred, used for long-distance travel (future phase)
 
-When Jack rests:
+### What happens when Jack rests
 1. Game saves both `save.json` and `save_backup.json`
-2. Player is offered the option to quit or continue
-3. Future: integrates with fatigue/hunger survival mechanics — resting becomes
-   a survival necessity as well as a save/quit point
+2. Ship time advances by 8 ship hours
+3. Player is offered the option to get up or quit
+4. Either choice — game has already been saved
 
-The real-time autosave timer still runs in the background to protect against
-crashes. Rest is the player-initiated save and quit point — the timer is the
-crash protection fallback.
+### Quit behaviour
+The player quits the game by resting Jack and selecting Quit. This is an in-world
+action — no meta quit command exists. There is no other way to quit with a save.
+
+---
+
+## Survival and save — future integration (Phase 21)
+
+When survival mechanics are implemented:
+- Jack must rest every 16 ship hours or suffer fatigue penalties
+- Resting also resets hunger/thirst/fatigue counters
+- The rest command becomes a survival necessity, not just a save point
+- Long repairs (reactor, engines) will offer a "continue or take a break?" choice
+  between components — this is the natural rest and save point during extended repairs
 
 ---
 
