@@ -26,7 +26,23 @@
                 <p>Your ship is your home, your lifeline, your freedom.</p>
             </div>
 
-            <div id="splash-prompt">Click anywhere to begin</div>
+            <!-- Buttons are hidden until save_status check completes -->
+            <div id="splash-buttons">
+                <button id="btn-continue" class="splash-btn hidden">Continue</button>
+                <button id="btn-new-game" class="splash-btn">New Game</button>
+            </div>
+
+            <!-- Shown while checking for save file -->
+            <div id="splash-loading">checking...</div>
+
+            <!-- Confirm overwrite panel — shown only when New Game would delete a save -->
+            <div id="splash-confirm" class="hidden">
+                <p id="splash-confirm-msg">Starting a new game will permanently delete your current save. This cannot be undone.</p>
+                <div id="splash-confirm-buttons">
+                    <button id="btn-confirm-yes" class="splash-btn splash-btn--danger">Delete Save &amp; Start New Game</button>
+                    <button id="btn-confirm-no"  class="splash-btn">Cancel</button>
+                </div>
+            </div>
 
         </div>
 

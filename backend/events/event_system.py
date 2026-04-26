@@ -185,7 +185,7 @@ class EventSystem:
     def get_active_events(self) -> list[dict]:
         """Return all fired but unresolved events — for restoring event strip on page load."""
         return [
-            {'event_id': e.event_id}
+            {'event_id': e.event_id, 'message': e.data.get('event_message', '')}
             for e in self._events
             if e.fired and not e.resolved
         ]

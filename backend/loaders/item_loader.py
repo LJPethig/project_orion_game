@@ -30,6 +30,22 @@ def reset_instance_counters() -> None:
     global _instance_counters
     _instance_counters = {}
 
+
+def get_instance_counters() -> dict:
+    """Return a copy of the current instance counters dict — used by save_manager."""
+    return dict(_instance_counters)
+
+
+def restore_instance_counters(counters: dict) -> None:
+    """
+    Restore instance counters verbatim from a save file.
+    Must be called after new_game() (which resets them) and before any item is
+    created, so new items continue from where the saved game left off and never
+    collide with an existing instance_id.
+    """
+    global _instance_counters
+    _instance_counters = dict(counters)
+
 def _assign_instance_id(item) -> None:
     """Assign a unique instance_id to a PortableItem at load time."""
     type_id = item.id

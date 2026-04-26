@@ -1,8 +1,10 @@
 # backend/api/game.py
 """
 Game API routes.
-/api/game/state  — current game state (ship time, etc.)
-/api/game/new    — start a new game
+/api/game/state        — current game state (ship time, etc.)
+/api/game/new          — start a new game
+/api/game/save_status  — check whether a save file exists and whether it is dead
+/api/game/load         — load saved game (calls new_game() then load_game())
 """
 import os
 import json
@@ -13,6 +15,7 @@ from backend.models.interactable import StorageUnit, Surface, Terminal, PowerJun
 from backend.handlers.storage_handler import storage_handler
 from backend.handlers.repair_utils import item_name
 from backend.systems.electrical.electrical_system import FissionReactor
+from backend.systems.save.save_manager import save_exists, is_save_dead, load_game
 from config import SHIP_NAME, TERMINAL_CONTENT_PATH
 
 
@@ -44,6 +47,58 @@ def new_game():
         "success":   True,
         "ship_name": SHIP_NAME,
         "ship_time": game_manager.get_ship_time(),
+    })
+
+
+@game_bp.route("/save_status", methods=["GET"])
+def save_status():
+    """
+    Return whether a save file exists and whether it carries the dead flag.
+    Called by the splash screen on load to decide which buttons to show.
+    """
+    exists = save_exists()
+    dead   = is_save_dead() if exists else False
+    return jsonify({
+        "exists": exists,
+        "dead":   dead,
+    })
+
+
+@game_bp.route("/load", methods=["POST"])
+def load_game_route():
+    """
+    Load a saved game.
+    Sequence: new_game() to build clean state, then load_game() to overlay save data.
+    Returns active events so the frontend can restore the event strip immediately.
+
+    On dead save: returns {'dead': True} — the splash screen must intercept this
+    and show the death screen instead of redirecting to the game.
+
+    TODO — Death screen behaviour (implement when death screen UI is built):
+      - Splash screen receives {'dead': True} from this endpoint.
+      - It must NOT redirect to /game.
+      - It must show a full-screen death state: black background, red-tinted title,
+        message explaining Jack is dead and the save cannot be continued.
+      - Only a 'New Game' button is shown — no Continue button.
+      - New Game from a dead save must delete both save files before calling /api/game/new,
+        so save_status() returns exists=False on the next launch.
+    """
+    game_manager.new_game()
+
+    try:
+        load_game(game_manager)
+    except RuntimeError as e:
+        if str(e) == 'dead':
+            return jsonify({'dead': True})
+        raise
+
+    active_events = game_manager.event_system.get_active_events()
+
+    return jsonify({
+        "success":       True,
+        "ship_name":     SHIP_NAME,
+        "ship_time":     game_manager.get_ship_time(),
+        "active_events": active_events,
     })
 
 

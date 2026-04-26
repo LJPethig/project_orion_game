@@ -13,7 +13,12 @@ save_backup.json is loaded automatically.
 import json
 import os
 
-from backend.loaders.item_loader import load_item_registry, instantiate_item
+from backend.loaders.item_loader import (
+    load_item_registry,
+    instantiate_item,
+    get_instance_counters,
+    restore_instance_counters,
+)
 from backend.models.interactable import StorageUnit, Surface
 from backend.systems.electrical.electrical_system import FissionReactor, BackupBattery
 
@@ -475,6 +480,10 @@ def save_game(game_manager) -> None:
     os.makedirs(SAVE_DIR, exist_ok=True)
 
     save_data = {
+        'meta': {
+            'dead':              False,
+            'instance_counters': get_instance_counters(),
+        },
         'player': _serialise_player(game_manager.player),
         'ship_time': _serialise_ship_time(game_manager.chronometer),
         'rooms': _serialise_rooms(game_manager),
@@ -501,8 +510,21 @@ def load_game(game_manager) -> None:
     Load save data and restore all game state.
     Tries save.json first — falls back to save_backup.json on failure.
     Raises RuntimeError if neither file can be loaded.
+    Raises RuntimeError if the save has dead=True — caller must handle this
+    and show the death screen instead of proceeding to the game.
     """
     save_data = _read_save_file()
+
+    meta = save_data.get('meta', {})
+
+    if meta.get('dead', False):
+        raise RuntimeError('dead')
+
+    # Restore instance counters immediately — before any item is created.
+    # new_game() has already reset them to zero; restoring here ensures
+    # new items created after load continue from the saved sequence and
+    # never collide with an existing instance_id.
+    restore_instance_counters(meta.get('instance_counters', {}))
 
     _restore_player(game_manager.player, save_data['player'])
     _restore_ship_time(game_manager.chronometer, save_data['ship_time'])
@@ -536,6 +558,39 @@ def _read_save_file() -> dict:
 def save_exists() -> bool:
     """Return True if at least one save file exists."""
     return os.path.exists(SAVE_PATH) or os.path.exists(SAVE_BACKUP_PATH)
+
+
+def is_save_dead() -> bool:
+    """
+    Return True if the existing save has dead=True.
+    Returns False if no save exists or if the file cannot be read.
+    """
+    try:
+        save_data = _read_save_file()
+        return save_data.get('meta', {}).get('dead', False)
+    except RuntimeError:
+        return False
+
+
+def mark_dead() -> None:
+    """
+    Write dead=True to both save files simultaneously.
+    Called when Jack dies. After this, neither save file can be used to continue.
+    Both files are read, the dead flag is set, and both are rewritten.
+    If a file cannot be read it is written fresh with only the dead flag so the
+    splash screen still detects the death state on next launch.
+    """
+    for path in (SAVE_PATH, SAVE_BACKUP_PATH):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            data = {}
+
+        data.setdefault('meta', {})['dead'] = True
+
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
 
 

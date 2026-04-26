@@ -38,6 +38,20 @@ async function init() {
     await loadRoom();
     Loop.start();
 
+    // Restore any fired-but-unresolved events to the event strip immediately on load.
+    // Uses /api/events/active rather than /api/events/check — check only fires due
+    // events, active returns already-fired ones for strip restoration.
+    try {
+        const data = await API.getActiveEvents();
+        if (data.events && data.events.length > 0) {
+            data.events.forEach(ev => {
+                if (ev.message) appendEventStrip(ev.message, ev.event_id);
+            });
+        }
+    } catch (err) {
+        console.error('Active events restore error:', err);
+    }
+
     const input = document.getElementById('command-input');
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') handleCommand();

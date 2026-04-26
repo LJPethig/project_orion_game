@@ -100,3 +100,77 @@ body {
     from { opacity: 1; }
     to   { opacity: 0; }
 }
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+
+#splash-buttons,
+#splash-confirm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+#splash-confirm-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+#splash-confirm-msg {
+    font-size: 13px;
+    color: #aaa;
+    letter-spacing: 1px;
+    text-align: center;
+    max-width: 480px;
+    line-height: 1.8;
+}
+
+.splash-btn {
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #27e6ec;
+    background: transparent;
+    border: 1px solid #27e6ec;
+    padding: 10px 36px;
+    cursor: pointer;
+    min-width: 220px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.splash-btn:hover:not(:disabled) {
+    background: rgba(39, 230, 236, 0.12);
+}
+
+.splash-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.splash-btn--danger {
+    color: #e85050;
+    border-color: #e85050;
+}
+
+.splash-btn--danger:hover:not(:disabled) {
+    background: rgba(232, 80, 80, 0.12);
+}
+
+/* ── Loading indicator ───────────────────────────────────────── */
+
+#splash-loading {
+    font-size: 11px;
+    color: #444;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ── Utility ─────────────────────────────────────────────────── */
+
+.hidden {
+    display: none !important;
+}

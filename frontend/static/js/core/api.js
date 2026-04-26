@@ -16,6 +16,16 @@ const API = {
         return r.json();
     },
 
+    async saveStatus() {
+        const r = await fetch('/api/game/save_status');
+        return r.json();
+    },
+
+    async loadGame() {
+        const r = await fetch('/api/game/load', { method: 'POST' });
+        return r.json();
+    },
+
     async getRoom() {
         const r = await fetch('/api/game/room');
         return r.json();
@@ -191,4 +201,8 @@ const API = {
         return r.json();
     },
 
+    async getActiveEvents() {
+        const r = await fetch('/api/events/active');
+        return r.json();
+    },
 };
