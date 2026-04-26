@@ -95,9 +95,8 @@ def _restore_ship_time(chronometer, time_data: dict) -> None:
 
 def _serialise_rooms(game_manager) -> dict:
     """
-    Serialise runtime room state — floor items, container states, surface contents.
-    Only rooms with non-default state are included to keep the save file lean.
-    Static room data (description, exits, dimensions etc.) is always reloaded from JSON.
+        Serialise runtime room state — floor items, container states, surface contents.
+        Static room data (description, exits, dimensions etc.) is always reloaded from JSON.
     """
     from backend.models.interactable import StorageUnit, Surface
 
@@ -126,14 +125,11 @@ def _serialise_rooms(game_manager) -> dict:
                     'contents': [_serialise_item(i) for i in obj.contents],
                 }
 
-        # Only save rooms that have non-default state
-        if floor or any(c['is_open'] or c['contents'] for c in containers.values()) or \
-           any(s['contents'] for s in surfaces.values()):
-            rooms_data[room_id] = {
-                'floor':      floor,
-                'containers': containers,
-                'surfaces':   surfaces,
-            }
+        rooms_data[room_id] = {
+            'floor': floor,
+            'containers': containers,
+            'surfaces': surfaces,
+        }
 
     return {
         'current_room_id': current_room_id,
@@ -200,6 +196,60 @@ def _restore_rooms(game_manager, rooms_data: dict) -> None:
                         obj.contents.append(item)
                         obj.current_mass += item.mass
 
+# ── Door serialisation ────────────────────────────────────────
+
+def _serialise_doors(game_manager) -> dict:
+    """
+    Serialise runtime door state — open/locked flags and panel repair state.
+    Static door data (panel_type, security_level, pins) is reloaded from JSON by new_game().
+    """
+    doors_data = {}
+    for door in game_manager.ship.doors:
+        door_id = door.id
+        panels = {}
+        for panel in door.panels.values():
+            panels[panel.panel_id] = {
+                'is_broken':           panel.is_broken,
+                'broken_components':   panel.broken_components,
+                'repaired_components': panel.repaired_components,
+            }
+        doors_data[door_id] = {
+            'door_open':   door.door_open,
+            'door_locked': door.door_locked,
+            'panels':      panels,
+        }
+    return doors_data
+
+def _restore_doors(game_manager, doors_data: dict) -> None:
+    """
+    Restore runtime door state from save data.
+    new_game() has already loaded static door data from JSON — we only overlay runtime state.
+    """
+    for door_id, door_state in doors_data.items():
+        door = game_manager.ship.get_door_by_id(door_id)
+        if not door:
+            raise ValueError(
+                f"[SaveManager] Door '{door_id}' in save file not found in ship. "
+                f"Was door_status.json changed since this save was made?"
+            )
+        door.door_open   = door_state['door_open']
+        door.door_locked = door_state['door_locked']
+
+        for panel_id, panel_state in door_state.get('panels', {}).items():
+            # Find the panel by panel_id across all sides of this door
+            panel = next(
+                (p for p in door.panels.values() if p.panel_id == panel_id),
+                None
+            )
+            if not panel:
+                raise ValueError(
+                    f"[SaveManager] Panel '{panel_id}' in save file not found on door '{door_id}'. "
+                    f"Was door_status.json changed since this save was made?"
+                )
+            panel.is_broken           = panel_state['is_broken']
+            panel.broken_components   = panel_state['broken_components']
+            panel.repaired_components = panel_state['repaired_components']
+
 # ── Player serialisation ──────────────────────────────────────
 
 def _serialise_player(player) -> dict:
@@ -252,7 +302,8 @@ def save_game(game_manager) -> None:
         'player': _serialise_player(game_manager.player),
         'ship_time': _serialise_ship_time(game_manager.chronometer),
         'rooms': _serialise_rooms(game_manager),
-        # Stage 4+: doors, electrical, events, log, manifests
+        'doors': _serialise_doors(game_manager),
+        # Stage 5+: electrical, events, log, manifests
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -277,7 +328,8 @@ def load_game(game_manager) -> None:
     _restore_player(game_manager.player, save_data['player'])
     _restore_ship_time(game_manager.chronometer, save_data['ship_time'])
     _restore_rooms(game_manager, save_data['rooms'])
-    # Stage 4+: restore doors, electrical, events, log, manifests
+    _restore_doors(game_manager, save_data['doors'])
+    # Stage 5+: restore electrical, events, log, manifests
 
 
 def _read_save_file() -> dict:
