@@ -133,7 +133,7 @@ class EventSystem:
             return
 
         # ── 2. Door panels ────────────────────────────────────
-        panel_index = game_manager.ship._build_panel_index()
+        panel_index = game_manager.ship.build_panel_index()
         panel = panel_index.get(component_id)
         if panel:
             panel.is_broken = True

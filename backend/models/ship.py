@@ -308,7 +308,7 @@ class Ship:
                 door.door_locked = entry['door_locked']
 
         # ── Panel damage ──────────────────────────────────────
-        panel_index = self._build_panel_index()
+        panel_index = self.build_panel_index()
         for entry in state.get('panels', []):
             panel = panel_index.get(entry['id'])
             if not panel:
@@ -327,7 +327,7 @@ class Ship:
             for panel in door.panels.values():
                 panel.pin = entry['pin']
 
-    def _build_panel_index(self) -> dict:
+    def build_panel_index(self) -> dict:
         """Return a flat dict of panel_id → SecurityPanel across all doors."""
         index = {}
         for door in self.doors:
