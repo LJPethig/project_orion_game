@@ -539,6 +539,8 @@ class DoorPanelRepairHandler(BaseHandler):
             panel.broken_components = []
             panel.repaired_components = []
 
+            resolved_events = game_manager.event_system.check_event_resolution(game_manager)
+
             return {
                 'response': f"You spent {repair_duration} repairing the {panel_model} to {exit_label}. Another successful job completed.",
                 'action_type': 'repair_complete',
@@ -547,6 +549,7 @@ class DoorPanelRepairHandler(BaseHandler):
                 'panel_restored': True,
                 'security_level': door.security_level,
                 'door_id': door_id,
+                'resolved_events': resolved_events,
             }
 
         # ── More components to repair ─────────────────────────

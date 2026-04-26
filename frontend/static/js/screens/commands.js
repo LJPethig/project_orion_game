@@ -330,6 +330,9 @@ function handleResult(result) {
         if (result.panel_restored) {
             Loop.setRepairInProgress(false);
             setJunctionImage(result.panel_id, 'intact');
+            if (result.resolved_events) {
+                result.resolved_events.forEach(id => clearEventStrip(id));
+            }
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
             setTimeout(async () => {
@@ -347,6 +350,9 @@ function handleResult(result) {
             Loop.setRepairInProgress(false);
             setPanelImage(result.security_level);
             refreshDescription();
+            if (result.resolved_events) {
+                result.resolved_events.forEach(id => clearEventStrip(id));
+            }
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
             // More components remain — auto-chain after pause for event check

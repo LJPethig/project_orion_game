@@ -182,6 +182,83 @@ class EventSystem:
                 event.fired = state[event.event_id]['fired']
                 event.resolved = state[event.event_id]['resolved']
 
+    def check_event_resolution(self, game_manager) -> list[str]:
+        """
+        Check all fired-but-unresolved events to see if their affected components
+        are now all repaired. Resolves any that pass and returns their event IDs.
+        Called after any successful repair completes.
+        """
+
+        # Maps affected_components 'component' field names to CircuitPanel attribute names
+        _INTERNAL_COMPONENT_ATTRS = {
+            'hv_logic_board': 'logic_board_intact',
+            'hv_bus_bar': 'bus_bar_intact',
+            'hv_surge_protector': 'surge_protector_intact',
+            'hv_smoothing_capacitor': 'smoothing_capacitor_intact',
+            'hv_isolation_switch': 'isolation_switch_intact',
+        }
+
+        es = game_manager.electrical_system
+        panel_index = game_manager.ship.build_panel_index()
+
+        newly_resolved = []
+
+        for event in self._events:
+            if not event.fired or event.resolved:
+                continue
+
+            all_repaired = True
+
+            for entry in event.data.get('affected_components', []):
+                if isinstance(entry, dict):
+                    component_id = entry['id']
+                    panel_component = entry.get('component')
+
+                    if panel_component:
+                        # Junction internal component — check specific flag on CircuitPanel
+                        attr = _INTERNAL_COMPONENT_ATTRS.get(panel_component)
+                        if not attr:
+                            raise ValueError(
+                                f"[EventSystem] unknown internal component '{panel_component}' "
+                                f"in event '{event.event_id}'. Check affected_components in events.json."
+                            )
+                        circuit_panel = es.panels.get(component_id)
+                        if not circuit_panel or not getattr(circuit_panel, attr):
+                            all_repaired = False
+                            break
+
+                    else:
+                        # Breaker (mode: damaged or tripped) — check operational
+                        breaker = es.breakers.get(component_id)
+                        if not breaker or not breaker.operational:
+                            all_repaired = False
+                            break
+
+                else:
+                    # Plain string — cable or door panel
+                    cable = es.cables.get(entry)
+                    if cable is not None:
+                        if not cable.intact:
+                            all_repaired = False
+                            break
+                    else:
+                        # Door panel
+                        panel = panel_index.get(entry)
+                        if not panel:
+                            raise ValueError(
+                                f"[EventSystem] component '{entry}' in event '{event.event_id}' "
+                                f"not found as cable or door panel during resolution check."
+                            )
+                        if panel.is_broken:
+                            all_repaired = False
+                            break
+
+            if all_repaired:
+                self.resolve(event.event_id)
+                newly_resolved.append(event.event_id)
+
+        return newly_resolved
+
     def get_active_events(self) -> list[dict]:
         """Return all fired but unresolved events — for restoring event strip on page load."""
         return [

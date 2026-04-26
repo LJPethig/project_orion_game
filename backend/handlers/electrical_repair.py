@@ -414,6 +414,8 @@ class ElectricalRepairHandler(BaseHandler):
             junction.broken_components = []
             junction.repaired_components = []
 
+            resolved_events = game_manager.event_system.check_event_resolution(game_manager)
+
             return {
                 'response': f"You spent {repair_duration} repairing {panel_id}. Another successful job completed.",
                 'action_type': 'elec_repair_complete',
@@ -421,6 +423,7 @@ class ElectricalRepairHandler(BaseHandler):
                 'room_changed': False,
                 'panel_restored': True,
                 'panel_id': panel_id,
+                'resolved_events': resolved_events,
             }
 
         # ── More components to repair ─────────────────────────
