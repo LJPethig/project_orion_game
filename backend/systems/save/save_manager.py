@@ -387,6 +387,21 @@ def _restore_events(game_manager, events_data: dict) -> None:
     """Restore event fired and resolved flags from save data."""
     game_manager.event_system.restore_fired_state(events_data)
 
+# ── Ship log and tablet notes serialisation ───────────────────
+
+def _serialise_log_and_notes(game_manager) -> dict:
+    """Serialise ship log and tablet notes — both are plain JSON-serialisable structures."""
+    return {
+        'ship_log':     game_manager.ship_log,
+        'tablet_notes': game_manager.tablet_notes,
+    }
+
+
+def _restore_log_and_notes(game_manager, data: dict) -> None:
+    """Restore ship log and tablet notes from save data."""
+    game_manager.ship_log     = data['ship_log']
+    game_manager.tablet_notes = data['tablet_notes']
+
 # ── Player serialisation ──────────────────────────────────────
 
 def _serialise_player(player) -> dict:
@@ -442,7 +457,8 @@ def save_game(game_manager) -> None:
         'doors':       _serialise_doors(game_manager),
         'electrical': _serialise_electrical(game_manager.electrical_system),
         'events': _serialise_events(game_manager),
-        # Stage 7+: log, manifests
+        'log_notes': _serialise_log_and_notes(game_manager),
+        # Stage 8+: manifests
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -470,7 +486,8 @@ def load_game(game_manager) -> None:
     _restore_doors(game_manager, save_data['doors'])
     _restore_electrical(game_manager.electrical_system, save_data['electrical'], game_manager)
     _restore_events(game_manager, save_data['events'])
-    # Stage 7+: restore log, manifests
+    _restore_log_and_notes(game_manager, save_data['log_notes'])
+    # Stage 8+: restore manifests
 
 
 def _read_save_file() -> dict:
