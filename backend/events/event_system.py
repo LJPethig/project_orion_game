@@ -165,6 +165,23 @@ class EventSystem:
                 return event.fired
         return False
 
+    def get_fired_state(self) -> dict:
+        """Return fired and resolved state for all events — used by save/load."""
+        return {
+            event.event_id: {
+                'fired': event.fired,
+                'resolved': event.resolved,
+            }
+            for event in self._events
+        }
+
+    def restore_fired_state(self, state: dict) -> None:
+        """Restore fired and resolved state from save data — called after load_from_json()."""
+        for event in self._events:
+            if event.event_id in state:
+                event.fired = state[event.event_id]['fired']
+                event.resolved = state[event.event_id]['resolved']
+
     def get_active_events(self) -> list[dict]:
         """Return all fired but unresolved events — for restoring event strip on page load."""
         return [

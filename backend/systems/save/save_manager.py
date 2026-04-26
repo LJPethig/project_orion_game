@@ -376,6 +376,17 @@ def _restore_electrical(es, elec_data: dict, game_manager) -> None:
     # Recalculate all derived states after restoring
     game_manager.update_electrical_states()
 
+# ── Event serialisation ───────────────────────────────────────
+
+def _serialise_events(game_manager) -> dict:
+    """Serialise event fired and resolved flags."""
+    return game_manager.event_system.get_fired_state()
+
+
+def _restore_events(game_manager, events_data: dict) -> None:
+    """Restore event fired and resolved flags from save data."""
+    game_manager.event_system.restore_fired_state(events_data)
+
 # ── Player serialisation ──────────────────────────────────────
 
 def _serialise_player(player) -> dict:
@@ -429,8 +440,9 @@ def save_game(game_manager) -> None:
         'ship_time': _serialise_ship_time(game_manager.chronometer),
         'rooms': _serialise_rooms(game_manager),
         'doors':       _serialise_doors(game_manager),
-        'electrical':  _serialise_electrical(game_manager.electrical_system),
-        # Stage 6+: events, log, manifests
+        'electrical': _serialise_electrical(game_manager.electrical_system),
+        'events': _serialise_events(game_manager),
+        # Stage 7+: log, manifests
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -457,7 +469,8 @@ def load_game(game_manager) -> None:
     _restore_rooms(game_manager, save_data['rooms'])
     _restore_doors(game_manager, save_data['doors'])
     _restore_electrical(game_manager.electrical_system, save_data['electrical'], game_manager)
-    # Stage 6+: restore events, log, manifests
+    _restore_events(game_manager, save_data['events'])
+    # Stage 7+: restore log, manifests
 
 
 def _read_save_file() -> dict:
