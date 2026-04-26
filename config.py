@@ -12,9 +12,7 @@ STARTING_ROOM   = "engineering"
 # ── Game Clock ───────────────────────────────────────────────
 # Simple calendar: 30 days/month, 360 days/year — no leap years
 # Tuple: (year, month, day, hour, minute)
-SHIP_COMMISSION_DATE = (2231, 3, 17, 13, 47)  # Tempus Fugit — laid down Callisto Orbital Works 2231,
-                                               # leased new by Enso VeilTech, purchased at residual
-                                               # value 2256. Maintained to minimum legal standard only.
+SHIP_COMMISSION_DATE = (2223, 3, 17, 13, 47)  # Tempus Fugit — laid down Callisto Orbital Works 2223
 START_DATE_TIME      = (2276, 9, 8, 3, 16)    # Game start — Jack wakes from hypersleep
 
 # ── Room Temperature Presets (°C) ────────────────────────────
