@@ -65,6 +65,14 @@ class Player:
             return True
         return False
 
+    def clear_inventory(self) -> None:
+        """Clear all loose inventory items. Used by save/load restore only."""
+        self._inventory.clear()
+
+    def restore_inventory_item(self, item: PortableItem) -> None:
+        """Append item directly without carry mass check. Used by save/load restore only."""
+        self._inventory.append(item)
+
     def find_in_inventory(self, item_id: str) -> Optional[PortableItem]:
         """Return the inventory item with the given id, or None."""
         for item in self._inventory:

@@ -23,6 +23,11 @@ Build order — each stage is tested before the next is added:
 import json
 import os
 
+from backend.loaders.item_loader import load_item_registry, instantiate_item
+from backend.models.interactable import StorageUnit, Surface
+from backend.systems.electrical.electrical_system import FissionReactor, BackupBattery
+
+
 SAVE_DIR         = 'saves'
 SAVE_PATH        = os.path.join(SAVE_DIR, 'save.json')
 SAVE_BACKUP_PATH = os.path.join(SAVE_DIR, 'save_backup.json')
@@ -58,7 +63,6 @@ def _restore_item(item_data: dict):
     Uses instantiate_item() to create a fresh instance from the registry,
     then overlays all saved attributes to restore mutable runtime state.
     """
-    from backend.loaders.item_loader import load_item_registry, instantiate_item
 
     registry  = load_item_registry()
     item_id   = item_data.get('id')
@@ -98,7 +102,6 @@ def _serialise_rooms(game_manager) -> dict:
         Serialise runtime room state — floor items, container states, surface contents.
         Static room data (description, exits, dimensions etc.) is always reloaded from JSON.
     """
-    from backend.models.interactable import StorageUnit, Surface
 
     rooms_data = {}
     current_room_id = game_manager.current_room.id
@@ -143,7 +146,6 @@ def _restore_rooms(game_manager, rooms_data: dict) -> None:
     Clears all room floor/container/surface state first, then restores from save.
     Static room data is already loaded from JSON by new_game().
     """
-    from backend.models.interactable import StorageUnit, Surface
 
     # First clear all runtime room state — new_game() has already populated
     # containers and surfaces from initial_ship_items.json, so we must wipe
@@ -250,6 +252,130 @@ def _restore_doors(game_manager, doors_data: dict) -> None:
             panel.broken_components   = panel_state['broken_components']
             panel.repaired_components = panel_state['repaired_components']
 
+# ── Electrical system serialisation ───────────────────────────
+
+def _serialise_electrical(es) -> dict:
+    """
+    Serialise runtime electrical state — reactor, battery, panel, breaker and cable flags.
+    Static data (names, locations, ratings, wiring) is reloaded from electrical.json by new_game().
+
+    NOTE: FissionReactor.operational is currently a direct flag — saved as-is.
+    When reactor internal components are implemented, operational will become a derived
+    property and this code must be updated to save the internal flags instead.
+    """
+
+    reactors = {}
+    batteries = {}
+    for source_id, source in es.power_sources.items():
+        if isinstance(source, FissionReactor):
+            reactors[source_id] = {
+                'operational': source.operational,
+                'temperature': source.temperature,
+                'ejected':     source.ejected,
+            }
+        elif isinstance(source, BackupBattery):
+            batteries[source_id] = {
+                'active':         source.active,
+                'charge_percent': source.charge_percent,
+            }
+
+    panels = {}
+    for panel_id, panel in es.panels.items():
+        panels[panel_id] = {
+            'logic_board_intact':        panel.logic_board_intact,
+            'bus_bar_intact':            panel.bus_bar_intact,
+            'surge_protector_intact':    panel.surge_protector_intact,
+            'smoothing_capacitor_intact': panel.smoothing_capacitor_intact,
+            'isolation_switch_intact':   panel.isolation_switch_intact,
+        }
+
+    breakers = {}
+    for breaker_id, breaker in es.breakers.items():
+        breakers[breaker_id] = {
+            'damaged': breaker.damaged,
+            'tripped': breaker.tripped,
+        }
+
+    cables = {}
+    for cable_id, cable in es.cables.items():
+        cables[cable_id] = {
+            'intact':    cable.intact,
+            'connected': cable.connected,
+        }
+
+    return {
+        'reactors': reactors,
+        'batteries': batteries,
+        'panels':    panels,
+        'breakers':  breakers,
+        'cables':    cables,
+    }
+
+
+def _restore_electrical(es, elec_data: dict, game_manager) -> None:
+    """
+    Restore runtime electrical state from save data.
+    new_game() has already loaded static electrical data from JSON — we only overlay runtime state.
+    After restoring, update_electrical_states() is called to recalculate derived states.
+    """
+
+    for source_id, state in elec_data.get('reactors', {}).items():
+        source = es.power_sources.get(source_id)
+        if not source:
+            raise ValueError(
+                f"[SaveManager] Reactor '{source_id}' in save file not found in electrical system. "
+                f"Was electrical.json changed since this save was made?"
+            )
+        source.operational = state['operational']
+        source.temperature = state['temperature']
+        source.ejected     = state['ejected']
+
+    for source_id, state in elec_data.get('batteries', {}).items():
+        source = es.power_sources.get(source_id)
+        if not source:
+            raise ValueError(
+                f"[SaveManager] Battery '{source_id}' in save file not found in electrical system. "
+                f"Was electrical.json changed since this save was made?"
+            )
+        source.active         = state['active']
+        source.charge_percent = state['charge_percent']
+
+    for panel_id, state in elec_data.get('panels', {}).items():
+        panel = es.panels.get(panel_id)
+        if not panel:
+            raise ValueError(
+                f"[SaveManager] Panel '{panel_id}' in save file not found in electrical system. "
+                f"Was electrical.json changed since this save was made?"
+            )
+        panel.logic_board_intact         = state['logic_board_intact']
+        panel.bus_bar_intact             = state['bus_bar_intact']
+        panel.surge_protector_intact     = state['surge_protector_intact']
+        panel.smoothing_capacitor_intact = state['smoothing_capacitor_intact']
+        panel.isolation_switch_intact    = state['isolation_switch_intact']
+
+    for breaker_id, state in elec_data.get('breakers', {}).items():
+        breaker = es.breakers.get(breaker_id)
+        if not breaker:
+            raise ValueError(
+                f"[SaveManager] Breaker '{breaker_id}' in save file not found in electrical system. "
+                f"Was electrical.json changed since this save was made?"
+            )
+        breaker.damaged = state['damaged']
+        breaker.tripped = state['tripped']
+
+    for cable_id, state in elec_data.get('cables', {}).items():
+        cable = es.cables.get(cable_id)
+        if not cable:
+            raise ValueError(
+                f"[SaveManager] Cable '{cable_id}' in save file not found in electrical system. "
+                f"Was electrical.json changed since this save was made?"
+            )
+        cable.intact    = state['intact']
+        cable.connected = state['connected']
+
+    # Recalculate all derived states after restoring
+    game_manager.update_electrical_states()
+
 # ── Player serialisation ──────────────────────────────────────
 
 def _serialise_player(player) -> dict:
@@ -273,14 +399,14 @@ def _restore_player(player, player_data: dict) -> None:
     Clears existing state before restoring — never merges with current state.
     """
     # Clear current inventory and equipped slots
-    player._inventory.clear()
+    player.clear_inventory()
     for slot in player.EQUIP_SLOTS:
         setattr(player, f"{slot}_slot", None)
 
     # Restore inventory
     for item_data in player_data.get('inventory', []):
         item = _restore_item(item_data)
-        player._inventory.append(item)
+        player.restore_inventory_item(item)
 
     # Restore equipped slots
     for slot, item_data in player_data.get('equipped', {}).items():
@@ -302,8 +428,9 @@ def save_game(game_manager) -> None:
         'player': _serialise_player(game_manager.player),
         'ship_time': _serialise_ship_time(game_manager.chronometer),
         'rooms': _serialise_rooms(game_manager),
-        'doors': _serialise_doors(game_manager),
-        # Stage 5+: electrical, events, log, manifests
+        'doors':       _serialise_doors(game_manager),
+        'electrical':  _serialise_electrical(game_manager.electrical_system),
+        # Stage 6+: events, log, manifests
     }
 
     serialised = json.dumps(save_data, indent=2, ensure_ascii=False)
@@ -329,7 +456,8 @@ def load_game(game_manager) -> None:
     _restore_ship_time(game_manager.chronometer, save_data['ship_time'])
     _restore_rooms(game_manager, save_data['rooms'])
     _restore_doors(game_manager, save_data['doors'])
-    # Stage 5+: restore electrical, events, log, manifests
+    _restore_electrical(game_manager.electrical_system, save_data['electrical'], game_manager)
+    # Stage 6+: restore events, log, manifests
 
 
 def _read_save_file() -> dict:
