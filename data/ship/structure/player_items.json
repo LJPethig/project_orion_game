@@ -1,7 +1,11 @@
 {
   "inventory": [
     "id_card_high_sec",
-    "personal_atm_monitor"
+    "personal_atm_monitor",
+    "hv_logic_board",
+    "cable_hv_standard"
+
+
   ],
   "equipped": {
     "body":  "stasis_garment",

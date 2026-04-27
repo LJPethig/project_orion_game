@@ -61,7 +61,36 @@
     {
       "surface_id": "storage_room_metal_bench",
       "items": [
-        "socket_set_small"
+        "socket_set_small",
+        "cable_hv_standard",
+        "cable_low_voltage",
+        "4_pin_interconnect",
+        "12_pin_interconnect",
+        "22_pin_interconnect",
+        "power_regulator",
+        "panel_screen",
+        "relay_switch_array",
+        "hv_connect_standard",
+        "hv_connect_standard",
+        "hv_connect_standard",
+        "hv_connect_standard",
+        "hv_connect_standard",
+        "hv_connect_standard",
+        "hv_connect_heavy",
+        "10A_breaker",
+        "32A_breaker",
+        "63A_breaker",
+        "cable_optical",
+        "250A_breaker",
+        "600A_breaker",
+        "1200A_breaker",
+        "hv_logic_board",
+        "hv_bus_bar",
+        "cable_hv_heavy_duty",
+        "id_card_scanner_head",
+        "q-emerald_door_logic_board",
+        "ts1500_door_logic_board",
+        "u-lock_door_logic_board"
       ]
     }
   ]

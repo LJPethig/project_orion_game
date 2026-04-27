@@ -331,7 +331,7 @@ function handleResult(result) {
             Loop.setRepairInProgress(false);
             setJunctionImage(result.panel_id, 'intact');
             if (result.resolved_events) {
-                result.resolved_events.forEach(id => clearEventStrip(id));
+                result.resolved_events.forEach(ev => showEventResolved(ev.event_id, ev.message));
             }
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {
@@ -351,7 +351,7 @@ function handleResult(result) {
             setPanelImage(result.security_level);
             refreshDescription();
             if (result.resolved_events) {
-                result.resolved_events.forEach(id => clearEventStrip(id));
+                result.resolved_events.forEach(ev => showEventResolved(ev.event_id, ev.message));
             }
             setTimeout(() => loadRoom(), CONSTANTS.DOOR_IMAGE_DISPLAY_MS);
         } else {

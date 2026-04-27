@@ -283,6 +283,26 @@ function clearEventStrip(eventId) {
     }
 }
 
+function showEventResolved(eventId, eventMessage) {
+    const el = document.getElementById('event-left');
+    if (!el) return;
+
+    // Clear the entire strip then show the resolved message
+    el.innerHTML = '';
+
+    // Show the resolved message with green blink
+    const span = document.createElement('span');
+    span.className = 'event-resolved';
+    span.dataset.eventId = eventId;
+    span.textContent = eventMessage;
+    el.appendChild(span);
+
+    // After blink animation completes (1.2s × 7 = 8.4s), linger then remove
+    setTimeout(() => {
+        span.remove();
+    }, (1.2 * 7 * 1000) + CONSTANTS.EVENT_RESOLVED_LINGER_MS);
+}
+
 // ── Room image ───────────────────────────────────────────────
 
 function setRoomImage(imagePath) {

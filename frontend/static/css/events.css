@@ -12,3 +12,11 @@
     0%, 100% { opacity: 1; }
     50%       { opacity: 0; }
 }
+
+.event-resolved {
+    color: #4caf50;
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 0 12px;
+    animation: event-blink 1.2s step-start 7;
+}

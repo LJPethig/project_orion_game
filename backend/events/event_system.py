@@ -105,8 +105,8 @@ class EventSystem:
 
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
-            'event':     'Impact Event',
-            'detail':    'Hull impact detected. Electrical faults reported on multiple circuits.',
+            'event': event.data.get('event_log_name', event.event_id),
+            'detail': event.data.get('event_log_detail', ''),
         })
 
     def _break_component_by_id(self, component_id: str, mode: str, break_component, trip_component,
@@ -182,7 +182,7 @@ class EventSystem:
                 event.fired = state[event.event_id]['fired']
                 event.resolved = state[event.event_id]['resolved']
 
-    def check_event_resolution(self, game_manager) -> list[str]:
+    def check_event_resolution(self, game_manager) -> list[dict]:
         """
         Check all fired-but-unresolved events to see if their affected components
         are now all repaired. Resolves any that pass and returns their event IDs.
@@ -254,8 +254,28 @@ class EventSystem:
                             break
 
             if all_repaired:
+                resolved_message = event.data.get('event_resolved_message', '')
+                if not resolved_message:
+                    raise ValueError(
+                        f"[EventSystem] event '{event.event_id}' has no event_resolved_message. "
+                        f"Add it to events.json."
+                    )
+                resolved_log_detail = event.data.get('event_resolved_log_detail', '')
+                if not resolved_log_detail:
+                    raise ValueError(
+                        f"[EventSystem] event '{event.event_id}' has no event_resolved_log_detail. "
+                        f"Add it to events.json."
+                    )
                 self.resolve(event.event_id)
-                newly_resolved.append(event.event_id)
+                newly_resolved.append({
+                    'event_id': event.event_id,
+                    'message': resolved_message,
+                })
+                game_manager.add_log_entry({
+                    'timestamp': game_manager.get_ship_time(),
+                    'event': 'Repairs Complete',
+                    'detail': resolved_log_detail,
+                })
 
         return newly_resolved
 
