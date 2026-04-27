@@ -263,11 +263,11 @@ function appendRepairMessage(result) {
 
 // ── Event strip ──────────────────────────────────────────────
 
-function appendEventStrip(message, eventId) {
+function appendEventStrip(message, eventId, isStatic = false) {
     const el       = document.getElementById('event-left');
     if (!el) return;
     const span     = document.createElement('span');
-    span.className = 'event-message';
+    span.className = isStatic ? 'event-message-static' : 'event-message';
     if (eventId) span.dataset.eventId = eventId;
     span.textContent = message;
     el.appendChild(span);

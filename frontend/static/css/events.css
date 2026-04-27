@@ -13,6 +13,13 @@
     50%       { opacity: 0; }
 }
 
+.event-message-static {
+    color: var(--col-alert);
+    font-size: 13px;
+    letter-spacing: 1px;
+    padding: 0 12px;
+}
+
 .event-resolved {
     color: #4caf50;
     font-size: 13px;

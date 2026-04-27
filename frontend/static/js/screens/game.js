@@ -45,7 +45,7 @@ async function init() {
         const data = await API.getActiveEvents();
         if (data.events && data.events.length > 0) {
             data.events.forEach(ev => {
-                if (ev.message) appendEventStrip(ev.message, ev.event_id);
+                if (ev.message) appendEventStrip(ev.message, ev.event_id, true);
             });
         }
     } catch (err) {
