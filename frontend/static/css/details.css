@@ -20,12 +20,13 @@ body {
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-image: url('/static/images/start_screen.png');
+    background-image: url('/static/images/sector_17.png');
     background-size: cover;
     background-position: center;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
 }
 
 /* ── Dark overlay ───────────────────────────────────────────── */
@@ -33,7 +34,7 @@ body {
 #details-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.82);
+    background: rgba(0, 0, 0, 0.52);
     pointer-events: none;
 }
 
@@ -44,31 +45,27 @@ body {
     z-index: 10;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     width: 100%;
-    max-width: 700px;
-    padding: 0 40px;
-}
-
-/* ── Title ──────────────────────────────────────────────────── */
-
-#details-title {
-    font-size: 36px;
-    letter-spacing: 10px;
-    color: #27e6ec;
-    text-shadow: 0 0 20px rgba(39, 230, 236, 0.5);
-    margin-bottom: 60px;
-    text-align: center;
+    padding: 0 80px 30px 80px;
 }
 
 /* ── Data rows ──────────────────────────────────────────────── */
 
 #details-data {
-    width: 100%;
+    width: 600px;
     display: flex;
     flex-direction: column;
     gap: 22px;
-    margin-bottom: 80px;
+    margin-bottom: 40px;
+}
+
+#details-prompt {
+    position: fixed;
+    bottom: 40px;
+    left: 0;
+    width: 100vw;
+    text-align: center;
 }
 
 .details-row {
@@ -114,15 +111,6 @@ body {
     to   { opacity: 1; }
 }
 
-/* Blinking applied after fade-in completes — added by JS */
-#details-prompt.ready {
-    animation: promptBlink 1.5s ease-in-out infinite;
-}
-
-@keyframes promptBlink {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: 0.25; }
-}
 
 /* ── Fade out ───────────────────────────────────────────────── */
 

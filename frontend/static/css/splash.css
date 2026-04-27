@@ -24,17 +24,18 @@ body {
     background-image: url('/static/images/start_screen.png');
     background-size: cover;
     background-position: center;
-    display: flex;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
     align-items: center;
-    justify-content: center;
+    justify-items: center;
 }
 
-/* ── Dark overlay — same as Dark Star's START_SCREEN_OVERLAY_COLOR ── */
+/* ── Dark overlay ── */
 
 #splash-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.78);
+    background: rgba(0, 0, 0, 0.5);
     pointer-events: none;
 }
 
@@ -43,34 +44,36 @@ body {
 #splash-content {
     position: relative;
     z-index: 10;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 1fr 1fr 1fr;
     align-items: center;
+    justify-items: center;
     width: 100%;
-    padding: 0 40px;
+    height: 100vh;
+    padding: 40px;
 }
 
 /* ── Title ──────────────────────────────────────────────────── */
 
 #splash-title {
-    font-size: 42px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 72px;
     letter-spacing: 8px;
-    color: #27e6ec;                /* Dark Star TITLE_COLOR */
-    text-shadow: 0 0 20px rgba(39, 230, 236, 0.6);
-    margin-bottom: 60px;
+    color: 00ff00;
+    text-shadow: 0 0 24px rgba(57, 255, 106, 0.6);
     text-align: center;
+    align-self: center;
 }
 
 /* ── Flavour text ───────────────────────────────────────────── */
 
 #splash-intro {
     text-align: center;
-    margin-bottom: 80px;
 }
 
 #splash-intro p {
     font-size: 15px;
-    color: #bababa;                /* Dark Star TEXT_COLOR approx */
+    color: #c8f5d0;
     line-height: 2;
     letter-spacing: 1px;
 }
@@ -106,9 +109,12 @@ body {
 #splash-buttons,
 #splash-confirm {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 14px;
+    justify-content: center;
+    gap: 24px;
+    align-self: end;
+    padding-bottom: 60px;
 }
 
 #splash-confirm-buttons {
@@ -133,17 +139,18 @@ body {
     font-size: 13px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #27e6ec;
+    color: #39ff6a;
     background: transparent;
-    border: 1px solid #27e6ec;
+    border: 1px solid #39ff6a;
     padding: 10px 36px;
+    border-radius: 6px;
     cursor: pointer;
     min-width: 220px;
     transition: background 0.15s, color 0.15s;
 }
 
 .splash-btn:hover:not(:disabled) {
-    background: rgba(39, 230, 236, 0.12);
+    background: rgba(57, 255, 106, 0.12);
 }
 
 .splash-btn:disabled {

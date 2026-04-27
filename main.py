@@ -6,7 +6,6 @@ from backend.api.game import game_bp
 from backend.api.command import command_bp
 from backend.api.systems import systems_bp
 from backend.api.events import events_bp
-from backend.models.game_manager import game_manager
 
 
 app = Flask(

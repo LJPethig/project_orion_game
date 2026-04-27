@@ -49,10 +49,6 @@ function schedulePrompt() {
     const TOTAL_MS = FADE_DELAY_MS + FADE_DURATION_MS;
 
     setTimeout(() => {
-        const prompt = document.getElementById('details-prompt');
-        if (prompt) {
-            prompt.classList.add('ready');
-        }
         enableInput();
     }, TOTAL_MS);
 }
