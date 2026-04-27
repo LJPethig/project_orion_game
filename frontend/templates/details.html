@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Orion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
+</head>
+<body>
+
+    <div id="details-screen">
+
+        <div id="details-overlay"></div>
+
+        <div id="details-content">
+
+            <h1 id="details-title">TEMPUS FUGIT</h1>
+
+            <div id="details-data">
+
+                <div class="details-row">
+                    <span class="details-label">VESSEL</span>
+                    <span class="details-value" id="det-ship-name">—</span>
+                </div>
+
+                <div class="details-row">
+                    <span class="details-label">LOCATION</span>
+                    <span class="details-value" id="det-location">—</span>
+                </div>
+
+                <div class="details-row">
+                    <span class="details-label">MISSION</span>
+                    <span class="details-value" id="det-mission">—</span>
+                </div>
+
+                <div class="details-row">
+                    <span class="details-label">SHIP TIME</span>
+                    <span class="details-value" id="det-ship-time">—</span>
+                </div>
+
+            </div>
+
+            <div id="details-prompt">— PRESS ANY KEY TO CONTINUE —</div>
+
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/screens/details.js') }}"></script>
+</body>
+</html>

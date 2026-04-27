@@ -123,7 +123,8 @@ async function handleContinue() {
         // The game screen calls Loop.checkEvents() on init, which polls the
         // backend and restores the strip immediately — no extra work needed here.
 
-        fadeOutThen(() => { window.location.href = '/game'; });
+        sessionStorage.setItem('orion_game_data', JSON.stringify(data));
+        fadeOutThen(() => { window.location.href = '/details'; });
 
     } catch (err) {
         console.error('Error loading game:', err);
@@ -152,7 +153,8 @@ async function handleNewGame(saveExists) {
             return;
         }
 
-        fadeOutThen(() => { window.location.href = '/game'; });
+        sessionStorage.setItem('orion_game_data', JSON.stringify(data));
+        fadeOutThen(() => { window.location.href = '/details'; });
 
     } catch (err) {
         console.error('Error starting new game:', err);

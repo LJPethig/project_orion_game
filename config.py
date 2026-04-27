@@ -3,8 +3,7 @@
 
 import os
 
-# ── Ship & Player ────────────────────────────────────────────
-SHIP_NAME       = "Tempus Fugit"
+# ── Player ────────────────────────────────────────────
 PLAYER_NAME     = "Jack Harrow"
 PLAYER_MAX_CARRY_MASS = 40.0
 STARTING_ROOM   = "engineering"
@@ -51,6 +50,8 @@ INITIAL_STATE_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'initial_
 SHIP_ITEMS_JSON_PATH       = os.path.join('data', 'ship', 'structure', 'initial_ship_items.json')
 PLAYER_ITEMS_JSON_PATH     = os.path.join('data', 'ship', 'structure', 'player_items.json')
 CARGO_JSON_PATH            = os.path.join('data', 'ship', 'structure', 'initial_cargo.json')
+SHIP_IDENTITY_JSON_PATH    = os.path.join('data', 'ship', 'structure', 'ship_identity.json')
+SHIP_STATUS_JSON_PATH      = os.path.join('data', 'ship', 'structure', 'ship_status.json')
 ELECTRICAL_JSON_PATH       = os.path.join('data', 'ship', 'systems', 'electrical.json')
 EVENTS_JSON_PATH           = os.path.join('data', 'game', 'events.json')
 

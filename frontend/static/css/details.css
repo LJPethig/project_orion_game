@@ -1,0 +1,136 @@
+/* details.css — Project Orion ship details screen */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* ── Background image ───────────────────────────────────────── */
+
+#details-screen {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background-image: url('/static/images/start_screen.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Dark overlay ───────────────────────────────────────────── */
+
+#details-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.82);
+    pointer-events: none;
+}
+
+/* ── Content sits above overlay ─────────────────────────────── */
+
+#details-content {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    padding: 0 40px;
+}
+
+/* ── Title ──────────────────────────────────────────────────── */
+
+#details-title {
+    font-size: 36px;
+    letter-spacing: 10px;
+    color: #27e6ec;
+    text-shadow: 0 0 20px rgba(39, 230, 236, 0.5);
+    margin-bottom: 60px;
+    text-align: center;
+}
+
+/* ── Data rows ──────────────────────────────────────────────── */
+
+#details-data {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    margin-bottom: 80px;
+}
+
+.details-row {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: baseline;
+    border-bottom: 1px solid rgba(39, 230, 236, 0.1);
+    padding-bottom: 16px;
+}
+
+.details-label {
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: #27e6ec;
+    text-transform: uppercase;
+    min-width: 100px;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.details-value {
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: #cecece;
+    line-height: 1.5;
+}
+
+/* ── Press any key prompt ───────────────────────────────────── */
+
+#details-prompt {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: #666;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: promptFadeIn 1.5s ease-out forwards;
+    animation-delay: 5s;
+}
+
+@keyframes promptFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Blinking applied after fade-in completes — added by JS */
+#details-prompt.ready {
+    animation: promptBlink 1.5s ease-in-out infinite;
+}
+
+@keyframes promptBlink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.25; }
+}
+
+/* ── Fade out ───────────────────────────────────────────────── */
+
+#details-screen.fade-out {
+    animation: fadeOut 0.6s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}

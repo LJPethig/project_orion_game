@@ -16,7 +16,7 @@ from backend.handlers.storage_handler import storage_handler
 from backend.handlers.repair_utils import item_name
 from backend.systems.electrical.electrical_system import FissionReactor
 from backend.systems.save.save_manager import save_exists, is_save_dead, load_game
-from config import SHIP_NAME, TERMINAL_CONTENT_PATH
+from config import TERMINAL_CONTENT_PATH
 
 
 game_bp = Blueprint("game", __name__)
@@ -44,9 +44,12 @@ def new_game():
     """Start a new game — initialises all state."""
     game_manager.new_game()
     return jsonify({
-        "success":   True,
-        "ship_name": SHIP_NAME,
+        "success": True,
+        "ship_name": game_manager.ship_name,
+        "ship_type": game_manager.ship_type,
         "ship_time": game_manager.get_ship_time(),
+        "ship_location": game_manager.ship_location,
+        "ship_mission": game_manager.ship_mission,
     })
 
 
@@ -95,9 +98,12 @@ def load_game_route():
     active_events = game_manager.event_system.get_active_events()
 
     return jsonify({
-        "success":       True,
-        "ship_name":     SHIP_NAME,
-        "ship_time":     game_manager.get_ship_time(),
+        "success": True,
+        "ship_name": game_manager.ship_name,
+        "ship_type": game_manager.ship_type,
+        "ship_time": game_manager.get_ship_time(),
+        "ship_location": game_manager.ship_location,
+        "ship_mission": game_manager.ship_mission,
         "active_events": active_events,
     })
 

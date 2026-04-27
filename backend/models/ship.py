@@ -23,19 +23,18 @@ class Ship:
     Single source of truth for all rooms and doors.
     """
 
-    def __init__(self, name: str):
-        self.name  = name
+    def __init__(self):
         self.rooms: Dict[str, Room] = {}
         self.doors: List[Door]      = []
 
     @classmethod
-    def load_from_json(cls, name: str, rooms_path: str) -> 'Ship':
+    def load_from_json(cls, rooms_path: str) -> 'Ship':
         """
         Load ship rooms, doors, fixed objects and placed items from JSON files.
         Apply initial state overlay last.
         Returns a fully initialised Ship instance.
         """
-        ship = cls(name)
+        ship = cls()
         ship._load_rooms(rooms_path)
         ship._load_doors()
         ship._load_fixed_objects()
@@ -379,4 +378,4 @@ class Ship:
         return results
 
     def __repr__(self) -> str:
-        return f"<Ship '{self.name}' rooms={len(self.rooms)} doors={len(self.doors)}>"
+        return f"<Ship rooms={len(self.rooms)} doors={len(self.doors)}>"

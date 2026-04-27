@@ -11,16 +11,20 @@ from backend.models.ship import Ship
 from backend.models.player import Player
 from backend.systems.electrical.electrical_system import ElectricalSystem
 from backend.events.event_system import EventSystem
-from config import SHIP_NAME, PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
+from config import PLAYER_NAME, STARTING_ROOM, ROOMS_JSON_PATH, \
                    PLAYER_ITEMS_JSON_PATH, ELECTRICAL_JSON_PATH, SHIP_ITEMS_JSON_PATH, \
-                   CARGO_JSON_PATH, CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH
+                   CARGO_JSON_PATH, CARGO_CONTAINERS_JSON_PATH, PALLET_PLATFORMS_JSON_PATH, \
+                   SHIP_IDENTITY_JSON_PATH, SHIP_STATUS_JSON_PATH
 
 
 class GameManager:
 
     def __init__(self):
         self.initialised  = False
-        self.ship_name    = SHIP_NAME
+        self.ship_name = ''
+        self.ship_type = ''
+        self.ship_location = ''
+        self.ship_mission = ''
         self.chronometer  = None
         self.ship         = None
         self.player       = None
@@ -39,12 +43,14 @@ class GameManager:
         from backend.loaders.item_loader import reset_instance_counters
         reset_instance_counters()
         self.chronometer = Chronometer()
-        self.ship         = Ship.load_from_json(SHIP_NAME, ROOMS_JSON_PATH)
+        self._load_ship_identity()
+        self.ship = Ship.load_from_json(ROOMS_JSON_PATH)
         self.player       = Player(PLAYER_NAME)
         self.current_room = self.ship.get_room(STARTING_ROOM)
         self._load_player_items()
         self._load_storage_facility()
         self._load_cargo()
+        self._load_ship_status()
         self.electrical_system = ElectricalSystem.load_from_json(ELECTRICAL_JSON_PATH)
         self.update_electrical_states()
         self.event_start_minutes = self.chronometer.get_total_minutes()
@@ -141,6 +147,28 @@ class GameManager:
             'containers': _merge(data.get('containers', [])),
             'pallets': _merge(data.get('pallets', [])),
         }
+
+    def _load_ship_identity(self) -> None:
+        """Load ship name and type from ship_identity.json. Fixed — never changes at runtime."""
+        with open(SHIP_IDENTITY_JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        self.ship_name = data.get('ship_name', '')
+        self.ship_type = data.get('ship_type', '')
+
+    def _load_ship_status(self) -> None:
+        """Load ship location and mission from ship_status.json."""
+        with open(SHIP_STATUS_JSON_PATH, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        self.ship_location = data.get('ship_location', '')
+        self.ship_mission = data.get('ship_mission', '')
+
+    def set_location(self, location: str) -> None:
+        """Update ship location at runtime — called when Jack diverts course etc."""
+        self.ship_location = location
+
+    def set_mission(self, mission: str) -> None:
+        """Update ship mission at runtime — called when mission changes."""
+        self.ship_mission = mission
 
     # ── Card access (real inventory checks) ──────────────────
 

@@ -30,6 +30,12 @@ def splash():
     return render_template("splash.html")
 
 
+@app.route("/details")
+def details():
+    """Ship details screen — shown after New Game or Continue, before entering the game."""
+    return render_template("details.html")
+
+
 @app.route("/game")
 def game():
     """Main game screen."""
