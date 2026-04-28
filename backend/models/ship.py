@@ -203,12 +203,12 @@ class Ship:
                 print(f"Warning: ship_items.json references unknown room '{entry['room_id']}'")
                 continue
             for item_entry in entry.get('items', []):
-                item_id, overrides = self._parse_item_entry(item_entry)
-                item = self._make_item(item_id, registry, overrides)
-                if item:
-                    room.floor.append(item)
+                for item_id, overrides in self._parse_item_entries(item_entry):
+                    item = self._make_item(item_id, registry, overrides)
+                    if item:
+                        room.floor.append(item)
 
-        # ── Items inside containers ───────────────────────────
+            # ── Items inside containers ───────────────────────────
         container_index = self._build_container_index()
         for entry in data.get('containers', []):
             container = container_index.get(entry['container_id'])
@@ -216,11 +216,11 @@ class Ship:
                 print(f"Warning: ship_items.json references unknown container '{entry['container_id']}'")
                 continue
             for item_entry in entry.get('items', []):
-                item_id, overrides = self._parse_item_entry(item_entry)
-                item = self._make_item(item_id, registry, overrides)
-                if item:
-                    if not container.add_item(item):
-                        print(f"Warning: '{item_id}' could not fit in '{entry['container_id']}' — over capacity")
+                for item_id, overrides in self._parse_item_entries(item_entry):
+                    item = self._make_item(item_id, registry, overrides)
+                    if item:
+                        if not container.add_item(item):
+                            print(f"Warning: '{item_id}' could not fit in '{entry['container_id']}' — over capacity")
 
         # ── Items on surfaces ─────────────────────────────────
         surface_index = self._build_surface_index()
@@ -230,24 +230,27 @@ class Ship:
                 print(f"Warning: ship_items.json references unknown surface '{entry['surface_id']}'")
                 continue
             for item_entry in entry.get('items', []):
-                item_id, overrides = self._parse_item_entry(item_entry)
-                item = self._make_item(item_id, registry, overrides)
-                if item:
-                    surface.add_item(item)
+                for item_id, overrides in self._parse_item_entries(item_entry):
+                    item = self._make_item(item_id, registry, overrides)
+                    if item:
+                        surface.add_item(item)
 
-    def _parse_item_entry(self, entry) -> tuple[str, dict | None]:
+    def _parse_item_entries(self, entry) -> list[tuple[str, dict | None]]:
         """
         Parse a placement entry from initial_ship_items.json.
-        Supports both simple string and dict formats:
+        Supports three formats:
           "cable_low_voltage"
           {"id": "cable_low_voltage", "length_m": 12.5}
-        Returns (item_id, overrides_dict_or_None).
+          {"id": "cable_low_voltage", "quantity": 3}
+        Returns a list of (item_id, overrides_or_None) tuples — one per instance to place.
+        quantity is consumed here and never passed as an override to the item factory.
         """
         if isinstance(entry, str):
-            return entry, None
+            return [(entry, None)]
         item_id = entry.get('id')
-        overrides = {k: v for k, v in entry.items() if k != 'id'}
-        return item_id, overrides or None
+        quantity = int(entry.get('quantity', 1))
+        overrides = {k: v for k, v in entry.items() if k not in ('id', 'quantity')}
+        return [(item_id, overrides or None)] * quantity
 
     def _make_item(self, item_id: str, registry: dict, overrides: dict = None) -> PortableItem | None:
         """Create a fresh item instance from registry data. Each call returns a unique object.

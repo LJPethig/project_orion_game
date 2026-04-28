@@ -32,7 +32,11 @@
     },
     {
       "room_id": "engineering",
-      "items": ["mag_boots", "mag_boots", "mag_boots"]
+      "items": [
+        {"id": "10a_breaker", "quantity": 2},
+        {"id": "hv_connect_standard", "quantity": 10},
+        "ts1500_door_logic_board"
+      ]
     }
   ],
   "containers": [
@@ -42,11 +46,18 @@
     },
     {
       "container_id": "engineering_tool_storage_cabinet",
-      "items": ["scan_tool", "wrench", "wrench", "power_screwdriver_set"]
+      "items": [
+        "scan_tool",
+        "power_screwdriver_set",
+        "ts1500_door_logic_board",
+        "electrical_service_kit",
+        {"id": "mag_boots", "quantity": 2},
+        {"id": "hv_connect_standard", "quantity": 10}
+      ]
     },
     {
       "container_id": "engineering_large_parts_storage_unit",
-      "items": ["electrical_service_kit", "10a_breaker", "10a_breaker", "10a_breaker", "10a_breaker"]
+      "items": ["electrical_service_kit", "10a_breaker"]
     },
     {
       "container_id": "cargo_bay_eva_equipment_locker",
@@ -60,7 +71,11 @@
     },
     {
       "surface_id": "engineering_workbench",
-      "items": ["cable_optical", "cable_hv_standard", "cable_hv_standard", "hv_service_kit"]
+      "items": [
+        "electrical_service_kit",
+        {"id": "socket_set_small", "quantity": 3},
+        {"id": "4_pin_interconnect", "quantity": 6}
+      ]
     },
     {
       "surface_id": "captains_quarters_metal_desk",
