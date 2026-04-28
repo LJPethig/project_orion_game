@@ -74,7 +74,7 @@ function renderDescription(room, powerStateChanged = false, reactorStateChanged 
                 state.contents.forEach((item, idx) => {
                     const itemSpan = document.createElement('span');
                     itemSpan.className = 'layer2-item';
-                    itemSpan.textContent = item.name;
+                    itemSpan.textContent = item.quantity > 1 ? `${item.name} x${item.quantity}` : item.name;
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
                         clearResponse();
@@ -116,7 +116,7 @@ function renderDescription(room, powerStateChanged = false, reactorStateChanged 
                 state.contents.forEach((item, idx) => {
                     const itemSpan = document.createElement('span');
                     itemSpan.className = 'layer3-item';
-                    itemSpan.textContent = item.name;
+                    itemSpan.textContent = item.quantity > 1 ? `${item.name} x${item.quantity}` : item.name;
                     itemSpan.dataset.itemId = item.id;
                     itemSpan.addEventListener('click', () => {
                         clearResponse();
@@ -150,7 +150,7 @@ function renderDescription(room, powerStateChanged = false, reactorStateChanged 
         floorItems.forEach((item, idx) => {
             const itemSpan = document.createElement('span');
             itemSpan.className = 'floor-item';
-            itemSpan.textContent = item.name;
+            itemSpan.textContent = item.quantity > 1 ? `${item.name} x${item.quantity}` : item.name;
             itemSpan.dataset.itemId = item.id;
             itemSpan.addEventListener('click', () => {
                 clearResponse();

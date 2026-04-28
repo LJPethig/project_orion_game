@@ -192,6 +192,24 @@ def get_inventory():
         'carried':       carried,
     })
 
+def _group_items(items: list) -> list:
+    """
+    Group a list of item dicts by display name, keeping a representative instance_id.
+    Used for container contents, surface contents, and floor items.
+    """
+    groups = {}
+    for item in items:
+        name = item['name']
+        if name not in groups:
+            groups[name] = {
+                'id':          item['id'],
+                'instance_id': item['instance_id'],
+                'name':        name,
+                'quantity':    0,
+            }
+        groups[name]['quantity'] += 1
+    return list(groups.values())
+
 def _get_reactor_state(es) -> str:
     """Return current main reactor state: 'online', 'offline', or 'ejected'."""
     if not es:
@@ -229,16 +247,16 @@ def _build_room_data(room) -> dict:
                 'name': obj.name,
                 'is_open': obj.is_open,
                 'has_items': len(obj.contents) > 0,
-                'contents': [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in
-                             obj.contents] if obj.is_open else [],
+                'contents': _group_items([{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in
+                                          obj.contents]) if obj.is_open else [],
             }
         elif isinstance(obj, Surface):
             object_states[obj.id] = {
                 'type': 'surface',
                 'name': obj.name,
                 'has_items': obj.has_items,
-                'contents': [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in
-                             obj.contents],
+                'contents': _group_items(
+                    [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in obj.contents]),
             }
         elif isinstance(obj, Terminal):
             object_states[obj.id] = {
@@ -254,7 +272,8 @@ def _build_room_data(room) -> dict:
             }
 
     # Floor items — only populated when items are present
-    floor_items = [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in room.floor]
+    floor_items = _group_items(
+        [{'id': i.id, 'instance_id': i.instance_id, 'name': i.display_name()} for i in room.floor])
 
     room_powered = es.check_room_power(room.id) if es else True
 

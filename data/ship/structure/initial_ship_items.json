@@ -29,6 +29,10 @@
     {
       "room_id": "cargo_bay",
       "items": ["mag_boots"]
+    },
+    {
+      "room_id": "engineering",
+      "items": ["mag_boots", "mag_boots", "mag_boots"]
     }
   ],
   "containers": [
@@ -38,11 +42,11 @@
     },
     {
       "container_id": "engineering_tool_storage_cabinet",
-      "items": ["scan_tool", "wrench", "power_screwdriver_set"]
+      "items": ["scan_tool", "wrench", "wrench", "power_screwdriver_set"]
     },
     {
       "container_id": "engineering_large_parts_storage_unit",
-      "items": ["electrical_service_kit", "10a_breaker"]
+      "items": ["electrical_service_kit", "10a_breaker", "10a_breaker", "10a_breaker", "10a_breaker"]
     },
     {
       "container_id": "cargo_bay_eva_equipment_locker",
@@ -53,6 +57,10 @@
     {
       "surface_id": "cargo_bay_shelving_unit",
       "items": ["cable_optical", "cable_hv_standard", "hv_service_kit"]
+    },
+    {
+      "surface_id": "engineering_workbench",
+      "items": ["cable_optical", "cable_hv_standard", "cable_hv_standard", "hv_service_kit"]
     },
     {
       "surface_id": "captains_quarters_metal_desk",
