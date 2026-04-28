@@ -166,7 +166,7 @@
     "mass": 0.2
   },
   {
-    "id": "10A_breaker",
+    "id": "10a_breaker",
     "name": "10 Amp Circuit Breaker",
     "manufacturer": "OmniSwitch Dynamics",
     "model": "OMD-BKC-10A",
@@ -175,7 +175,7 @@
     "mass": 0.2
   },
   {
-    "id": "32A_breaker",
+    "id": "32a_breaker",
     "name": "32 Amp Circuit Breaker",
     "manufacturer": "OmniSwitch Dynamics",
     "model": "OMD-BKC-32A",
@@ -184,7 +184,7 @@
     "mass": 0.2
   },
   {
-    "id": "63A_breaker",
+    "id": "63a_breaker",
     "name": "63 Amp Circuit Breaker",
     "manufacturer": "OmniSwitch Dynamics",
     "model": "OMD-BKC-63A",
@@ -193,7 +193,7 @@
     "mass": 0.2
   },
   {
-    "id": "250A_breaker",
+    "id": "250a_breaker",
     "name": "250 Amp Circuit Breaker",
     "manufacturer": "OmniSwitch Dynamics",
     "model": "OMD-BKC-250A",
@@ -202,7 +202,7 @@
     "mass": 0.3
   },
   {
-    "id": "600A_breaker",
+    "id": "600a_breaker",
     "name": "600 Amp Circuit Breaker",
     "manufacturer": "Harju Elekter Power",
     "model": "EWI-600",
@@ -211,7 +211,7 @@
     "mass": 0.5
   },
   {
-    "id": "1200A_breaker",
+    "id": "1200a_breaker",
     "name": "1200 Amp Circuit Breaker",
     "manufacturer": "Harju Elekter Power",
     "model": "EWI-1200",

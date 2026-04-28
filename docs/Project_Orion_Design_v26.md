@@ -894,12 +894,12 @@ Each junction owns: its incoming cable(s), all outgoing cables to endpoints or t
 ### Circuit breaker sizes
 | Item ID | Rating | Used for |
 |---------|--------|---------|
-| `10A_breaker` | 10A | Small rooms (head, storage) |
-| `32A_breaker` | 32A | Medium rooms |
-| `63A_breaker` | 63A | Sub-panel branch feeds |
-| `250A_breaker` | 250A | Bypass breaker FUS-PRO-00 |
-| `600A_breaker` | 600A | Sub-light engine FUS-PRO-01 |
-| `1200A_breaker` | 1200A | FTL engine FUS-PRO-02 |
+| `10a_breaker` | 10A | Small rooms (head, storage) |
+| `32a_breaker` | 32A | Medium rooms |
+| `63a_breaker` | 63A | Sub-panel branch feeds |
+| `250a_breaker` | 250A | Bypass breaker FUS-PRO-00 |
+| `600a_breaker` | 600A | Sub-light engine FUS-PRO-01 |
+| `1200a_breaker` | 1200A | FTL engine FUS-PRO-02 |
 
 ### Junction images
 | Image | When shown |
