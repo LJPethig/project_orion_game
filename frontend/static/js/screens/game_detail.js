@@ -40,8 +40,7 @@ function setValue(id, text) {
 
 // ── Prompt timing ────────────────────────────────────────────
 // CSS animates opacity 0 → 1 over 1.5s with a 5s delay.
-// After the animation completes (6.5s total) we swap to the blink class
-// and enable input.
+// After the animation completes (6.5s total) we enable input.
 
 function schedulePrompt() {
     const FADE_DELAY_MS    = 5000;   // matches animation-delay in CSS
