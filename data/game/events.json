@@ -11,6 +11,7 @@
       "event_resolved_log_detail": "Impact event faults repaired.",
       "affected_components": [
         { "id": "FUS-REC-02", "mode": "tripped" },
+        "PWC-REC-02",
         "recreation_room_main_corridor_panel_rec"
       ],
       "random_component_pool": [],

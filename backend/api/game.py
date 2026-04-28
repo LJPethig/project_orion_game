@@ -163,21 +163,26 @@ def get_inventory():
             'equip_slot': getattr(item, 'equip_slot', None) if item else None,
         }
 
-    # Loose carried items
-    carried = [
-        {
-            'id': item.id,
-            'instance_id': item.instance_id,
-            'name': item.display_name(),
-            'description': item.description,
-            'mass': item.mass,
-            'manufacturer': getattr(item, 'manufacturer', None),
-            'model': getattr(item, 'model', None),
-            'image': f"images/items/{item.id}.png",
-            'equip_slot': getattr(item, 'equip_slot', None),
-        }
-        for item in player.get_inventory()
-    ]
+    # Loose carried items — grouped by display_name, same logic as storage manifest
+    _carried_groups = {}
+    for item in player.get_inventory():
+        name = item.display_name()
+        if name not in _carried_groups:
+            _carried_groups[name] = {
+                'id': item.id,
+                'instance_id': item.instance_id,
+                'name': name,
+                'description': item.description,
+                'mass': item.mass,
+                'manufacturer': getattr(item, 'manufacturer', None),
+                'model': getattr(item, 'model', None),
+                'image': f"images/items/{item.id}.png",
+                'equip_slot': getattr(item, 'equip_slot', None),
+                'quantity': 0,
+            }
+        _carried_groups[name]['quantity'] += 1
+
+    carried = list(_carried_groups.values())
 
     return jsonify({
         'player_name':   player.name,

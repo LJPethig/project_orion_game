@@ -80,9 +80,11 @@ function _buildInventoryPanel(data) {
     });
 
     // ── Carried items ─────────────────────────────────────────
+    const totalCarried = data.carried.reduce((sum, item) => sum + item.quantity, 0);
     const carriedLabel = document.createElement('div');
     carriedLabel.className = 'inv-section-label';
-    carriedLabel.textContent = `CARRYING  (${data.carried.length})`;
+    carriedLabel.style.cssText = 'display:flex; justify-content:space-between;';
+    carriedLabel.innerHTML = `<span>CARRYING  (${totalCarried})</span><span>Qty</span>`;
     listCol.appendChild(carriedLabel);
 
     if (data.carried.length === 0) {
@@ -102,12 +104,12 @@ function _buildInventoryPanel(data) {
             nameSpan.className   = 'inv-item-name';
             nameSpan.textContent = item.name;
 
-            const massSpan = document.createElement('span');
-            massSpan.className   = 'inv-item-mass';
-            massSpan.textContent = `${item.mass.toFixed(1)} kg`;
+            const qtySpan = document.createElement('span');
+            qtySpan.className   = 'inv-item-mass';
+            qtySpan.textContent = item.quantity;
 
             row.appendChild(nameSpan);
-            row.appendChild(massSpan);
+            row.appendChild(qtySpan);
             row.addEventListener('click', () => _selectItem(idx));
             listCol.appendChild(row);
         });
@@ -166,6 +168,14 @@ function _renderDetail(col, entry) {
         mfr.className   = 'inv-detail-manufacturer';
         mfr.textContent = item.manufacturer;
         col.appendChild(mfr);
+    }
+
+    // Mass (per unit)
+    if (item.mass !== null && item.mass !== undefined) {
+        const mass = document.createElement('div');
+        mass.className   = 'inv-detail-mass';
+        mass.textContent = `${item.mass.toFixed(1)} kg`;
+        col.appendChild(mass);
     }
 
     // Description
