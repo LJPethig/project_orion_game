@@ -5,46 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Orion</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game_detail.css') }}">
 </head>
 <body>
 
-    <div id="details-screen">
+    <div id="game-detail-screen">
 
-        <div id="details-overlay"></div>
+        <div id="game-detail-overlay"></div>
 
-        <div id="details-content">
+        <div id="game-detail-content">
 
-            <div id="details-data">
+            <div id="game-detail-data">
 
-                <div class="details-row">
-                    <span class="details-label">VESSEL</span>
-                    <span class="details-value" id="det-ship-name">—</span>
+                <div class="game-detail-row">
+                    <span class="game-detail-label">VESSEL</span>
+                    <span class="game-detail-value" id="det-ship-name">—</span>
                 </div>
 
-                <div class="details-row">
-                    <span class="details-label">LOCATION</span>
-                    <span class="details-value" id="det-location">—</span>
+                <div class="game-detail-row">
+                    <span class="game-detail-label">LOCATION</span>
+                    <span class="game-detail-value" id="det-location">—</span>
                 </div>
 
-                <div class="details-row">
-                    <span class="details-label">CONTRACT</span>
-                    <span class="details-value" id="det-mission">—</span>
+                <div class="game-detail-row">
+                    <span class="game-detail-label">CONTRACT</span>
+                    <span class="game-detail-value" id="det-mission">—</span>
                 </div>
 
-                <div class="details-row">
-                    <span class="details-label">SHIP TIME</span>
-                    <span class="details-value" id="det-ship-time">—</span>
+                <div class="game-detail-row">
+                    <span class="game-detail-label">SHIP TIME</span>
+                    <span class="game-detail-value" id="det-ship-time">—</span>
                 </div>
 
             </div>
 
-            <div id="details-prompt">— PRESS ANY KEY TO CONTINUE —</div>
+            <div id="game-detail-prompt">— PRESS ANY KEY TO CONTINUE —</div>
 
         </div>
 
     </div>
 
-    <script src="{{ url_for('static', filename='js/screens/details.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/screens/game_detail.js') }}"></script>
 </body>
 </html>

@@ -57,7 +57,7 @@ def new_game():
 def save_status():
     """
     Return whether a save file exists and whether it carries the dead flag.
-    Called by the splash screen on load to decide which buttons to show.
+    Called by the start-screen screen on load to decide which buttons to show.
     """
     exists = save_exists()
     dead   = is_save_dead() if exists else False
@@ -74,11 +74,11 @@ def load_game_route():
     Sequence: new_game() to build clean state, then load_game() to overlay save data.
     Returns active events so the frontend can restore the event strip immediately.
 
-    On dead save: returns {'dead': True} — the splash screen must intercept this
+    On dead save: returns {'dead': True} — the start-screen screen must intercept this
     and show the death screen instead of redirecting to the game.
 
     TODO — Death screen behaviour (implement when death screen UI is built):
-      - Splash screen receives {'dead': True} from this endpoint.
+      - start-screen screen receives {'dead': True} from this endpoint.
       - It must NOT redirect to /game.
       - It must show a full-screen death state: black background, red-tinted title,
         message explaining Jack is dead and the save cannot be continued.

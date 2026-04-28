@@ -1,15 +1,15 @@
-// frontend/static/js/screens/splash.js
-// Splash screen — New Game and Continue buttons.
+// frontend/static/js/screens/start_screen.js
+// start_screen screen — New Game and Continue buttons.
 // On load, queries the backend for save status and shows the correct buttons.
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await initSplash();
+    await init_start_screen();
 });
 
 
 // ── Initialise ───────────────────────────────────────────────
 
-async function initSplash() {
+async function init_start_screen() {
     let saveExists = false;
 
     try {
@@ -18,7 +18,7 @@ async function initSplash() {
 
         // TODO — dead save handling (implement when death screen UI is built):
         // If status.dead === true, the player's last save cannot be continued.
-        // The splash screen must:
+        // The start-screen screen must:
         //   1. Show a death screen overlay (black bg, red-tinted title, message
         //      explaining Jack is dead and the save is permanent).
         //   2. Show only a 'New Game' button — no Continue button.
@@ -44,8 +44,8 @@ async function initSplash() {
 // ── UI helpers ───────────────────────────────────────────────
 
 function showButtons(saveExists) {
-    document.getElementById('splash-loading').classList.add('hidden');
-    document.getElementById('splash-buttons').classList.remove('hidden');
+    document.getElementById('start-screen-loading').classList.add('hidden');
+    document.getElementById('start-screen-buttons').classList.remove('hidden');
 
     if (saveExists) {
         document.getElementById('btn-continue').classList.remove('hidden');
@@ -53,7 +53,7 @@ function showButtons(saveExists) {
 }
 
 function fadeOutThen(callback) {
-    const screen = document.getElementById('splash-screen');
+    const screen = document.getElementById('start-screen-screen');
     screen.classList.add('fade-out');
     screen.addEventListener('animationend', callback, { once: true });
 }
@@ -87,13 +87,13 @@ function bindButtons(saveExists) {
 // ── Confirm overwrite panel ──────────────────────────────────
 
 function showConfirm() {
-    document.getElementById('splash-buttons').classList.add('hidden');
-    document.getElementById('splash-confirm').classList.remove('hidden');
+    document.getElementById('start-screen-buttons').classList.add('hidden');
+    document.getElementById('start-screen-confirm').classList.remove('hidden');
 }
 
 function hideConfirm() {
-    document.getElementById('splash-confirm').classList.add('hidden');
-    document.getElementById('splash-buttons').classList.remove('hidden');
+    document.getElementById('start-screen-confirm').classList.add('hidden');
+    document.getElementById('start-screen-buttons').classList.remove('hidden');
 }
 
 
@@ -106,7 +106,7 @@ async function handleContinue() {
         const data = await fetch('/api/game/load', { method: 'POST' }).then(r => r.json());
 
         if (data.dead) {
-            // Should not reach here — initSplash() hides Continue on dead saves.
+            // Should not reach here — init_start-screen() hides Continue on dead saves.
             // Guard in case of a race condition between two browser tabs.
             console.warn('Load returned dead=true — save cannot be continued.');
             location.reload();
@@ -124,7 +124,7 @@ async function handleContinue() {
         // backend and restores the strip immediately — no extra work needed here.
 
         sessionStorage.setItem('orion_game_data', JSON.stringify(data));
-        fadeOutThen(() => { window.location.href = '/details'; });
+        fadeOutThen(() => { window.location.href = '/game_detail'; });
 
     } catch (err) {
         console.error('Error loading game:', err);
@@ -154,7 +154,7 @@ async function handleNewGame(saveExists) {
         }
 
         sessionStorage.setItem('orion_game_data', JSON.stringify(data));
-        fadeOutThen(() => { window.location.href = '/details'; });
+        fadeOutThen(() => { window.location.href = '/game_detail'; });
 
     } catch (err) {
         console.error('Error starting new game:', err);
@@ -166,9 +166,9 @@ async function handleNewGame(saveExists) {
 // ── Button state helpers ─────────────────────────────────────
 
 function disableAllButtons() {
-    document.querySelectorAll('.splash-btn').forEach(b => b.disabled = true);
+    document.querySelectorAll('.start-screen-btn').forEach(b => b.disabled = true);
 }
 
 function enableAllButtons() {
-    document.querySelectorAll('.splash-btn').forEach(b => b.disabled = false);
+    document.querySelectorAll('.start-screen-btn').forEach(b => b.disabled = false);
 }

@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Orion</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/start_screen.css') }}">
 </head>
 <body>
 
-    <div id="splash-screen">
+    <div id="start-screen-screen">
 
-        <div id="splash-overlay"></div>
+        <div id="start-screen-overlay"></div>
 
-        <div id="splash-content">
+        <div id="start-screen-content">
 
-            <h1 id="splash-title">HARROWS VOID</h1>
+            <h1 id="start-screen-title">HARROWS VOID</h1>
 
-            <div id="splash-intro">
+            <div id="start-screen-intro">
                 <p>In the far future humanity has spread across the solar system and beyond.</p>
                 <p>Ruthless corporations dominate for supremacy, controlling all.</p>
                 <p>To them, you are but a number among billions.</p>
@@ -26,20 +26,20 @@
             </div>
 
             <!-- Buttons are hidden until save_status check completes -->
-            <div id="splash-buttons">
-                <button id="btn-continue" class="splash-btn hidden">Continue</button>
-                <button id="btn-new-game" class="splash-btn">New Game</button>
+            <div id="start-screen-buttons">
+                <button id="btn-continue" class="start-screen-btn hidden">Continue</button>
+                <button id="btn-new-game" class="start-screen-btn">New Game</button>
             </div>
 
             <!-- Shown while checking for save file -->
-            <div id="splash-loading">checking...</div>
+            <div id="start-screen-loading">checking...</div>
 
             <!-- Confirm overwrite panel — shown only when New Game would delete a save -->
-            <div id="splash-confirm" class="hidden">
-                <p id="splash-confirm-msg">Starting a new game will permanently delete your current save. This cannot be undone.</p>
-                <div id="splash-confirm-buttons">
-                    <button id="btn-confirm-yes" class="splash-btn splash-btn--danger">Delete Save &amp; Start New Game</button>
-                    <button id="btn-confirm-no"  class="splash-btn">Cancel</button>
+            <div id="start-screen-confirm" class="hidden">
+                <p id="start-screen-confirm-msg">Starting a new game will permanently delete your current save. This cannot be undone.</p>
+                <div id="start-screen-confirm-buttons">
+                    <button id="btn-confirm-yes" class="start-screen-btn start-screen-btn--danger">Delete Save &amp; Start New Game</button>
+                    <button id="btn-confirm-no"  class="start-screen-btn">Cancel</button>
                 </div>
             </div>
 
@@ -47,6 +47,6 @@
 
     </div>
 
-    <script src="{{ url_for('static', filename='js/screens/splash.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/screens/start_screen.js') }}"></script>
 </body>
 </html>

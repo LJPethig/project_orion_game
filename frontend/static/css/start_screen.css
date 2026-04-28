@@ -1,4 +1,4 @@
-/* splash.css — Project Orion splash screen */
+/* start_screen.css — Project Orion start_screen screen */
 
 * {
     margin: 0;
@@ -17,7 +17,7 @@ body {
 
 /* ── Background image ───────────────────────────────────────── */
 
-#splash-screen {
+#start-screen-screen {
     position: relative;
     width: 100vw;
     height: 100vh;
@@ -32,7 +32,7 @@ body {
 
 /* ── Dark overlay ── */
 
-#splash-overlay {
+#start-screen-overlay {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
@@ -41,7 +41,7 @@ body {
 
 /* ── Content sits above overlay ─────────────────────────────── */
 
-#splash-content {
+#start-screen-content {
     position: relative;
     z-index: 10;
     display: grid;
@@ -55,7 +55,7 @@ body {
 
 /* ── Title ──────────────────────────────────────────────────── */
 
-#splash-title {
+#start-screen-title {
     font-family: 'Orbitron', sans-serif;
     font-size: 72px;
     letter-spacing: 8px;
@@ -67,11 +67,11 @@ body {
 
 /* ── Flavour text ───────────────────────────────────────────── */
 
-#splash-intro {
+#start-screen-intro {
     text-align: center;
 }
 
-#splash-intro p {
+#start-screen-intro p {
     font-size: 15px;
     color: #c8f5d0;
     line-height: 2;
@@ -80,7 +80,7 @@ body {
 
 /* ── Prompt ─────────────────────────────────────────────────── */
 
-#splash-prompt {
+#start-screen-prompt {
     font-size: 13px;
     color: #666;
     letter-spacing: 3px;
@@ -95,7 +95,7 @@ body {
 
 /* ── Fade out on click ──────────────────────────────────────── */
 
-#splash-screen.fade-out {
+#start-screen-screen.fade-out {
     animation: fadeOut 0.6s ease-out forwards;
 }
 
@@ -106,8 +106,8 @@ body {
 
 /* ── Buttons ─────────────────────────────────────────────────── */
 
-#splash-buttons,
-#splash-confirm {
+#start-screen-buttons,
+#start-screen-confirm {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -117,7 +117,7 @@ body {
     padding-bottom: 60px;
 }
 
-#splash-confirm-buttons {
+#start-screen-confirm-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -125,7 +125,7 @@ body {
     margin-top: 16px;
 }
 
-#splash-confirm-msg {
+#start-screen-confirm-msg {
     font-size: 13px;
     color: #aaa;
     letter-spacing: 1px;
@@ -134,7 +134,7 @@ body {
     line-height: 1.8;
 }
 
-.splash-btn {
+.start-screen-btn {
     font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-size: 13px;
     letter-spacing: 3px;
@@ -149,27 +149,27 @@ body {
     transition: background 0.15s, color 0.15s;
 }
 
-.splash-btn:hover:not(:disabled) {
+.start-screen-btn:hover:not(:disabled) {
     background: rgba(57, 255, 106, 0.12);
 }
 
-.splash-btn:disabled {
+.start-screen-btn:disabled {
     opacity: 0.4;
     cursor: default;
 }
 
-.splash-btn--danger {
+.start-screen-btn--danger {
     color: #e85050;
     border-color: #e85050;
 }
 
-.splash-btn--danger:hover:not(:disabled) {
+.start-screen-btn--danger:hover:not(:disabled) {
     background: rgba(232, 80, 80, 0.12);
 }
 
 /* ── Loading indicator ───────────────────────────────────────── */
 
-#splash-loading {
+#start-screen-loading {
     font-size: 11px;
     color: #444;
     letter-spacing: 3px;

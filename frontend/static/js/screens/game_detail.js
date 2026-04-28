@@ -1,6 +1,6 @@
-// frontend/static/js/screens/details.js
+// frontend/static/js/screens/game_detail.js
 // Ship details screen — shown after New Game or Continue.
-// Reads game data from sessionStorage (written by splash.js).
+// Reads game data from sessionStorage (written by start-screen.js).
 // Shows ship status, then after 5s fade-in reveals "press any key" prompt.
 // Any keypress or click after the prompt is visible navigates to /game.
 
@@ -70,7 +70,7 @@ function handleInput() {
 }
 
 function navigateToGame() {
-    const screen = document.getElementById('details-screen');
+    const screen = document.getElementById('game-detail-screen');
     screen.classList.add('fade-out');
     screen.addEventListener('animationend', () => {
         sessionStorage.removeItem('orion_game_data');

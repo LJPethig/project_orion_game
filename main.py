@@ -24,15 +24,15 @@ app.register_blueprint(events_bp,   url_prefix="/api/events")
 # ── Page routes ──────────────────────────────────────────────
 
 @app.route("/")
-def splash():
-    """Splash screen — entry point."""
-    return render_template("splash.html")
+def start_screen():
+    """start-screen screen — entry point."""
+    return render_template("start_screen.html")
 
 
-@app.route("/details")
-def details():
+@app.route("/game_detail")
+def game_detail():
     """Ship details screen — shown after New Game or Continue, before entering the game."""
-    return render_template("details.html")
+    return render_template("game_detail.html")
 
 
 @app.route("/game")

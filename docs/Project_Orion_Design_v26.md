@@ -133,11 +133,11 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - Save/load system: full Phase 19.5 implementation — see Section 20 ✅
 - Rest command: `rest` in captain's quarters or rec-room sofa, 8-hour animation, get up / quit choice ✅
 - Rec-room sofa added as second rest location ✅
-- Splash screen: New Game / Continue buttons, two-step confirm before overwriting save ✅
+- start-screen screen: New Game / Continue buttons, two-step confirm before overwriting save ✅
 - Chronometer: tracks elapsed minutes since ship commission date (17-03-2223 13:47) ✅
 
 ### Phase history
-- **Phase 6** — Splash screen + game shell ✅
+- **Phase 6** — start-screen screen + game shell ✅
 - **Phase 7** — Ship + room loading ✅
 - **Phase 8** — Room description rendering ✅
 - **Phase 9** — Movement ✅
@@ -152,7 +152,7 @@ This corporation is the invisible antagonist of the entire game. The player neve
 - **Phase 18** — Full repair system ✅
 - **Post-18** — Diagnosis timing refactor, inventory improvements, floor source, progress counters ✅
 - **Phase 19** — Storage room automated facility + cargo bay manifest system ✅
-- **Phase 19.5** — Save/load system, rest command, splash screen New Game/Continue ✅
+- **Phase 19.5** — Save/load system, rest command, start-screen screen New Game/Continue ✅
 - **Codebase review #1 (early 2026)** — dead code, silent fallbacks, door action logic, input locking, ship log ✅
 - **Electrical expansion** — propulsion bypass, PNL-PRO-MAIN, power tracer, engine fixed objects, SVG map ✅
 - **Event system (bare minimum)** — EventSystem class, impact event, event strip, repairInProgress flag ✅
@@ -235,12 +235,12 @@ project_orion_game/
 │
 ├── frontend/
 │   ├── templates/
-│   │   ├── splash.html            ← New Game / Continue buttons, two-step confirm
+│   │   ├── start-screen.html            ← New Game / Continue buttons, two-step confirm
 │   │   └── game.html
 │   │
 │   └── static/
 │       ├── css/
-│       │   ├── splash.css         ← button styles, hidden utility class
+│       │   ├── start-screen.css         ← button styles, hidden utility class
 │       │   ├── game.css
 │       │   ├── description.css
 │       │   ├── inventory.css
@@ -254,7 +254,7 @@ project_orion_game/
 │       │   │   ├── api.js         ← saveStatus(), loadGame(), getActiveEvents() added
 │       │   │   └── loop.js
 │       │   └── screens/
-│       │       ├── splash.js      ← save_status check, New Game / Continue / confirm flow
+│       │       ├── start-screen.js      ← save_status check, New Game / Continue / confirm flow
 │       │       ├── ui.js          ← setJunctionImage, showJunctionDiagnosisAnimation, showJunctionRepairAnimation
 │       │       ├── commands.js    ← rest handler, get up / quit with save; quit command removed
 │       │       ├── description.js
@@ -927,11 +927,11 @@ On load, `save.json` is tried first. If it cannot be read or fails validation, `
 
 ### Save triggers
 - **Get up after rest** — save fires, ship time advances 8 hours, Jack gets up
-- **Quit after rest** — save fires, ship time advances 8 hours, game exits to splash
+- **Quit after rest** — save fires, ship time advances 8 hours, game exits to start-screen
 
 Rest locations: captain's quarters bunk, rec-room sofa. Hypersleep pod deferred.
 
-### Splash screen
+### start-screen screen
 - **Continue** — calls `/api/game/load`: `new_game()` then `load_game()`, then redirects to game
 - **New Game** (no save) — calls `/api/game/new` directly
 - **New Game** (save exists) — two-step confirm, then `DELETE /api/game/save` followed by `/api/game/new`
@@ -940,7 +940,7 @@ Rest locations: captain's quarters bunk, rec-room sofa. Hypersleep pod deferred.
 ### Death state
 Dead flag written to both save files simultaneously. On next launch, Continue is hidden. Only New Game available.
 
-TODO — death screen UI: when `save_status` returns `dead: true`, splash must show a death screen (black bg, red-tinted title, message explaining Jack is dead). See `load_game_route()` docstring in `game.py`.
+TODO — death screen UI: when `save_status` returns `dead: true`, start-screen must show a death screen (black bg, red-tinted title, message explaining Jack is dead). See `load_game_route()` docstring in `game.py`.
 
 ### Save file format
 JSON. Meta section + all game state. Human-readable — useful during development.
@@ -1017,7 +1017,7 @@ Static data (item registry, room definitions, electrical.json etc.), derived pro
 - **`reactor_offline` monologue** — Jack's reaction to finding the reactor cold. First candidate for monologue JSON system.
 - **Sack barrow** — `PLAYER_MAX_CARRY_MASS` currently 40kg in config.py (temporary testing value). Sack barrow system deferred.
 - **Jury-rigging system** — portable power pack for unpowered fixed objects. Deferred.
-- **Death screen UI** — dead flag infrastructure in place. Splash screen death state UI not yet built.
+- **Death screen UI** — dead flag infrastructure in place. start-screen screen death state UI not yet built.
 - **Door trap — unpowered panel on destination side** — when Jack passes through a closed door, if the destination-side panel is non-functional, the door auto-closes and traps him. Correct behaviour given current logic but creates a potential softlock. No decision made on fix — see Session Notes.
 - **Hypersleep pod** — future rest and save location for long-distance travel. Deferred.
 
@@ -1050,7 +1050,7 @@ Whether to unify these is an open question.
 - ✅ PLAYER_MAX_CARRY_MASS moved to config.py
 - ✅ Save/load system — Phase 19.5 complete and tested
 - ✅ Rest command — captain's quarters and rec-room sofa
-- ✅ Splash screen New Game / Continue buttons
+- ✅ start-screen screen New Game / Continue buttons
 - ✅ Instance ID counter save/restore
 - ✅ Event strip restoration on load
 - ✅ Quit command removed — rest is the only quit point

@@ -578,7 +578,7 @@ def mark_dead() -> None:
     Called when Jack dies. After this, neither save file can be used to continue.
     Both files are read, the dead flag is set, and both are rewritten.
     If a file cannot be read it is written fresh with only the dead flag so the
-    splash screen still detects the death state on next launch.
+    start-screen screen still detects the death state on next launch.
     """
     for path in (SAVE_PATH, SAVE_BACKUP_PATH):
         try:

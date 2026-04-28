@@ -322,7 +322,7 @@ The cargo represents Jack's only negotiating currency. Narrative cargo manifest 
 
 **Hypersleep pod** — used for long-distance travel. Also a natural rest and save point (deferred).
 
-**Death screen UI** — dead flag infrastructure in place. Splash screen death state UI not yet built. See `load_game_route()` docstring in `game.py` for required behaviour.
+**Death screen UI** — dead flag infrastructure in place. start-screen screen death state UI not yet built. See `load_game_route()` docstring in `game.py` for required behaviour.
 
 **Door trap — unpowered panel on destination side** — potential softlock when Jack enters a room with a non-functional panel on the destination side. No decision made on fix. See Session Notes in design doc.
 
