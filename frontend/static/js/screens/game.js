@@ -156,6 +156,12 @@ function updateRoom(room) {
     const imagePath     = `/static/${baseImage}${unpoweredSuffix}${reactorSuffix}${ext}`;
     setRoomImage(imagePath);
 
+    // Hide tooltip on room change — mouseleave won't fire if DOM is replaced while hovering
+    if (roomChanged) {
+        const tooltip = document.getElementById('exit-tooltip');
+        if (tooltip) tooltip.classList.add('hidden');
+    }
+
     renderDescription(room, powerStateChanged, reactorStateChanged);
 
     // Close any open slide panels only on room change
