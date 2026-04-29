@@ -72,12 +72,20 @@ class MovementHandler(BaseHandler):
                 'security_level': panel.security_level.value if panel else 0,
             }
 
-        # ── Closed unlocked door — open, move, close ──────────
+        # ── Closed unlocked door — open, move, close if dest panel is functional ──
         door.open()
         game_manager.set_current_room(exit_data['target'])
         new_room = game_manager.get_current_room()
-        door.close()
+        dest_panel = door.get_panel_for_room(new_room.id)
+        dest_powered = self._check_room_power(new_room.id)
+        dest_panel_ok = dest_powered and (dest_panel is None or not dest_panel.is_broken)
+        if dest_panel_ok:
+            door.close()
+            return self._instant(
+                f"You open the door and enter the {new_room.name}. The door closes behind you.",
+                room_changed=True
+            )
         return self._instant(
-            f"You open the door and enter the {new_room.name}. The door closes behind you.",
+            f"You open the door and enter the {new_room.name}. The door does not autoclose — the access panel on this side is unresponsive.",
             room_changed=True
         )
