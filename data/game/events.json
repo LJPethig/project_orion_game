@@ -12,7 +12,8 @@
       "affected_components": [
         { "id": "FUS-REC-02", "mode": "tripped" },
         "PWC-REC-02",
-        "recreation_room_main_corridor_panel_rec"
+        "recreation_room_main_corridor_panel_rec",
+        "recreation_room_cockpit_panel_rec"
       ],
       "random_component_pool": [],
       "event_effects": [],

@@ -56,7 +56,10 @@ def complete_swipe():
         return jsonify({'error': 'Door not found'}), 400
 
     # Level 3 — prompt for PIN before acting
-    if door.security_level == SecurityLevel.KEYCARD_HIGH_PIN.value:
+    current_room = game_manager.get_current_room()
+    panel = door.get_panel_for_room(current_room.id)
+    level = panel.security_level.value if panel else 0
+    if level == SecurityLevel.KEYCARD_HIGH_PIN.value:
         return jsonify({
             'response':     'Credentials verified. Enter PIN:',
             'action_type':  'pin_required',
@@ -326,7 +329,10 @@ def submit_pin():
     if remaining <= 0:
         door.lock()
         door.pin_attempts = 0
-        game_manager.invalidate_card(door.security_level)
+        current_room = game_manager.get_current_room()
+        panel = door.get_panel_for_room(current_room.id)
+        level = panel.security_level.value if panel else 0
+        game_manager.invalidate_card(level)
         return jsonify({
             'response':         "Incorrect PIN. Card invalidated. Access denied.",
             'action_type':      'instant',

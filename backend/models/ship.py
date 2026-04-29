@@ -100,23 +100,20 @@ class Ship:
                 print(f"Warning: Door {conn['id']} references unknown room(s): {room_a_id}, {room_b_id}")
                 continue
 
-            # ── Resolve panel type and security level ─────────
-            panel_type = conn['panel_type']  # KeyError if missing — intentional
-            type_data = panel_types[panel_type]  # KeyError if unknown type — intentional
-            security_level = type_data['security_level']  # KeyError if missing — intentional
-
             door = Door(
                 door_id=conn['id'],
                 room_a_id=room_a_id,
                 room_b_id=room_b_id,
                 door_open=conn.get('door_open', False),
                 door_locked=conn.get('door_locked', False),
-                panel_type=panel_type,
-                security_level=security_level,
             )
 
             # Create panels and attach to door and room
             for panel_data in conn.get('panel_ids', []):
+                panel_type = panel_data['panel_type']  # KeyError if missing — intentional
+                type_data = panel_types[panel_type]  # KeyError if unknown type — intentional
+                security_level = type_data['security_level']  # KeyError if missing — intentional
+
                 panel = SecurityPanel(
                     panel_id=panel_data['id'],
                     door_id=door.id,

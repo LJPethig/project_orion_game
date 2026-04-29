@@ -53,28 +53,22 @@ class Door:
     """
     A bi-directional door connecting two rooms.
     Tracks open/closed/locked state independently.
-    Each side has its own SecurityPanel.
-    panel_type is the shared hardware type for both panels on this door.
-    security_level is resolved from the type registry at load time.
+    Each side has its own SecurityPanel with its own panel_type and security_level.
     """
 
     def __init__(
-        self,
-        door_id:        str,
-        room_a_id:      str,
-        room_b_id:      str,
-        door_open:      bool,
-        door_locked:    bool,
-        panel_type:     str,
-        security_level: int,
+            self,
+            door_id: str,
+            room_a_id: str,
+            room_b_id: str,
+            door_open: bool,
+            door_locked: bool,
     ):
-        self.id             = door_id
-        self.room_ids       = (room_a_id, room_b_id)
-        self.door_open      = door_open
-        self.door_locked    = door_locked
-        self.panel_type     = panel_type
-        self.security_level = security_level
-        self.pin            = None    # Set by _apply_initial_state if level 3
+        self.id = door_id
+        self.room_ids = (room_a_id, room_b_id)
+        self.door_open = door_open
+        self.door_locked = door_locked
+        self.pin = None  # Set by _apply_initial_state if level 3
 
         # Per-side panels: room_id → SecurityPanel
         self.panels: dict[str, SecurityPanel] = {}

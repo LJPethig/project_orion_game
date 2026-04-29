@@ -547,7 +547,7 @@ class DoorPanelRepairHandler(BaseHandler):
                 'lock_input': False,
                 'room_changed': False,
                 'panel_restored': True,
-                'security_level': door.security_level,
+                'security_level': panel.security_level.value,
                 'door_id': door_id,
                 'resolved_events': resolved_events,
             }

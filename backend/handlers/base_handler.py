@@ -41,10 +41,13 @@ class BaseHandler:
                         return exit_key
         return None
 
-    def _check_card(self, door) -> tuple[bool, str]:
-        """Check if the player has the required card for this door."""
-        level         = door.security_level
-        has_low_card  = game_manager.has_low_sec_card
+    def _check_card(self, door, panel=None) -> tuple[bool, str]:
+        """Check if the player has the required card for this door.
+        panel — the SecurityPanel on the player's side; if provided, security level
+        is read from the panel rather than the door.
+        """
+        level = panel.security_level.value if panel else 0
+        has_low_card = game_manager.has_low_sec_card
         has_high_card = game_manager.has_high_sec_card
 
         if level == SecurityLevel.NONE.value:
@@ -64,35 +67,39 @@ class BaseHandler:
 
         return False, "Access denied."
 
-    def _card_swipe_response(self, door, action: str, pending_move: str = None) -> dict:
+    def _card_swipe_response(self, door, action: str, pending_move: str = None, panel=None) -> dict:
         """
         Build the card_swipe response that triggers the 8s wait.
         action: 'unlock' or 'lock' — tells the swipe endpoint what to do after.
+        panel — the SecurityPanel on the player's side; security level read from panel.
         """
-        needs_pin = door.security_level == SecurityLevel.KEYCARD_HIGH_PIN.value
+        level = panel.security_level.value if panel else 0
+        needs_pin = level == SecurityLevel.KEYCARD_HIGH_PIN.value
         return {
-            'action_type':    'card_swipe',
-            'lock_input':     True,
-            'real_seconds':   CARD_SWIPE_REAL_SECONDS,
-            'room_changed':   False,
-            'door_id':        door.id,
-            'door_action':    action,
-            'needs_pin':      needs_pin,
-            'security_level': door.security_level,
-            'pending_move':   pending_move,
+            'action_type': 'card_swipe',
+            'lock_input': True,
+            'real_seconds': CARD_SWIPE_REAL_SECONDS,
+            'room_changed': False,
+            'door_id': door.id,
+            'door_action': action,
+            'needs_pin': needs_pin,
+            'security_level': level,
+            'pending_move': pending_move,
         }
 
-    def _panel_damaged_response(self, door, target_name: str) -> dict:
+    def _panel_damaged_response(self, door, target_name: str, panel=None) -> dict:
         """
         Return the panel_damaged response — shows damaged panel image persistently,
         same pattern as door_locked. No hint about how to fix it.
+        panel — the SecurityPanel on the player's side; security level read from panel.
         """
+        level = panel.security_level.value if panel else 0
         return {
-            'response':       f"The {target_name} door access panel is damaged and will not respond.",
-            'action_type':    'panel_damaged',
-            'lock_input':     False,
-            'room_changed':   False,
-            'security_level': door.security_level,
+            'response': f"The {target_name} door access panel is damaged and will not respond.",
+            'action_type': 'panel_damaged',
+            'lock_input': False,
+            'room_changed': False,
+            'security_level': level,
         }
 
     def _panel_offline_response(self, door, target_name: str) -> dict:

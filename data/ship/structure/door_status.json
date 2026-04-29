@@ -2,323 +2,163 @@
   "connections": [
     {
       "id": "captains_quarters_main_corridor",
-      "rooms": [
-        "captains_quarters",
-        "main_corridor"
-      ],
+      "rooms": ["captains_quarters", "main_corridor"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "captains_quarters_main_corridor_panel_captains",
-          "side": "captains_quarters"
-        },
-        {
-          "id": "captains_quarters_main_corridor_panel_main",
-          "side": "main_corridor"
-        }
-      ],
-      "panel_type": "smc_ts1500"
+        {"id": "captains_quarters_main_corridor_panel_captains", "side": "captains_quarters", "panel_type": "vesper_ulock"},
+        {"id": "captains_quarters_main_corridor_panel_main", "side": "main_corridor", "panel_type": "smc_ts1500"}
+      ]
     },
     {
       "id": "crew_cabin_main_corridor",
-      "rooms": [
-        "crew_cabin",
-        "main_corridor"
-      ],
+      "rooms": ["crew_cabin", "main_corridor"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "crew_cabin_main_corridor_panel_crew",
-          "side": "crew_cabin"
-        },
-        {
-          "id": "crew_cabin_main_corridor_panel_main",
-          "side": "main_corridor"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "crew_cabin_main_corridor_panel_crew", "side": "crew_cabin", "panel_type": "vesper_ulock"},
+        {"id": "crew_cabin_main_corridor_panel_main", "side": "main_corridor", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "recreation_room_galley",
-      "rooms": [
-        "recreation_room",
-        "galley"
-      ],
+      "rooms": ["recreation_room", "galley"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "recreation_room_galley_panel_rec",
-          "side": "recreation_room"
-        },
-        {
-          "id": "recreation_room_galley_panel_galley",
-          "side": "galley"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "recreation_room_galley_panel_rec", "side": "recreation_room", "panel_type": "vesper_ulock"},
+        {"id": "recreation_room_galley_panel_galley", "side": "galley", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "recreation_room_cockpit",
-      "rooms": [
-        "recreation_room",
-        "cockpit"
-      ],
+      "rooms": ["recreation_room", "cockpit"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "recreation_room_cockpit_panel_rec",
-          "side": "recreation_room"
-        },
-        {
-          "id": "recreation_room_cockpit_panel_cockpit",
-          "side": "cockpit"
-        }
-      ],
-      "panel_type": "smc_ts1500"
+        {"id": "recreation_room_cockpit_panel_rec", "side": "recreation_room", "panel_type": "smc_ts1500"},
+        {"id": "recreation_room_cockpit_panel_cockpit", "side": "cockpit", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "recreation_room_main_corridor",
-      "rooms": [
-        "recreation_room",
-        "main_corridor"
-      ],
+      "rooms": ["recreation_room", "main_corridor"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "recreation_room_main_corridor_panel_rec",
-          "side": "recreation_room"
-        },
-        {
-          "id": "recreation_room_main_corridor_panel_main",
-          "side": "main_corridor"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "recreation_room_main_corridor_panel_rec", "side": "recreation_room", "panel_type": "vesper_ulock"},
+        {"id": "recreation_room_main_corridor_panel_main", "side": "main_corridor", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "recreation_room_med_bay",
-      "rooms": [
-        "recreation_room",
-        "med_bay"
-      ],
+      "rooms": ["recreation_room", "med_bay"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "recreation_room_med_bay_panel_rec",
-          "side": "recreation_room"
-        },
-        {
-          "id": "recreation_room_med_bay_panel_medbay",
-          "side": "med_bay"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "recreation_room_med_bay_panel_rec", "side": "recreation_room", "panel_type": "vesper_ulock"},
+        {"id": "recreation_room_med_bay_panel_medbay", "side": "med_bay", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "recreation_room_storage_room",
-      "rooms": [
-        "recreation_room",
-        "storage_room"
-      ],
+      "rooms": ["recreation_room", "storage_room"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "recreation_room_storage_room_panel_rec",
-          "side": "recreation_room"
-        },
-        {
-          "id": "recreation_room_storage_room_panel_storage",
-          "side": "storage_room"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "recreation_room_storage_room_panel_rec", "side": "recreation_room", "panel_type": "vesper_ulock"},
+        {"id": "recreation_room_storage_room_panel_storage", "side": "storage_room", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "med_bay_hypersleep_chamber",
-      "rooms": [
-        "med_bay",
-        "hypersleep_chamber"
-      ],
+      "rooms": ["med_bay", "hypersleep_chamber"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "med_bay_hypersleep_chamber_panel_medbay",
-          "side": "med_bay"
-        },
-        {
-          "id": "med_bay_hypersleep_chamber_panel_stasis",
-          "side": "hypersleep_chamber"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "med_bay_hypersleep_chamber_panel_medbay", "side": "med_bay", "panel_type": "vesper_ulock"},
+        {"id": "med_bay_hypersleep_chamber_panel_stasis", "side": "hypersleep_chamber", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "main_corridor_sub_corridor",
-      "rooms": [
-        "main_corridor",
-        "sub_corridor"
-      ],
+      "rooms": ["main_corridor", "sub_corridor"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "main_corridor_sub_corridor_panel_main",
-          "side": "main_corridor"
-        },
-        {
-          "id": "main_corridor_sub_corridor_panel_sub",
-          "side": "sub_corridor"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "main_corridor_sub_corridor_panel_main", "side": "main_corridor", "panel_type": "vesper_ulock"},
+        {"id": "main_corridor_sub_corridor_panel_sub", "side": "sub_corridor", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "main_corridor_engineering",
-      "rooms": [
-        "main_corridor",
-        "engineering"
-      ],
+      "rooms": ["main_corridor", "engineering"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "main_corridor_engineering_panel_main",
-          "side": "main_corridor"
-        },
-        {
-          "id": "main_corridor_engineering_panel_eng",
-          "side": "engineering"
-        }
-      ],
-      "panel_type": "smc_ts1500"
+        {"id": "main_corridor_engineering_panel_main", "side": "main_corridor", "panel_type": "smc_ts1500"},
+        {"id": "main_corridor_engineering_panel_eng", "side": "engineering", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "main_corridor_mainframe_room",
-      "rooms": [
-        "main_corridor",
-        "mainframe_room"
-      ],
+      "rooms": ["main_corridor", "mainframe_room"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "main_corridor_mainframe_room_panel_main",
-          "side": "main_corridor"
-        },
-        {
-          "id": "main_corridor_mainframe_room_panel_mainframe",
-          "side": "mainframe_room"
-        }
-      ],
-      "panel_type": "smc_q_emerald"
+        {"id": "main_corridor_mainframe_room_panel_main", "side": "main_corridor", "panel_type": "smc_q_emerald"},
+        {"id": "main_corridor_mainframe_room_panel_mainframe", "side": "mainframe_room", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "sub_corridor_cargo_bay",
-      "rooms": [
-        "sub_corridor",
-        "cargo_bay"
-      ],
+      "rooms": ["sub_corridor", "cargo_bay"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "sub_corridor_cargo_bay_panel_sub",
-          "side": "sub_corridor"
-        },
-        {
-          "id": "sub_corridor_cargo_bay_panel_cargo",
-          "side": "cargo_bay"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "sub_corridor_cargo_bay_panel_sub", "side": "sub_corridor", "panel_type": "vesper_ulock"},
+        {"id": "sub_corridor_cargo_bay_panel_cargo", "side": "cargo_bay", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "sub_corridor_head",
-      "rooms": [
-        "sub_corridor",
-        "head"
-      ],
+      "rooms": ["sub_corridor", "head"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "sub_corridor_head_panel_sub",
-          "side": "sub_corridor"
-        },
-        {
-          "id": "sub_corridor_head_panel_head",
-          "side": "head"
-        }
-      ],
-      "panel_type": "vesper_ulock"
+        {"id": "sub_corridor_head_panel_sub", "side": "sub_corridor", "panel_type": "vesper_ulock"},
+        {"id": "sub_corridor_head_panel_head", "side": "head", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "engineering_life_support",
-      "rooms": [
-        "engineering",
-        "life_support"
-      ],
+      "rooms": ["engineering", "life_support"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "engineering_life_support_panel_eng",
-          "side": "engineering"
-        },
-        {
-          "id": "engineering_life_support_panel_ls",
-          "side": "life_support"
-        }
-      ],
-      "panel_type": "smc_q_emerald"
+        {"id": "engineering_life_support_panel_eng", "side": "engineering", "panel_type": "vesper_ulock"},
+        {"id": "engineering_life_support_panel_ls", "side": "life_support", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "engineering_propulsion_bay",
-      "rooms": [
-        "engineering",
-        "propulsion_bay"
-      ],
+      "rooms": ["engineering", "propulsion_bay"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "engineering_propulsion_bay_panel_eng",
-          "side": "engineering"
-        },
-        {
-          "id": "engineering_propulsion_bay_panel_prop",
-          "side": "propulsion_bay"
-        }
-      ],
-      "panel_type": "smc_q_emerald"
+        {"id": "engineering_propulsion_bay_panel_eng", "side": "engineering", "panel_type": "vesper_ulock"},
+        {"id": "engineering_propulsion_bay_panel_prop", "side": "propulsion_bay", "panel_type": "vesper_ulock"}
+      ]
     },
     {
       "id": "cargo_bay_airlock",
-      "rooms": [
-        "cargo_bay",
-        "airlock"
-      ],
+      "rooms": ["cargo_bay", "airlock"],
       "door_open": true,
       "door_locked": false,
       "panel_ids": [
-        {
-          "id": "cargo_bay_airlock_panel_cargo",
-          "side": "cargo_bay"
-        },
-        {
-          "id": "cargo_bay_airlock_panel_airlock",
-          "side": "airlock"
-        }
-      ],
-      "panel_type": "smc_q_emerald"
+        {"id": "cargo_bay_airlock_panel_cargo", "side": "cargo_bay", "panel_type": "vesper_ulock"},
+        {"id": "cargo_bay_airlock_panel_airlock", "side": "airlock", "panel_type": "vesper_ulock"}
+      ]
     }
   ]
 }

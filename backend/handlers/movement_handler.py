@@ -58,18 +58,18 @@ class MovementHandler(BaseHandler):
             return self._panel_offline_response(door, target_name)
         panel = door.get_panel_for_room(current_room.id)
         if panel and panel.is_broken:
-            return self._panel_damaged_response(door, target_name)
+            return self._panel_damaged_response(door, target_name, panel=panel)
 
         # ── Locked door — show locked image, tell player ──────
         if door.door_locked:
             target_room = game_manager.ship.get_room(exit_data['target'])
             target_name = target_room.name if target_room else exit_data['target']
             return {
-                'response':       f"The door to the {target_name} is locked.",
-                'action_type':    'door_locked',
-                'lock_input':     False,
-                'room_changed':   False,
-                'security_level': door.security_level,
+                'response': f"The door to the {target_name} is locked.",
+                'action_type': 'door_locked',
+                'lock_input': False,
+                'room_changed': False,
+                'security_level': panel.security_level.value if panel else 0,
             }
 
         # ── Closed unlocked door — open, move, close ──────────

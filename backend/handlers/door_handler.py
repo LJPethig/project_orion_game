@@ -40,8 +40,11 @@ class DoorHandler(BaseHandler):
             return self._instant(f"The {target_name} door is already open.")
 
         if door.door_locked:
+            current_room = game_manager.get_current_room()
+            panel = door.get_panel_for_room(current_room.id)
+
             # Level 0 — no card required, unlock and open instantly
-            if door.security_level == SecurityLevel.NONE.value:
+            if panel and panel.security_level == SecurityLevel.NONE:
                 door.unlock()
                 door.open()
                 result = self._instant(f"You open the door to {target_name}.")
@@ -49,10 +52,10 @@ class DoorHandler(BaseHandler):
                 return result
 
             # Level 1+ — card swipe required
-            has_card, card_msg = self._check_card(door)
+            has_card, card_msg = self._check_card(door, panel)
             if not has_card:
                 return self._instant(card_msg)
-            result = self._card_swipe_response(door, action='open', pending_move=None)
+            result = self._card_swipe_response(door, action='open', pending_move=None, panel=panel)
             result['response'] = f"You swipe the access panel to the {target_name}."
             return result
 
@@ -87,8 +90,11 @@ class DoorHandler(BaseHandler):
         if not door.door_locked:
             return self._instant(f"The {target_name} door is not locked.")
 
+        current_room = game_manager.get_current_room()
+        panel = door.get_panel_for_room(current_room.id)
+
         # Level 0 — no card required, unlock and open instantly
-        if door.security_level == SecurityLevel.NONE.value:
+        if panel and panel.security_level == SecurityLevel.NONE:
             door.unlock()
             door.open()
             result = self._instant(f"You unlock and open the door to {target_name}.")
@@ -96,10 +102,10 @@ class DoorHandler(BaseHandler):
             return result
 
         # Level 1+ — card swipe required
-        has_card, card_msg = self._check_card(door)
+        has_card, card_msg = self._check_card(door, panel)
         if not has_card:
             return self._instant(card_msg)
-        result = self._card_swipe_response(door, action='unlock', pending_move=None)
+        result = self._card_swipe_response(door, action='unlock', pending_move=None, panel=panel)
         result['response'] = f"You swipe the access panel to the {target_name}."
         return result
 
@@ -125,18 +131,21 @@ class DoorHandler(BaseHandler):
         if door.door_locked:
             return self._instant(f"The {target_name} door is already locked.")
 
+        current_room = game_manager.get_current_room()
+        panel = door.get_panel_for_room(current_room.id)
+
         # Level 0 — no card required, lock instantly
-        if door.security_level == SecurityLevel.NONE.value:
+        if panel and panel.security_level == SecurityLevel.NONE:
             door.lock()
             result = self._instant(f"You lock the door to {target_name}.")
             result['door_image'] = 'closed'
             return result
 
         # Level 1+ — card swipe required
-        has_card, card_msg = self._check_card(door)
+        has_card, card_msg = self._check_card(door, panel)
         if not has_card:
             return self._instant(card_msg)
-        result = self._card_swipe_response(door, action='lock', pending_move=None)
+        result = self._card_swipe_response(door, action='lock', pending_move=None, panel=panel)
         result['response'] = f"You swipe the access panel to the {target_name}."
         return result
 
@@ -180,7 +189,7 @@ class DoorHandler(BaseHandler):
             return self._panel_offline_response(door, target_name)
         panel = door.get_panel_for_room(current_room.id)
         if panel and panel.is_broken:
-            return self._panel_damaged_response(door, target_name)
+            return self._panel_damaged_response(door, target_name, panel=panel)
         return None
 
     def _get_door(self, target: str):
