@@ -232,10 +232,13 @@ def _build_room_data(room) -> dict:
         powered = True
         if es and door:
             powered = es.check_room_power(room.id)
+        panel = door.get_panel_for_room(room.id) if door else None
+        damaged = panel.is_broken if panel else False
         exits[exit_key] = {
             'label': exit_data.get('label', exit_key),
             'door_state': door.get_state() if door else 'none',
             'panel_powered': powered,
+            'panel_damaged': damaged,
         }
 
     # Object states — containers (open/closed + contents), surfaces (has_items + contents), terminals

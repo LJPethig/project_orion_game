@@ -261,8 +261,10 @@ function setupObjectTooltips(container) {
             const state   = exitData.door_state || 'none';
             const label   = exitData.label || exitKey;
             const powered = exitData.panel_powered !== false;
-            const stateText = powered ? doorStateText(state) : doorStateText(state) + ' — Offline';
-            const stateCol  = powered ? doorStateColour(state) : 'var(--col-alert)';
+            const damaged = exitData.panel_damaged === true;
+            const stateText = (!powered || damaged) ? doorStateText(state) + ' — Offline'
+                            : doorStateText(state);
+            const stateCol  = (!powered || damaged) ? 'var(--col-alert)' : doorStateColour(state);
             tooltip.innerHTML = `
                 <div style="color:var(--col-title)">${label}</div>
                 <div style="color:${stateCol};font-size:11px">${stateText}</div>

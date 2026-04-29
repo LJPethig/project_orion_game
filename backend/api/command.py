@@ -327,7 +327,6 @@ def submit_pin():
     remaining = door.PIN_MAX_ATTEMPTS - door.pin_attempts
 
     if remaining <= 0:
-        door.lock()
         door.pin_attempts = 0
         current_room = game_manager.get_current_room()
         panel = door.get_panel_for_room(current_room.id)
