@@ -61,10 +61,14 @@ class MovementHandler(BaseHandler):
         # ── Closed/locked door — check power then panel damage ──
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
-        if not self._check_room_power(current_room.id):
-            return self._panel_offline_response(door, target_name)
         panel = door.get_panel_for_room(current_room.id)
+        if not self._check_room_power(current_room.id):
+            if panel and panel.panel_type == 'vesper_ulock':
+                return self._emergency_release_prompt_response(door, target_name, reason='offline')
+            return self._panel_offline_response(door, target_name)
         if panel and panel.is_broken:
+            if panel.panel_type == 'vesper_ulock':
+                return self._emergency_release_prompt_response(door, target_name, reason='damaged')
             return self._panel_damaged_response(door, target_name, panel=panel)
 
         # ── Locked door — show locked image, tell player ──────

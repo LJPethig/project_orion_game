@@ -53,6 +53,8 @@ def item_name(item_id: str) -> str:
 
 def component_display_name(component: dict) -> str:
     """Return display name for a profile component, appending length for cable."""
+    if component.get('type') == 'actuator_reset':
+        return 'Emergency release actuator reset'
     name = item_name(component['item_id'])
     if 'length_m' in component:
         return f"{name} ({component['length_m']}m)"

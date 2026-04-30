@@ -284,12 +284,16 @@ def emergency_release_complete():
     if not door:
         return jsonify({'error': 'Door not found'}), 400
 
+    current_room = game_manager.get_current_room()
+    panel = door.get_panel_for_room(current_room.id)
+    if panel:
+        panel.is_broken = True
+
     door.emergency_open()
 
     # Advance ship time — the lever sequence takes a few minutes
     game_manager.advance_time(3)
 
-    current_room = game_manager.get_current_room()
     other_room_id = door.get_other_room_id(current_room.id)
     other_room = game_manager.ship.get_room(other_room_id)
     target_name = other_room.name if other_room else "the door"
