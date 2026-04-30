@@ -206,8 +206,9 @@ def _serialise_doors(game_manager) -> dict:
         panels = {}
         for panel in door.panels.values():
             panels[panel.panel_id] = {
-                'is_broken':           panel.is_broken,
-                'broken_components':   panel.broken_components,
+                'is_broken': panel.is_broken,
+                'is_diagnosed': panel.is_diagnosed,
+                'broken_components': panel.broken_components,
                 'repaired_components': panel.repaired_components,
             }
         doors_data[door_id] = {
@@ -245,8 +246,9 @@ def _restore_doors(game_manager, doors_data: dict) -> None:
                     f"[SaveManager] Panel '{panel_id}' in save file not found on door '{door_id}'. "
                     f"Was door_status.json changed since this save was made?"
                 )
-            panel.is_broken           = panel_state['is_broken']
-            panel.broken_components   = panel_state['broken_components']
+            panel.is_broken = panel_state['is_broken']
+            panel.is_diagnosed = panel_state['is_diagnosed']
+            panel.broken_components = panel_state['broken_components']
             panel.repaired_components = panel_state['repaired_components']
 
 # ── Electrical system serialisation ───────────────────────────

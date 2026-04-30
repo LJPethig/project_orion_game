@@ -16,6 +16,7 @@
         "recreation_room_cockpit_panel_rec"
       ],
       "random_component_pool": [],
+      "random_selection_count": 0,
       "event_effects": [],
       "randomise_damage": false,
       "randomise_time": false

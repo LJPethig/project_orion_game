@@ -45,8 +45,9 @@ class SecurityPanel:
         self.is_broken      = False   # Set by _apply_initial_state if damaged
 
         # ── Repair state ──────────────────────────────────────
-        self.broken_components    = []   # Component item_ids set by scan tool diagnosis
-        self.repaired_components  = []   # Component item_ids successfully replaced
+        self.broken_components = []  # Component item_ids set at break time by event system
+        self.repaired_components = []  # Component item_ids successfully replaced
+        self.is_diagnosed = False  # True once Jack has run diagnosis on this panel
 
 
 class Door:

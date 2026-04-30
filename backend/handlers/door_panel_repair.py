@@ -62,22 +62,23 @@ class DoorPanelRepairHandler(BaseHandler):
         if isinstance(panel, dict):
             return panel  # error or clarification response
 
-        if panel.broken_components:
-            profile     = self._profiles.get(panel.panel_type)
-            fault_names = [
-                component_display_name(next(
-                    comp for comp in profile['components'] if comp['item_id'] == c
-                ))
-                for c in panel.broken_components
-            ]
-            tool_names  = [item_name(t) for t in profile['repair_tools_required']]
+        if panel.is_diagnosed:
+            profile = self._profiles.get(panel.panel_type)
+            fault_names = []
+            for c in panel.broken_components:
+                if c == 'actuator_reset':
+                    fault_names.append('Emergency release actuator reset required')
+                else:
+                    comp = next((x for x in profile['components'] if x.get('item_id') == c), None)
+                    fault_names.append(component_display_name(comp) if comp else c)
+            tool_names = [item_name(t) for t in profile['repair_tools_required']]
             return {
-                'response':     f"The {exit_label} access panel has already been diagnosed.",
-                'action_type':  'repair_message',
-                'lock_input':   False,
+                'response': f"The {exit_label} access panel has already been diagnosed.",
+                'action_type': 'repair_message',
+                'lock_input': False,
                 'room_changed': False,
-                'faults':       fault_names,
-                'tools':        tool_names,
+                'faults': fault_names,
+                'tools': tool_names,
             }
 
         return self._begin_diagnosis(panel, door, exit_label)
@@ -205,26 +206,19 @@ class DoorPanelRepairHandler(BaseHandler):
                 f"Resulting in your immediate dismissal and subsequent punitive damages. \n\n"
             )
 
-        # ── Select broken components and calculate diagnosis time ─────────────
-        # Selection happens here — before the timer starts — so the wait
-        # reflects only what actually failed. A 25% overhead covers panel
-        # access (removing cover, making safe, connecting scan tool).
-        # ±10% jitter prevents the time feeling mechanical.
-        # ── Select random broken components — exclude actuator_reset from random pool ──
-        eligible = [c for c in profile['components'] if c.get('type') != 'actuator_reset']
-        max_failures = min(3, len(eligible))
-        num_failures = random.choices(
-            range(1, max_failures + 1),
-            weights=[60, 30, 10][:max_failures],
-            k=1
-        )[0]
-        broken = random.sample(eligible, num_failures)
-        panel.broken_components = [c['item_id'] for c in broken]
-
-        # ── Inject actuator_reset if door was emergency released ──────────────
-        if door.emergency_released:
-            panel.broken_components.append('actuator_reset')
-
+        # ── Calculate diagnosis time from pre-set broken components ───────────
+        # broken_components are set at break time by the event system.
+        # Diagnosis reveals what is already stored — no selection here.
+        if not panel.broken_components:
+            raise ValueError(
+                f"[DoorPanelRepair] panel '{panel.panel_id}' is_broken=True but broken_components "
+                f"is empty. Components must be set at break time by the event system."
+            )
+        broken = [
+            c for c in profile['components']
+            if c.get('item_id') in panel.broken_components
+               or (c.get('type') == 'actuator_reset' and 'actuator_reset' in panel.broken_components)
+        ]
         component_mins = sum(c['diag_time_mins'] for c in broken)
         access_mins = component_mins * DIAG_ACCESS_OVERHEAD
         jitter = random.uniform(1 - DIAG_TIME_JITTER, 1 + DIAG_TIME_JITTER)
@@ -463,6 +457,9 @@ class DoorPanelRepairHandler(BaseHandler):
             if actuator_entry:
                 broken.append(actuator_entry)
 
+        # ── Mark panel as diagnosed ───────────────────────────
+        panel.is_diagnosed = True
+
         # ── Advance ship time ─────────────────────────────────
         # game_minutes was calculated in _begin_diagnosis and passed back
         # by the frontend unchanged via the diagnose_complete endpoint.
@@ -584,6 +581,7 @@ class DoorPanelRepairHandler(BaseHandler):
             game_manager.delete_tablet_note(panel_id)
 
             panel.is_broken = False
+            panel.is_diagnosed = False
             panel.broken_components = []
             panel.repaired_components = []
 

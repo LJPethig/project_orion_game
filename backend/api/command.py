@@ -288,6 +288,7 @@ def emergency_release_complete():
     panel = door.get_panel_for_room(current_room.id)
     if panel:
         panel.is_broken = True
+        panel.broken_components.append('actuator_reset')
 
     door.emergency_open()
 

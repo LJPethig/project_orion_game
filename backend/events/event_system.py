@@ -13,7 +13,8 @@ Unknown event types or component IDs raise ValueError immediately — bad data i
 """
 
 import json
-from config import EVENTS_JSON_PATH
+import random
+from config import EVENTS_JSON_PATH, REPAIR_PROFILES_PATH
 
 
 class GameEvent:
@@ -36,6 +37,8 @@ class EventSystem:
 
     def __init__(self):
         self._events: list[GameEvent] = []
+        with open(REPAIR_PROFILES_PATH, 'r', encoding='utf-8') as f:
+            self._repair_profiles = json.load(f)
 
     def load_from_json(self) -> None:
         """Load and schedule all events from events.json."""
@@ -53,7 +56,10 @@ class EventSystem:
         Fires due events, applies their effects, returns event dicts for the frontend.
         Each dict contains at minimum: event_id, message.
         """
-        from backend.systems.electrical.electrical_service import break_component
+        # Lazy imports — electrical_service imports game_manager, and game_manager imports EventSystem.
+        # Top-level imports would cause a circular dependency. All three functions are passed as
+        # parameters to _handle_impact_event and _break_component_by_id to avoid repeated lazy imports.
+        from backend.systems.electrical.electrical_service import break_component, trip_component, break_panel_component
         from backend.models.game_manager import game_manager
 
         due = []
@@ -65,7 +71,7 @@ class EventSystem:
             event_type  = event.data.get('type')
 
             if event_type == 'impact_event':
-                self._handle_impact_event(event, break_component, game_manager)
+                self._handle_impact_event(event, break_component, trip_component, break_panel_component, game_manager)
             elif event_type == 'message_event':
                 # Stub — message delivery not yet implemented
                 print(f"[EventSystem] message_event '{event.event_id}' fired — not yet implemented")
@@ -82,9 +88,11 @@ class EventSystem:
 
         return due
 
-    def _handle_impact_event(self, event: GameEvent, break_component, game_manager) -> None:
-        """Break all affected components and write ship log."""
-        from backend.systems.electrical.electrical_service import trip_component, break_panel_component
+    def _handle_impact_event(self, event: GameEvent, break_component, trip_component, break_panel_component,
+                                 game_manager) -> None:
+        """Break all affected components, apply random pool if enabled, write ship log."""
+
+        # ── Fixed affected components ─────────────────────────
         components = event.data.get('affected_components', [])
         for entry in components:
             if isinstance(entry, dict):
@@ -102,6 +110,14 @@ class EventSystem:
                     print(f"[EventSystem] WARNING: {result['error']}")
             else:
                 self._break_component_by_id(component_id, mode, break_component, trip_component, game_manager)
+
+        # ── Random component pool ─────────────────────────────
+        if event.data.get('randomise_damage') and event.data.get('random_component_pool'):
+            pool = event.data['random_component_pool']
+            count = random.randint(1, event.data.get('random_selection_count', 1))
+            count = min(count, len(pool))
+            for component_id in random.sample(pool, count):
+                self._break_component_by_id(component_id, 'damaged', break_component, trip_component, game_manager)
 
         game_manager.add_log_entry({
             'timestamp': game_manager.get_ship_time(),
@@ -137,6 +153,7 @@ class EventSystem:
         panel = panel_index.get(component_id)
         if panel:
             panel.is_broken = True
+            self._select_panel_broken_components(panel)
             return
 
         # ── Not found ─────────────────────────────────────────
@@ -144,6 +161,28 @@ class EventSystem:
             f"[EventSystem] component '{component_id}' not found in any damageable system. "
             f"Check affected_components in events.json."
         )
+
+    def _select_panel_broken_components(self, panel) -> None:
+        """
+        Select random broken components from the panel's repair profile at break time.
+        Excludes actuator_reset — that is only added by emergency release.
+        Stores result on panel.broken_components immediately.
+        """
+        profile = self._repair_profiles.get(panel.panel_type)
+        if not profile:
+            raise ValueError(
+                f"[EventSystem] no repair profile for panel type '{panel.panel_type}'. "
+                f"Check repair_profiles.json."
+            )
+        eligible = [c for c in profile['components'] if c.get('type') != 'actuator_reset']
+        max_failures = min(3, len(eligible))
+        num_failures = random.choices(
+            range(1, max_failures + 1),
+            weights=[60, 30, 10][:max_failures],
+            k=1
+        )[0]
+        broken = random.sample(eligible, num_failures)
+        panel.broken_components = [c['item_id'] for c in broken]
 
     def resolve(self, event_id: str) -> None:
         """Mark an event as resolved — clears the event strip message."""
