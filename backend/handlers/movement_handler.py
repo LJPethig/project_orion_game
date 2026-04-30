@@ -35,8 +35,15 @@ class MovementHandler(BaseHandler):
                 room_changed=True
             )
 
-        # ── Open door — broken panel? Still pass (frozen open) ──
+        # ── Open door — emergency released or broken panel? Still pass ──
         if door.door_open:
+            if door.emergency_released:
+                game_manager.set_current_room(exit_data['target'])
+                new_room = game_manager.get_current_room()
+                return self._instant(
+                    f"You pass through the open door into the {new_room.name}.",
+                    room_changed=True
+                )
             panel = door.get_panel_for_room(current_room.id)
             if panel and panel.is_broken:
                 game_manager.set_current_room(exit_data['target'])

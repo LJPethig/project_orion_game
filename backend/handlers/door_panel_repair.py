@@ -210,15 +210,20 @@ class DoorPanelRepairHandler(BaseHandler):
         # reflects only what actually failed. A 25% overhead covers panel
         # access (removing cover, making safe, connecting scan tool).
         # ±10% jitter prevents the time feeling mechanical.
-        all_components = profile['components']
-        max_failures = min(3, len(all_components))
+        # ── Select random broken components — exclude actuator_reset from random pool ──
+        eligible = [c for c in profile['components'] if c.get('type') != 'actuator_reset']
+        max_failures = min(3, len(eligible))
         num_failures = random.choices(
             range(1, max_failures + 1),
             weights=[60, 30, 10][:max_failures],
             k=1
         )[0]
-        broken = random.sample(all_components, num_failures)
+        broken = random.sample(eligible, num_failures)
         panel.broken_components = [c['item_id'] for c in broken]
+
+        # ── Inject actuator_reset if door was emergency released ──────────────
+        if door.emergency_released:
+            panel.broken_components.append('actuator_reset')
 
         component_mins = sum(c['diag_time_mins'] for c in broken)
         access_mins = component_mins * DIAG_ACCESS_OVERHEAD
@@ -338,32 +343,53 @@ class DoorPanelRepairHandler(BaseHandler):
         if not next_component:
             return self._instant("All diagnosed components have been repaired.")
 
-        next_item_name = item_name(next_component['item_id'])
-        repair_mins    = next_component['repair_time_mins']
-        real_seconds   = calc_repair_real_seconds(repair_mins)
-        remaining      = len(panel.broken_components) - len(panel.repaired_components) - 1
+        repair_mins = next_component['repair_time_mins']
+        real_seconds = calc_repair_real_seconds(repair_mins)
+        remaining = len(panel.broken_components) - len(panel.repaired_components) - 1
 
+        # ── Actuator reset — no parts, special response ───────
+        if next_component.get('type') == 'actuator_reset':
+            return {
+                'response': 'Resetting emergency release mechanism and reconnecting door actuator...',
+                'action_type': 'repair_component',
+                'lock_input': True,
+                'real_seconds': real_seconds,
+                'game_minutes': repair_mins,
+                'room_changed': False,
+                'panel_id': panel.panel_id,
+                'security_level': panel.security_level.value,
+                'door_id': door.id,
+                'exit_label': exit_label,
+                'component_id': 'actuator_reset',
+                'components_remaining': remaining,
+            }
+
+        next_item_name = item_name(next_component['item_id'])
         return {
-            'response':             f"Replacing {next_item_name}...",
-            'action_type':          'repair_component',
-            'lock_input':           True,
-            'real_seconds':         real_seconds,
-            'game_minutes':         repair_mins,
-            'room_changed':         False,
-            'panel_id':             panel.panel_id,
-            'security_level':       panel.security_level.value,
-            'door_id':              door.id,
-            'exit_label':           exit_label,
-            'component_id':         next_component['item_id'],
+            'response': f"Replacing {next_item_name}...",
+            'action_type': 'repair_component',
+            'lock_input': True,
+            'real_seconds': real_seconds,
+            'game_minutes': repair_mins,
+            'room_changed': False,
+            'panel_id': panel.panel_id,
+            'security_level': panel.security_level.value,
+            'door_id': door.id,
+            'exit_label': exit_label,
+            'component_id': next_component['item_id'],
             'components_remaining': remaining,
         }
 
     def _get_next_component(self, panel, profile) -> dict | None:
         """Return the profile entry for the next unrepaired broken component."""
         for component in profile['components']:
-            item_id = component['item_id']
-            if item_id in panel.broken_components and item_id not in panel.repaired_components:
-                return component
+            if component.get('type') == 'actuator_reset':
+                if 'actuator_reset' in panel.broken_components and 'actuator_reset' not in panel.repaired_components:
+                    return component
+            else:
+                item_id = component['item_id']
+                if item_id in panel.broken_components and item_id not in panel.repaired_components:
+                    return component
         return None
 
     def _check_all_parts(self, panel, profile) -> list:
@@ -375,6 +401,8 @@ class DoorPanelRepairHandler(BaseHandler):
         inventory = game_manager.player.get_inventory()
 
         for component in profile['components']:
+            if component.get('type') == 'actuator_reset':
+                continue  # No parts required for actuator reset
             item_id = component['item_id']
             if item_id not in panel.broken_components:
                 continue
@@ -429,7 +457,11 @@ class DoorPanelRepairHandler(BaseHandler):
         # ── Broken components already set in _begin_diagnosis ─────────────────
         # Reconstruct broken list from panel state for response building.
         all_components = profile['components']
-        broken = [c for c in all_components if c['item_id'] in panel.broken_components]
+        broken = [c for c in all_components if c.get('item_id') in panel.broken_components]
+        if 'actuator_reset' in panel.broken_components:
+            actuator_entry = next((c for c in all_components if c.get('type') == 'actuator_reset'), None)
+            if actuator_entry:
+                broken.append(actuator_entry)
 
         # ── Advance ship time ─────────────────────────────────
         # game_minutes was calculated in _begin_diagnosis and passed back
@@ -439,7 +471,12 @@ class DoorPanelRepairHandler(BaseHandler):
 
         # ── Build response ────────────────────────────────────
         panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
-        fault_names = [component_display_name(c) for c in broken]
+        fault_names = []
+        for c in broken:
+            if c.get('type') == 'actuator_reset':
+                fault_names.append('Emergency release actuator reset required')
+            else:
+                fault_names.append(component_display_name(c))
         duration = format_duration(total_diag_mins)
 
         # Check what the player is missing for the repair
@@ -499,32 +536,43 @@ class DoorPanelRepairHandler(BaseHandler):
         if not panel:
             return {'error': 'Panel not found'}
 
-        profile   = self._profiles.get(panel.panel_type)
-        component = next((c for c in profile['components'] if c['item_id'] == component_id), None)
+        profile = self._profiles.get(panel.panel_type)
+
+        # ── Resolve component — actuator_reset has no item_id ─
+        if component_id == 'actuator_reset':
+            component = next((c for c in profile['components'] if c.get('type') == 'actuator_reset'), None)
+        else:
+            component = next((c for c in profile['components'] if c.get('item_id') == component_id), None)
+
         if not component:
             return {'error': f"Component '{component_id}' not in profile"}
 
-        # ── Consume parts from inventory ──────────────────────
-        self._consume_parts(component)
+        # ── Consume parts from inventory (not for actuator_reset) ─
+        if component_id != 'actuator_reset':
+            self._consume_parts(component)
 
         # ── Mark component repaired ───────────────────────────
         panel.repaired_components.append(component_id)
         game_manager.advance_time(component['repair_time_mins'])
 
-        repaired_item_name = item_name(component_id)
+        repaired_item_name = 'Emergency release actuator' if component_id == 'actuator_reset' else item_name(
+            component_id)
 
         # ── Check if all broken components are repaired ───────
         if set(panel.repaired_components) == set(panel.broken_components):
             # TODO: post-repair failure roll — always succeeds for now
             # ── Write ship log, delete tablet note ────────────
-            # Capture components before clearing panel state
             panel_model = self._panel_types.get(panel.panel_type, {}).get('model', panel.panel_type)
             current_room = game_manager.get_current_room()
             location_str = f"Location: {current_room.name}  |  {exit_label} door panel  {panel_model}"
-            components_str = ', '.join(item_name(c) for c in panel.broken_components)
+            components_str = ', '.join(
+                'actuator reset' if c == 'actuator_reset' else item_name(c)
+                for c in panel.broken_components
+            )
             total_repair_mins = sum(
                 c['repair_time_mins'] for c in profile['components']
-                if c['item_id'] in panel.broken_components
+                if c.get('item_id') in panel.broken_components
+                or (c.get('type') == 'actuator_reset' and 'actuator_reset' in panel.broken_components)
             )
             repair_duration = format_duration(total_repair_mins)
             game_manager.add_log_entry({
@@ -538,6 +586,10 @@ class DoorPanelRepairHandler(BaseHandler):
             panel.is_broken = False
             panel.broken_components = []
             panel.repaired_components = []
+
+            # ── Clear emergency_released if actuator was reset ─
+            if 'actuator_reset' in panel.repaired_components or door.emergency_released:
+                door.emergency_released = False
 
             resolved_events = game_manager.event_system.check_event_resolution(game_manager)
 

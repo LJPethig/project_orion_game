@@ -114,6 +114,37 @@ class BaseHandler:
             'room_changed': False,
         }
 
+    def _emergency_release_prompt_response(self, door, target_name: str, reason: str) -> dict:
+        """
+        Return the emergency release prompt response.
+        Shown when a vesper_ulock panel is offline or damaged.
+        reason: 'offline' or 'damaged' — used to build the flavour message.
+        Frontend displays Yes/No choice to activate emergency release.
+        """
+        state = door.get_state()
+        if reason == 'offline':
+            situation = f"The {target_name} door access panel is unresponsive — it looks like it's offline."
+        else:
+            situation = f"The {target_name} door access panel is damaged and will not respond."
+        return {
+            'response': f"{situation} The door is currently {state}. An emergency mechanical release is available — activate?",
+            'action_type': 'emergency_release_prompt',
+            'lock_input': False,
+            'room_changed': False,
+            'door_id': door.id,
+            'door_state': state,
+            'target_name': target_name,
+        }
+
+    def _emergency_released_response(self, target_name: str) -> dict:
+        """
+        Return the response when a door is already emergency released and
+        Jack tries to close or lock it.
+        """
+        return self._instant(
+            f"The {target_name} door actuator is disconnected — the door cannot be operated until the release mechanism is reset."
+        )
+
     def _check_room_power(self, room_id: str) -> bool:
         """Check if a room has power via the electrical system."""
         es = game_manager.electrical_system

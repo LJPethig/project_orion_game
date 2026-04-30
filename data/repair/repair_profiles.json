@@ -8,7 +8,8 @@
       {"item_id": "power_regulator",           "qty": 1,          "diag_time_mins": 12,  "repair_time_mins": 20},
       {"item_id": "4_pin_interconnect",        "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
       {"item_id": "12_pin_interconnect",       "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
-      {"item_id": "cable_low_voltage",          "length_m": 0.5,   "diag_time_mins": 5,  "repair_time_mins": 10}
+      {"item_id": "cable_low_voltage",          "length_m": 0.5,   "diag_time_mins": 5,  "repair_time_mins": 10},
+      {"type": "actuator_reset",                                     "diag_time_mins": 0,  "repair_time_mins": 70}
     ]
   },
   "smc_ts1500": {

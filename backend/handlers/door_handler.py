@@ -32,7 +32,7 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
-        panel_response = self._check_panel(door, target_name)
+        panel_response = self._check_panel(door, target_name, allow_emergency=True)
         if panel_response:
             return panel_response
 
@@ -80,7 +80,7 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
-        panel_response = self._check_panel(door, target_name)
+        panel_response = self._check_panel(door, target_name, allow_emergency=True)
         if panel_response:
             return panel_response
 
@@ -124,6 +124,9 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        if door.emergency_released:
+            return self._emergency_released_response(target_name)
+
         panel_response = self._check_panel(door, target_name)
         if panel_response:
             return panel_response
@@ -164,6 +167,9 @@ class DoorHandler(BaseHandler):
         target_room = game_manager.ship.get_room(exit_data['target'])
         target_name = target_room.name if target_room else exit_data['target']
 
+        if door.emergency_released:
+            return self._emergency_released_response(target_name)
+
         panel_response = self._check_panel(door, target_name)
         if panel_response:
             return panel_response
@@ -179,17 +185,27 @@ class DoorHandler(BaseHandler):
         result['door_image'] = 'closed'
         return result
 
-    def _check_panel(self, door, target_name: str) -> dict | None:
+    def _check_panel(self, door, target_name: str, allow_emergency: bool = False) -> dict | None:
         """
         Return an error response if the panel on the player's side is broken
         or the room has no power. Returns None if operational.
+        allow_emergency — only True for open and unlock commands.
+        When True and panel is vesper_ulock, returns emergency release prompt.
         """
         current_room = game_manager.get_current_room()
-        if not self._check_room_power(current_room.id):
-            return self._panel_offline_response(door, target_name)
         panel = door.get_panel_for_room(current_room.id)
+        powered = self._check_room_power(current_room.id)
+
+        if not powered:
+            if allow_emergency and panel and panel.panel_type == 'vesper_ulock':
+                return self._emergency_release_prompt_response(door, target_name, reason='offline')
+            return self._panel_offline_response(door, target_name)
+
         if panel and panel.is_broken:
+            if allow_emergency and panel.panel_type == 'vesper_ulock':
+                return self._emergency_release_prompt_response(door, target_name, reason='damaged')
             return self._panel_damaged_response(door, target_name, panel=panel)
+
         return None
 
     def _get_door(self, target: str):

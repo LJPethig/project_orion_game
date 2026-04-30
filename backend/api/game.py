@@ -233,7 +233,7 @@ def _build_room_data(room) -> dict:
         if es and door:
             powered = es.check_room_power(room.id)
         panel = door.get_panel_for_room(room.id) if door else None
-        damaged = panel.is_broken if panel else False
+        damaged = (panel.is_broken if panel else False) or (door.emergency_released if door else False)
         exits[exit_key] = {
             'label': exit_data.get('label', exit_key),
             'door_state': door.get_state() if door else 'none',

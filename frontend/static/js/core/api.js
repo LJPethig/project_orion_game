@@ -142,6 +142,15 @@ const API = {
         return r.json();
     },
 
+    async completeEmergencyRelease(door_id) {
+        const r = await fetch('/api/command/emergency_release_complete', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ door_id }),
+        });
+        return r.json();
+    },
+
     async getInventory() {
         const r = await fetch('/api/game/inventory');
         return r.json();

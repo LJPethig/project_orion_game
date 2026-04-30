@@ -211,9 +211,10 @@ def _serialise_doors(game_manager) -> dict:
                 'repaired_components': panel.repaired_components,
             }
         doors_data[door_id] = {
-            'door_open':   door.door_open,
+            'door_open': door.door_open,
             'door_locked': door.door_locked,
-            'panels':      panels,
+            'emergency_released': door.emergency_released,
+            'panels': panels,
         }
     return doors_data
 
@@ -229,8 +230,9 @@ def _restore_doors(game_manager, doors_data: dict) -> None:
                 f"[SaveManager] Door '{door_id}' in save file not found in ship. "
                 f"Was door_status.json changed since this save was made?"
             )
-        door.door_open   = door_state['door_open']
+        door.door_open = door_state['door_open']
         door.door_locked = door_state['door_locked']
+        door.emergency_released = door_state['emergency_released']
 
         for panel_id, panel_state in door_state.get('panels', {}).items():
             # Find the panel by panel_id across all sides of this door

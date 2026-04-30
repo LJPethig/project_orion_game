@@ -77,6 +77,9 @@ class Door:
         self.pin_attempts: int = 0
         self.PIN_MAX_ATTEMPTS: int = 3
 
+        # Emergency release state — set when mechanical lever release is activated
+        self.emergency_released: bool = False
+
     def get_other_room_id(self, current_room_id: str) -> Optional[str]:
         """Return the room ID on the other side of this door."""
         if current_room_id == self.room_ids[0]:
@@ -102,14 +105,26 @@ class Door:
         if not self.door_locked:
             self.door_open = True
 
+    def emergency_open(self) -> None:
+        """Force door open via mechanical emergency release lever.
+        Disconnects the actuator — door cannot be closed or locked until repaired.
+        """
+        self.emergency_released = True
+        self.door_locked = False
+        self.door_open = True
+
     def close(self) -> None:
-        """Close the door."""
+        """Close the door — blocked if actuator is disconnected."""
+        if self.emergency_released:
+            return
         self.door_open = False
 
     def lock(self) -> None:
-        """Lock the door — also closes it."""
+        """Lock the door — blocked if actuator is disconnected."""
+        if self.emergency_released:
+            return
         self.door_locked = True
-        self.door_open   = False
+        self.door_open = False
 
     def unlock(self) -> None:
         """Unlock the door — does not open it."""

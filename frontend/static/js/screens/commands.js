@@ -114,6 +114,36 @@ function handleResult(result) {
         return;
     }
 
+    // ── Emergency release prompt — Yes/No choice ──────────
+    if (result.action_type === 'emergency_release_prompt') {
+        const container = document.createElement('div');
+        container.className = 'clarification-options';
+        ['Yes', 'No'].forEach((label, i) => {
+            const span = document.createElement('span');
+            span.className   = 'clarification-option';
+            span.textContent = label;
+            span.addEventListener('click', () => {
+                clearResponse();
+                if (i === 0) {
+                    // Activate emergency release — 5s lever animation
+                    appendResponse('You locate the emergency release lever below the panel. Following the instructions, you work it free from its flush position, then turn it repeatedly. It is stiff — this takes some effort...');
+                    showRepairAnimation(5);
+                    Loop.lockInput(5, async () => {
+                        hideRepairAnimation();
+                        const releaseResult = await API.completeEmergencyRelease(result.door_id);
+                        clearResponse();
+                        handleResult(releaseResult);
+                    });
+                }
+                document.getElementById('command-input').focus();
+            });
+            container.appendChild(span);
+            if (i === 0) container.appendChild(document.createTextNode(' | '));
+        });
+        document.getElementById('response-content').appendChild(container);
+        return;
+    }
+
 
     // ── Elec diagnose panel — lock input, wait, call elec_diagnose_complete ──
     if (result.action_type === 'elec_diagnose_panel') {
@@ -289,6 +319,14 @@ function handleResult(result) {
         if (panel) panel.classList.add('open');
         if (tab)   tab.classList.add('active');
         openDatapadPanel();
+        return;
+    }
+
+    // ── Emergency release complete — door slams open ──────
+    if (result.action_type === 'emergency_release_complete') {
+        setDoorImage('open');
+        refreshDescription();
+        Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
         return;
     }
 

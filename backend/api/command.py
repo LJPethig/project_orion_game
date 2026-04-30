@@ -268,6 +268,40 @@ def elec_repair_next():
     result['ship_time'] = game_manager.get_ship_time()
     return jsonify(result)
 
+@command_bp.route('/emergency_release_complete', methods=['POST'])
+def emergency_release_complete():
+    """
+    Called by frontend after the 5s emergency release lever animation completes.
+    Sets door.emergency_released, forces door open, advances ship time.
+    """
+    if not game_manager.initialised:
+        return jsonify({'error': 'Game not initialised'}), 400
+
+    data = request.get_json()
+    door_id = data.get('door_id')
+    door = game_manager.ship.get_door_by_id(door_id)
+
+    if not door:
+        return jsonify({'error': 'Door not found'}), 400
+
+    door.emergency_open()
+
+    # Advance ship time — the lever sequence takes a few minutes
+    game_manager.advance_time(3)
+
+    current_room = game_manager.get_current_room()
+    other_room_id = door.get_other_room_id(current_room.id)
+    other_room = game_manager.ship.get_room(other_room_id)
+    target_name = other_room.name if other_room else "the door"
+
+    return jsonify({
+        'response': f"You wrench the emergency release lever free and turn it repeatedly. With a heavy thud the door to {target_name} slams open violently. The actuator is now disconnected — the door cannot be closed until the release mechanism is reset.",
+        'action_type': 'emergency_release_complete',
+        'lock_input': False,
+        'room_changed': False,
+        'door_image': 'open',
+        'ship_time': game_manager.get_ship_time(),
+    })
 
 @command_bp.route('/rest_complete', methods=['POST'])
 def rest_complete():
