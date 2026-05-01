@@ -289,6 +289,10 @@ def emergency_release_complete():
     if panel:
         panel.is_broken = True
         panel.broken_components.append('actuator_reset')
+        # If actuator_reset is the only fault, Jack can see the lever state —
+        # no diagnosis needed. Mark as diagnosed immediately.
+        if panel.broken_components == ['actuator_reset']:
+            panel.is_diagnosed = True
 
     door.emergency_open()
 

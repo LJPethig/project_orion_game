@@ -3,9 +3,13 @@
     "id_card_high_sec",
     "personal_atm_monitor",
     "hv_logic_board",
-    "cable_hv_standard"
-
-
+    "cable_hv_standard",
+    "wrench_set",
+    "power_screwdriver_set",
+    "electrical_service_kit",
+    "hv_service_kit",
+    "scan_tool",
+    "socket_set_small"
   ],
   "equipped": {
     "body":  "stasis_garment",

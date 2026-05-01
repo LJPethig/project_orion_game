@@ -9,7 +9,7 @@
       {"item_id": "4_pin_interconnect",        "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
       {"item_id": "12_pin_interconnect",       "qty": 1,          "diag_time_mins": 5,  "repair_time_mins": 10},
       {"item_id": "cable_low_voltage",          "length_m": 0.5,   "diag_time_mins": 5,  "repair_time_mins": 10},
-      {"type": "actuator_reset",                                     "diag_time_mins": 0,  "repair_time_mins": 70}
+      {"type": "actuator_reset", "diag_time_mins": 0,  "repair_time_mins": 70, "repair_tools_override": ["scan_tool", "power_screwdriver_set", "wrench_set"]}
     ]
   },
   "smc_ts1500": {

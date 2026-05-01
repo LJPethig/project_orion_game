@@ -63,6 +63,12 @@ class DoorPanelRepairHandler(BaseHandler):
             return panel  # error or clarification response
 
         if panel.is_diagnosed:
+            # Actuator reset only — Jack can see the lever, no full diagnosis needed
+            if panel.broken_components == ['actuator_reset']:
+                return self._instant(
+                    f"You can see the {exit_label} door emergency release lever has been activated. "
+                    f"The mechanism needs resetting before the door can be operated."
+                )
             profile = self._profiles.get(panel.panel_type)
             fault_names = []
             for c in panel.broken_components:
@@ -313,8 +319,27 @@ class DoorPanelRepairHandler(BaseHandler):
         if not profile:
             return self._instant(f"No repair profile found for panel type '{panel.panel_type}'.")
 
-        # ── Check repair tools ────────────────────────────────
-        missing_tools = [item_name(t) for t in check_tools(profile['repair_tools_required'], game_manager.player)]
+        # ── Check repair tools — actuator_reset may override profile tools ────
+        # If only actuator_reset remains: use its repair_tools_override exclusively.
+        # If electronic components also remain: union of profile tools + override.
+        remaining_components = [
+            c for c in profile['components']
+            if (c.get('item_id') in panel.broken_components or
+                (c.get('type') == 'actuator_reset' and 'actuator_reset' in panel.broken_components))
+               and (c.get('item_id') not in panel.repaired_components
+                    and not ('actuator_reset' in panel.repaired_components and c.get('type') == 'actuator_reset'))
+        ]
+        actuator = next((c for c in remaining_components if c.get('type') == 'actuator_reset'), None)
+        has_electronic = any(c for c in remaining_components if c.get('type') != 'actuator_reset')
+
+        if actuator and not has_electronic and actuator.get('repair_tools_override'):
+            effective_tools = list(actuator['repair_tools_override'])
+        elif actuator and has_electronic and actuator.get('repair_tools_override'):
+            effective_tools = list(set(profile['repair_tools_required']) | set(actuator['repair_tools_override']))
+        else:
+            effective_tools = profile['repair_tools_required']
+
+        missing_tools = [item_name(t) for t in check_tools(effective_tools, game_manager.player)]
 
         # ── Check parts across all remaining components ───────
         missing_parts = self._check_all_parts(panel, profile)
