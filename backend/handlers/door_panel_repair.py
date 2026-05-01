@@ -107,6 +107,12 @@ class DoorPanelRepairHandler(BaseHandler):
                 f"to determine any required repairs."
             )
 
+            # ── Check room power — cannot repair without power ────
+        if game_manager.electrical_system and not game_manager.electrical_system.check_room_power(current_room.id):
+            return self._instant(
+                f"The {exit_label} access panel has no power — repairs cannot be carried out until power is restored."
+            )
+
         return self.begin_next_repair(panel, door, exit_label)
 
     def _resolve_target(self, args: str, broken: list, verb: str):

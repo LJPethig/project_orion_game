@@ -97,6 +97,24 @@ function hideScanAnimation() {
     if (el) el.remove();
 }
 
+// ── Emergency door release animation ─────────────────────────────────────────
+
+function showLeverAnimation(realSeconds) {
+    const content = document.getElementById('response-content');
+    const el      = document.createElement('div');
+    el.id         = 'repair-animation';
+    el.className  = 'scan-animation';
+    el.innerHTML  = `
+        <span>ACTIVATING EMERGENCY RELEASE</span>
+        <div class="scan-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <span id="scan-progress" class="scan-progress">0%</span>
+    `;
+    content.appendChild(el);
+    _startProgressCounter(realSeconds, 'scan-progress');
+}
+
 // ── Repair animation ─────────────────────────────────────────
 
 function showRepairAnimation(realSeconds) {

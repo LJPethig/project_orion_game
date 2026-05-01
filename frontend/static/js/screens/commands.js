@@ -127,7 +127,7 @@ function handleResult(result) {
                 if (i === 0) {
                     // Activate emergency release — 5s lever animation
                     appendResponse('You locate the emergency release lever below the panel. Following the instructions, you work it free from its flush position, then turn it repeatedly. It is stiff — this takes some effort...');
-                    showRepairAnimation(5);
+                    showLeverAnimation(5);
                     Loop.lockInput(5, async () => {
                         hideRepairAnimation();
                         const releaseResult = await API.completeEmergencyRelease(result.door_id);
