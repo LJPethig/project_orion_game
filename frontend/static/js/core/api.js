@@ -142,11 +142,11 @@ const API = {
         return r.json();
     },
 
-    async completeEmergencyRelease(door_id) {
+    async completeEmergencyRelease(door_id, pending_move) {
         const r = await fetch('/api/command/emergency_release_complete', {
             method:  'POST',
             headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ door_id }),
+            body:    JSON.stringify({ door_id, pending_move }),
         });
         return r.json();
     },

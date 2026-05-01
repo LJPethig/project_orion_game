@@ -134,6 +134,7 @@ class BaseHandler:
             'door_id': door.id,
             'door_state': state,
             'target_name': target_name,
+            'pending_move': False,
         }
 
     def _emergency_released_response(self, target_name: str) -> dict:

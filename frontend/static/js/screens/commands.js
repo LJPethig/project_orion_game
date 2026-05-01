@@ -126,11 +126,11 @@ function handleResult(result) {
                 clearResponse();
                 if (i === 0) {
                     // Activate emergency release — 5s lever animation
-                    appendResponse('You locate the emergency release lever below the panel. Following the instructions, you work it free from its flush position, then turn it repeatedly. It is stiff — this takes some effort...');
+                    appendResponse('You locate the emergency release lever below the access panel. You release it from the flush position, then turn it repeatedly. It is stiff — this takes some effort...');
                     showLeverAnimation(5);
                     Loop.lockInput(5, async () => {
                         hideRepairAnimation();
-                        const releaseResult = await API.completeEmergencyRelease(result.door_id);
+                        const releaseResult = await API.completeEmergencyRelease(result.door_id, result.pending_move || false);
                         clearResponse();
                         handleResult(releaseResult);
                     });
@@ -324,9 +324,13 @@ function handleResult(result) {
 
     // ── Emergency release complete — door slams open ──────
     if (result.action_type === 'emergency_release_complete') {
-        setDoorImage('open');
-        refreshDescription();
-        Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
+        if (result.room_changed) {
+            updateRoom(result.room);
+        } else {
+            setDoorImage('open');
+            refreshDescription();
+            Loop.lockInput(CONSTANTS.DOOR_IMAGE_DISPLAY_MS / 1000, () => loadRoom());
+        }
         return;
     }
 

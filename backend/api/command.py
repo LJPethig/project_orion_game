@@ -279,6 +279,7 @@ def emergency_release_complete():
 
     data = request.get_json()
     door_id = data.get('door_id')
+    pending_move = data.get('pending_move', False)
     door = game_manager.ship.get_door_by_id(door_id)
 
     if not door:
@@ -303,8 +304,27 @@ def emergency_release_complete():
     other_room = game_manager.ship.get_room(other_room_id)
     target_name = other_room.name if other_room else "the door"
 
+    response_text = (
+        f"Finally after several turns of the lever, each one harder that the last there is a loud crack, and the door to "
+        f"the {target_name} slams open violently. The actuator is now disconnected — the door is jammed in the open position "
+        f"until the release mechanism can be reset."
+    )
+
+    # ── If triggered by movement command — move Jack through the door ─
+    if pending_move:
+        game_manager.set_current_room(other_room_id)
+        new_room = game_manager.get_current_room()
+        return jsonify({
+            'response': response_text,
+            'action_type': 'emergency_release_complete',
+            'lock_input': False,
+            'room_changed': True,
+            'room': _build_room_data(new_room),
+            'ship_time': game_manager.get_ship_time(),
+        })
+
     return jsonify({
-        'response': f"You wrench the emergency release lever free and turn it repeatedly. With a heavy thud the door to {target_name} slams open violently. The actuator is now disconnected — the door cannot be closed until the release mechanism is reset.",
+        'response': response_text,
         'action_type': 'emergency_release_complete',
         'lock_input': False,
         'room_changed': False,
