@@ -19,7 +19,7 @@ from backend.loaders.item_loader import (
     get_instance_counters,
     restore_instance_counters,
 )
-from backend.models.interactable import StorageUnit, Surface
+from backend.models.interactable import StorageUnit, Surface, PowerJunction
 from backend.systems.electrical.electrical_system import FissionReactor, BackupBattery
 
 
@@ -123,10 +123,20 @@ def _serialise_rooms(game_manager) -> dict:
                     'contents': [_serialise_item(i) for i in obj.contents],
                 }
 
+        # Junction repair state
+        junctions = {}
+        for obj in room.objects:
+            if isinstance(obj, PowerJunction):
+                junctions[obj.id] = {
+                    'broken_components': obj.broken_components,
+                    'repaired_components': obj.repaired_components,
+                }
+
         rooms_data[room_id] = {
             'floor': floor,
             'containers': containers,
             'surfaces': surfaces,
+            'junctions': junctions,
         }
 
     return {
@@ -192,6 +202,12 @@ def _restore_rooms(game_manager, rooms_data: dict) -> None:
                         item = _restore_item(item_data)
                         obj.contents.append(item)
                         obj.current_mass += item.mass
+
+            elif isinstance(obj, PowerJunction):
+                junction_data = room_state.get('junctions', {}).get(obj.id)
+                if junction_data:
+                    obj.broken_components = junction_data['broken_components']
+                    obj.repaired_components = junction_data['repaired_components']
 
 # ── Door serialisation ────────────────────────────────────────
 
