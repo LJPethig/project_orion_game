@@ -148,12 +148,17 @@ function updateRoom(room) {
     currentReactorState  = room.reactor_state || 'online';
 
     // Select room image based on power and reactor state
-    const baseImage     = room.background_image.replace(/(\.[^.]+)$/, '');
-    const ext           = room.background_image.match(/(\.[^.]+)$/)?.[1] || '.png';
-    const reactorOff    = currentReactorState === 'offline' || currentReactorState === 'ejected';
-    const unpoweredSuffix = currentRoomPowered ? '' : '_unpowered';
-    const reactorSuffix   = reactorOff ? '_reactor_off' : '';
-    const imagePath     = `/static/${baseImage}${unpoweredSuffix}${reactorSuffix}${ext}`;
+    const reactorOff = currentReactorState === 'offline' || currentReactorState === 'ejected';
+    const images     = room.images || {};
+    let imageKey     = 'default';
+    if (!currentRoomPowered && reactorOff && images.unpowered_reactor_off) {
+        imageKey = 'unpowered_reactor_off';
+    } else if (!currentRoomPowered && images.unpowered) {
+        imageKey = 'unpowered';
+    } else if (reactorOff && images.reactor_off) {
+        imageKey = 'reactor_off';
+    }
+    const imagePath = `/static/${images[imageKey] || images.default}`;
     setRoomImage(imagePath);
 
     // Hide tooltip on room change — mouseleave won't fire if DOM is replaced while hovering

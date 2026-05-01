@@ -15,24 +15,24 @@ class Room:
     """
 
     def __init__(
-        self,
-        room_id:            str,
-        name:               str,
-        description:        List[str],
-        background_image:   str,
-        exits:              Dict[str, Dict[str, Any]],
-        dimensions_m:       dict,
-        target_temperature: float = 21.5,
+            self,
+            room_id: str,
+            name: str,
+            description: List[str],
+            images: dict,
+            exits: Dict[str, Dict[str, Any]],
+            dimensions_m: dict,
+            target_temperature: float = 21.5,
     ):
-        self.id                 = room_id
-        self.name               = name
-        self.description        = description
+        self.id = room_id
+        self.name = name
+        self.description = description
         self.description_powered = []
         self.description_unpowered = []
         self.description_reactor_online = []
         self.description_reactor_offline = []
         self.description_reactor_ejected = []
-        self.background_image   = background_image
+        self.images = images
         self.exits              = exits
         self.dimensions_m, self.volume_m3 = self._validate_and_compute_volume(
             dimensions_m, room_id

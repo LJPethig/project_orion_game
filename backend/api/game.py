@@ -293,7 +293,7 @@ def _build_room_data(room) -> dict:
         'description_reactor_ejected': room.description_reactor_ejected,
         'reactor_state': reactor_state,
         'room_powered': room_powered,
-        'background_image': room.background_image,
+        'images': room.images,
         'exits': exits,
         'object_states': object_states,
         'floor_items': floor_items,

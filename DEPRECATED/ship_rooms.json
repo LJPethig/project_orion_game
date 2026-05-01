@@ -25,10 +25,7 @@
       "crew_cabin_storage_locker",
       "crew_cabin_small_desk"
     ],
-    "images": {
-      "default":   "images/rooms/crew_cabin.png",
-      "unpowered": "images/rooms/crew_cabin_unpowered.png"
-    }
+    "background_image": "images/rooms/crew_cabin.png"
   },
   {
     "id": "captains_quarters",
@@ -61,10 +58,7 @@
       "captains_quarters_metal_desk",
       "captains_quarters_long_shelf"
     ],
-    "images": {
-      "default":   "images/rooms/captains_quarters.png",
-      "unpowered": "images/rooms/captains_quarters_unpowered.png"
-    }
+    "background_image": "images/rooms/captains_quarters.png"
   },
   {
     "id": "head",
@@ -93,10 +87,7 @@
     "fixed_objects": [
       "head_small_cabinet"
     ],
-    "images": {
-      "default":   "images/rooms/head.png",
-      "unpowered": "images/rooms/head_unpowered.png"
-    }
+    "background_image": "images/rooms/head.png"
   },
   {
     "id": "galley",
@@ -126,10 +117,7 @@
     "fixed_objects": [
       "galley_small_table"
     ],
-    "images": {
-      "default":   "images/rooms/galley.png",
-      "unpowered": "images/rooms/galley_unpowered.png"
-    }
+    "background_image": "images/rooms/galley.png"
   },
   {
     "id": "recreation_room",
@@ -195,10 +183,7 @@
       "recreation_room_shelving_unit",
       "recreation_room_power_junction"
     ],
-    "images": {
-      "default":   "images/rooms/recreation.png",
-      "unpowered": "images/rooms/recreation_unpowered.png"
-    }
+    "background_image": "images/rooms/recreation.png"
   },
   {
     "id": "cockpit",
@@ -227,10 +212,7 @@
     "fixed_objects": [
       "cockpit_navigation_terminal"
     ],
-    "images": {
-      "default":   "images/rooms/cockpit.png",
-      "unpowered": "images/rooms/cockpit_unpowered.png"
-    }
+    "background_image": "images/rooms/cockpit.png"
   },
   {
     "id": "storage_room",
@@ -260,10 +242,7 @@
       "storage_room_inventory_terminal",
       "storage_room_metal_bench"
     ],
-    "images": {
-      "default":   "images/rooms/storage.png",
-      "unpowered": "images/rooms/storage_unpowered.png"
-    }
+    "background_image": "images/rooms/storage.png"
   },
   {
     "id": "hypersleep_chamber",
@@ -291,10 +270,7 @@
       }
     },
     "fixed_objects": [],
-    "images": {
-      "default":   "images/rooms/hypersleep.png",
-      "unpowered": "images/rooms/hypersleep_unpowered.png"
-    }
+    "background_image": "images/rooms/hypersleep.png"
   },
   {
     "id": "med_bay",
@@ -335,10 +311,7 @@
       "med_bay_large_medical_cabinet",
       "med_bay_small_shelf"
     ],
-    "images": {
-      "default":   "images/rooms/med_bay.png",
-      "unpowered": "images/rooms/med_bay_unpowered.png"
-    }
+    "background_image": "images/rooms/med_bay.png"
   },
   {
     "id": "main_corridor",
@@ -404,10 +377,7 @@
       }
     },
     "fixed_objects": [],
-    "images": {
-      "default":   "images/rooms/main_corridor.png",
-      "unpowered": "images/rooms/main_corridor_unpowered.png"
-    }
+    "background_image": "images/rooms/main_corridor.png"
   },
   {
     "id": "mainframe_room",
@@ -435,10 +405,7 @@
     "fixed_objects": [
       "mainframe_access_terminal"
     ],
-    "images": {
-      "default":   "images/rooms/mainframe_room.png",
-      "unpowered": "images/rooms/mainframe_room_unpowered.png"
-    }
+    "background_image": "images/rooms/mainframe_room.png"
   },
   {
     "id": "sub_corridor",
@@ -486,37 +453,34 @@
       }
     },
     "fixed_objects": [],
-    "images": {
-      "default":   "images/rooms/sub_corridor.png",
-      "unpowered": "images/rooms/sub_corridor_unpowered.png"
-    }
+    "background_image": "images/rooms/sub_corridor.png"
   },
   {
     "id": "engineering",
     "name": "Engineering Bay",
     "target_temperature": "hot",
     "description": [
-      "~The reactor dominates the centre of the room — a thick cylinder of dark metal and crystalline alumina rising from the grating deck, cooling pipes rise organically from beneath the floor to mate with the reactor base.~",
-      "^power_state^",
-      "@reactor_state@",
-      "The *Propulsion Bay* is through the forward bulkhead. The *Main Corridor* is through the aft door. A small hatch on the port side leads to *Life Support*.",
-      "A #Workbench# runs along the port bulkhead beside a %Large Parts Storage Unit% and a worn %Tool Storage Cabinet%. The !Engineering Terminal! is mounted on the starboard bulkhead. A ?Power Junction? is bolted to the aft bulkhead beside the main corridor door."
-    ],
-    "description_powered": [
-      "Four overhead spotlights cast a warm amber light across the room. The engineering display flickers through various power profiles, several lit buttons pulse rhythmically but out of time."
-    ],
-    "description_unpowered": [
-      "The overhead spotlights are dead. The terminal screen that once provided valuable reactor data lies dormant. Emergency luminescent markers provide only a bare minimum of green light."
-    ],
-    "description_reactor_online": [
-      "A deep blue glow pulses within the crystalline casing. The air carries the faint metallic tang of working machinery. The reactor hums at the edge of perception — not loud, but constant. 25 kilowatts keeping everything alive."
-    ],
-    "description_reactor_offline": [
-      "The casing is dark, the blue glow gone. The reactor is cold and silent."
-    ],
-    "description_reactor_ejected": [
-      "The reactor shell stands where the core used to be. Through the crystalline casing, that once pulsed with the blue glow of contained fission, only the blackness of the void remains. The core is gone — somewhere behind the ship, tumbling into the dark. The shell will hold, it was built to contain something far worse than vacuum. But there is no coming back from this without finding a port."
-    ],
+    "~The reactor dominates the centre of the room — a thick cylinder of dark metal and crystalline alumina rising from the grating deck, cooling pipes rise organically from beneath the floor to mate with the reactor base.~",
+    "^power_state^",
+    "@reactor_state@",
+    "The *Propulsion Bay* is through the forward bulkhead. The *Main Corridor* is through the aft door. A small hatch on the port side leads to *Life Support*.",
+    "A #Workbench# runs along the port bulkhead beside a %Large Parts Storage Unit% and a worn %Tool Storage Cabinet%. The !Engineering Terminal! is mounted on the starboard bulkhead. A ?Power Junction? is bolted to the aft bulkhead beside the main corridor door."
+  ],
+  "description_powered": [
+    "Four overhead spotlights cast a warm amber light across the room. The engineering display flickers through various power profiles, several lit buttons pulse rhythmically but out of time."
+  ],
+  "description_unpowered": [
+    "The overhead spotlights are dead. The terminal screen that once provided valuable reactor data lies dormant. Emergency luminescent markers provide only a bare minimum of green light."
+  ],
+  "description_reactor_online": [
+    "A deep blue glow pulses within the crystalline casing. The air carries the faint metallic tang of working machinery. The reactor hums at the edge of perception — not loud, but constant. 25 kilowatts keeping everything alive."
+  ],
+  "description_reactor_offline": [
+    "The casing is dark, the blue glow gone. The reactor is cold and silent."
+  ],
+  "description_reactor_ejected": [
+    "The reactor shell stands where the core used to be. Through the crystalline casing, that once pulsed with the blue glow of contained fission, only the blackness of the void remains. The core is gone — somewhere behind the ship, tumbling into the dark. The shell will hold, it was built to contain something far worse than vacuum. But there is no coming back from this without finding a port."
+  ],
     "dimensions_m": {
       "length": 7.5,
       "width": 6.0,
@@ -556,12 +520,7 @@
       "engineering_workbench",
       "engineering_power_junction"
     ],
-    "images": {
-      "default":               "images/rooms/engineering.png",
-      "unpowered":             "images/rooms/engineering_unpowered.png",
-      "reactor_off":           "images/rooms/engineering_reactor_off.png",
-      "unpowered_reactor_off": "images/rooms/engineering_unpowered_reactor_off.png"
-    }
+    "background_image": "images/rooms/engineering.png"
   },
   {
     "id": "propulsion_bay",
@@ -591,12 +550,7 @@
       "propulsion_bay_sublight_engine",
       "propulsion_bay_ftl_engine"
     ],
-    "images": {
-      "default":               "images/rooms/propulsion_bay.png",
-      "unpowered":             "images/rooms/propulsion_bay_unpowered.png",
-      "reactor_off":           "images/rooms/propulsion_bay_reactor_off.png",
-      "unpowered_reactor_off": "images/rooms/propulsion_bay_unpowered_reactor_off.png"
-    }
+    "background_image": "images/rooms/propulsion_bay.png"
   },
   {
     "id": "life_support",
@@ -623,10 +577,7 @@
       }
     },
     "fixed_objects": [],
-    "images": {
-      "default":   "images/rooms/life_support.png",
-      "unpowered": "images/rooms/life_support_unpowered.png"
-    }
+    "background_image": "images/rooms/life_support.png"
   },
   {
     "id": "airlock",
@@ -653,10 +604,7 @@
       }
     },
     "fixed_objects": [],
-    "images": {
-      "default":   "images/rooms/airlock.png",
-      "unpowered": "images/rooms/airlock_unpowered.png"
-    }
+    "background_image": "images/rooms/airlock.png"
   },
   {
     "id": "cargo_bay",
@@ -697,9 +645,6 @@
       "cargo_bay_large_cabinet",
       "cargo_bay_shelving_unit"
     ],
-    "images": {
-      "default":   "images/rooms/cargo_bay.png",
-      "unpowered": "images/rooms/cargo_bay_unpowered.png"
-    }
+    "background_image": "images/rooms/cargo_bay.png"
   }
 ]

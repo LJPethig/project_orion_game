@@ -56,7 +56,7 @@ class Ship:
                 room_id=room_id,
                 name=room_data['name'],
                 description=room_data['description'],
-                background_image=room_data.get('background_image', ''),
+                images=room_data.get('images', {}),
                 exits=room_data.get('exits', {}),
                 dimensions_m=room_data['dimensions_m'],
                 target_temperature=target_temp,
